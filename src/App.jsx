@@ -1,76 +1,86 @@
+import { Provider } from "react-redux";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
-import heroImg from "./assets/hero.png";
-import "./App.css";
+import Home from "./pages/Home";
+import { AuthProvider } from "./context/AuthContext";
+import { FlyToCartProvider } from "./context/FlyToCartContext";
+import AuthModal from "./components/auth/AuthModal";
+import FlyingBook from "./components/animations/FlyingBook";
+import store from "./store";
+
+// Admin Pages
+import AdminLayout from "./layouts/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import InventoryWithStats from "./pages/admin/InventoryWithStats";
+import AdminLogin from "./pages/admin/AdminLogin";
+import ProtectedRoute from "./components/routing/ProtectedRoute";
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.3,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const titleVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const subtitleVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
-  };
-
   return (
-    <>
-      <div className="app-container">
-        <motion.div
-          className="content-wrapper"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.h1
-            className="app-title"
-            variants={titleVariants}
-            whileHover={{ scale: 1.05, rotateY: 10 }}
-            transition={{ type: "spring", stiffness: 300, damping: 10 }}
-          >
-            Books Ka Bazaar
-          </motion.h1>
-          <motion.h3
-            className="app-subtitle"
-            variants={subtitleVariants}
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300, damping: 10 }}
-          >
-            Coming soon....
-          </motion.h3>
-        </motion.div>
-      </div>
-    </>
+    <Provider store={store}>
+      <FlyToCartProvider>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              {/* Main User Routes */}
+              <Route
+                path="/"
+                element={
+                  <>
+                    <AuthModal />
+                    <FlyingBook />
+                    <Home />
+                  </>
+                }
+              />
+
+              {/* Admin Routes */}
+              <Route path="/admin-login" element={<AdminLogin />} />
+
+              {/* Protected Admin Routes */}
+              <Route
+                path="/admin/*"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout>
+                      <Routes>
+                        <Route index element={<Dashboard />} />
+                        <Route path="inventory" element={<InventoryPage />} />
+                        <Route path="orders" element={<OrdersPage />} />
+                        <Route path="settings" element={<SettingsPage />} />
+                      </Routes>
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </FlyToCartProvider>
+    </Provider>
+  );
+}
+
+// Placeholder pages for other admin routes
+function InventoryPage() {
+  return <InventoryWithStats />;
+}
+
+function OrdersPage() {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Orders</h2>
+      <p className="text-gray-600">Orders management page (coming soon)</p>
+    </div>
+  );
+}
+
+function SettingsPage() {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Settings</h2>
+      <p className="text-gray-600">Settings page (coming soon)</p>
+    </div>
   );
 }
 

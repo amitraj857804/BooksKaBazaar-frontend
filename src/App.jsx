@@ -15,46 +15,65 @@ import InventoryWithStats from "./pages/admin/InventoryWithStats";
 import AdminLogin from "./pages/admin/AdminLogin";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
 
+// SuperAdmin Pages
+import { SuperAdminProvider } from "./context/superadmin/SuperAdminContext";
+import SuperAdminLogin from "./pages/superadmin/SuperAdminLogin";
+import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
+import SuperAdminProtectedRoute from "./components/superadmin/SuperAdminProtectedRoute";
+
 function App() {
   return (
     <Provider store={store}>
       <FlyToCartProvider>
         <AuthProvider>
-          <Router>
-            <Routes>
-              {/* Main User Routes */}
-              <Route
-                path="/"
-                element={
-                  <>
-                    <AuthModal />
-                    <FlyingBook />
-                    <Home />
-                  </>
-                }
-              />
+          <SuperAdminProvider>
+            <Router>
+              <Routes>
+                {/* Main User Routes */}
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <AuthModal />
+                      <FlyingBook />
+                      <Home />
+                    </>
+                  }
+                />
 
-              {/* Admin Routes */}
-              <Route path="/admin-login" element={<AdminLogin />} />
+                {/* Admin Routes */}
+                <Route path="/admin-login" element={<AdminLogin />} />
 
-              {/* Protected Admin Routes */}
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout>
-                      <Routes>
-                        <Route index element={<Dashboard />} />
-                        <Route path="inventory" element={<InventoryPage />} />
-                        <Route path="orders" element={<OrdersPage />} />
-                        <Route path="settings" element={<SettingsPage />} />
-                      </Routes>
-                    </AdminLayout>
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Router>
+                {/* Protected Admin Routes */}
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute>
+                      <AdminLayout>
+                        <Routes>
+                          <Route index element={<Dashboard />} />
+                          <Route path="inventory" element={<InventoryPage />} />
+                          <Route path="orders" element={<OrdersPage />} />
+                          <Route path="settings" element={<SettingsPage />} />
+                        </Routes>
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* SuperAdmin Routes */}
+                <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                <Route
+                  path="/superadmin/dashboard"
+                  element={
+                    <SuperAdminProtectedRoute>
+                      <SuperAdminDashboard />
+                    </SuperAdminProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Router>
+          </SuperAdminProvider>
         </AuthProvider>
       </FlyToCartProvider>
     </Provider>

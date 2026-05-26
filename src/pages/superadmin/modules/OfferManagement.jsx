@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { useSuperAdmin } from '../../../context/superadmin/SuperAdminContext';
 import { superAdminApi } from '../../../services/superadmin/superAdminApi';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
 const OfferManagement = () => {
-  const { token } = useSuperAdmin();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [mode, setMode] = useState('create'); // 'create' or 'update'
@@ -59,7 +57,7 @@ const OfferManagement = () => {
       };
 
       if (mode === 'create') {
-        await superAdminApi.createOffer(offerData, token);
+        await superAdminApi.createOffer(offerData);
         setMessage({ type: 'success', text: 'Offer created successfully!' });
       } else {
         if (!formData.offerId) {
@@ -67,7 +65,7 @@ const OfferManagement = () => {
           setLoading(false);
           return;
         }
-        await superAdminApi.updateOffer(formData.offerId, offerData, token);
+        await superAdminApi.updateOffer(formData.offerId, offerData);
         setMessage({ type: 'success', text: 'Offer updated successfully!' });
       }
 

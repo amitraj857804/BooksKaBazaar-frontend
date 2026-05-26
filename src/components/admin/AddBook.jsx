@@ -1,36 +1,41 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Upload, Image } from "lucide-react";
+import { X, Upload, Image, AlertCircle } from "lucide-react";
+import { adminApi } from "../../services/admin/adminApi";
 
 const AddBook = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    title: "",
-    author: "",
-    price: "",
-    category: "Fiction",
-    stock: "",
+    bookTitle: "",
+    authorName: "",
     isbn: "",
     description: "",
+    category: "Technology",
+    publisher: "",
+    publicationYear: new Date().getFullYear(),
+    price: "",
+    costPrice: "",
+    initialStock: "",
     image: null,
     imagePreview: null,
   });
 
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "publicationYear" || name === "price" || name === "costPrice" || name === "initialStock" ? (value ? parseFloat(value) : "") : value,
     }));
   };
 
-  // Placeholder for S3 Pre-signed URL flow
   const handleImageUpload = async (file) => {
     if (!file || !file.type.startsWith("image/")) {
-      alert("Please select a valid image file");
+      setError("Please select a valid image file");
       return;
     }
 
@@ -42,19 +47,9 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
         image: file,
         imagePreview: e.target.result,
       }));
+      setError("");
     };
     reader.readAsDataURL(file);
-
-    // Placeholder: S3 Pre-signed URL flow
-    // In production, you would:
-    // 1. Call backend to get pre-signed URL
-    // 2. Upload to S3 using the URL
-    // 3. Get final S3 URL back
-    setIsUploading(true);
-    setTimeout(() => {
-      console.log("Image upload to S3 (simulated):", file.name);
-      setIsUploading(false);
-    }, 500);
   };
 
   const handleDragOver = (e) => {
@@ -75,25 +70,61 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.author || !formData.price) {
-      alert("Please fill in required fields");
+    setError("");
+
+    // Validation
+    if (!formData.bookTitle || !formData.authorName || !formData.price || !formData.costPrice || !formData.initialStock) {
+      setError("Please fill in all required fields");
       return;
     }
-    onSubmit?.(formData);
-    setFormData({
-      title: "",
-      author: "",
-      price: "",
-      category: "Fiction",
-      stock: "",
-      isbn: "",
-      description: "",
-      image: null,
-      imagePreview: null,
-    });
-    onClose();
+
+    if (!formData.image) {
+      setError("Please upload a book cover image");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const bookData = {
+        bookTitle: formData.bookTitle,
+        authorName: formData.authorName,
+        isbn: formData.isbn,
+        description: formData.description,
+        category: formData.category,
+        publisher: formData.publisher,
+        publicationYear: parseInt(formData.publicationYear),
+        price: parseFloat(formData.price),
+        costPrice: parseFloat(formData.costPrice),
+        initialStock: parseInt(formData.initialStock),
+      };
+
+      await adminApi.createBook(bookData, formData.image);
+
+      // Reset form
+      setFormData({
+        bookTitle: "",
+        authorName: "",
+        isbn: "",
+        description: "",
+        category: "Technology",
+        publisher: "",
+        publicationYear: new Date().getFullYear(),
+        price: "",
+        costPrice: "",
+        initialStock: "",
+        image: null,
+        imagePreview: null,
+      });
+
+      onSubmit?.();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Failed to add book");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -205,12 +236,12 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
               {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Title *
+                  Book Title *
                 </label>
                 <input
                   type="text"
-                  name="title"
-                  value={formData.title}
+                  name="bookTitle"
+                  value={formData.bookTitle}
                   onChange={handleInputChange}
                   placeholder="Enter book title"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -220,36 +251,53 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
               {/* Author */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Author *
+                  Author Name *
                 </label>
                 <input
                   type="text"
-                  name="author"
-                  value={formData.author}
+                  name="authorName"
+                  value={formData.authorName}
                   onChange={handleInputChange}
                   placeholder="Enter author name"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
               </div>
 
-              {/* Price */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Price ($) *
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+              {/* Price & Cost Price */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Selling Price ($) *
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Cost Price ($) *
+                  </label>
+                  <input
+                    type="number"
+                    name="costPrice"
+                    value={formData.costPrice}
+                    onChange={handleInputChange}
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
               </div>
 
-              {/* Category & Stock */}
+              {/* Category & Initial Stock */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -261,6 +309,7 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
+                    <option>Technology</option>
                     <option>Fiction</option>
                     <option>Non-Fiction</option>
                     <option>Science Fiction</option>
@@ -273,15 +322,47 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Stock
+                    Initial Stock *
                   </label>
                   <input
                     type="number"
-                    name="stock"
-                    value={formData.stock}
+                    name="initialStock"
+                    value={formData.initialStock}
                     onChange={handleInputChange}
                     placeholder="0"
                     min="0"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Publisher & Publication Year */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Publisher
+                  </label>
+                  <input
+                    type="text"
+                    name="publisher"
+                    value={formData.publisher}
+                    onChange={handleInputChange}
+                    placeholder="Enter publisher name"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Publication Year
+                  </label>
+                  <input
+                    type="number"
+                    name="publicationYear"
+                    value={formData.publicationYear}
+                    onChange={handleInputChange}
+                    placeholder={new Date().getFullYear()}
+                    min="1900"
+                    max={new Date().getFullYear()}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
@@ -322,17 +403,19 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="submit"
+                  disabled={isSubmitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add Book
+                  {isSubmitting ? "Adding..." : "Add Book"}
                 </motion.button>
               </div>
             </form>

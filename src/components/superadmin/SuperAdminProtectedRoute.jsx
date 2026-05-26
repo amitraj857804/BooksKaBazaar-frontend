@@ -3,9 +3,11 @@ import { Navigate } from 'react-router-dom';
 import { useSuperAdmin } from '../../context/superadmin/SuperAdminContext';
 
 const SuperAdminProtectedRoute = ({ children }) => {
-  const { isSuperAdmin, loading } = useSuperAdmin();
+  const { isSuperAdmin, loading, initialized } = useSuperAdmin();
 
-  if (loading) {
+
+  // Wait for initialization to complete
+  if (!initialized || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="text-center">

@@ -2,6 +2,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import Home from "./pages/Home";
+import SellerLanding from "./pages/admin/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
 import { FlyToCartProvider } from "./context/FlyToCartContext";
 import AuthModal from "./components/auth/AuthModal";
@@ -9,10 +10,11 @@ import FlyingBook from "./components/animations/FlyingBook";
 import store from "./store";
 
 // Admin Pages
-import AdminLayout from "./layouts/AdminLayout";
+import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import InventoryWithStats from "./pages/admin/InventoryWithStats";
-import AdminLogin from "./pages/admin/AdminLogin";
+import AdminAuthModal from "./pages/admin/AdminAuthModal";
+import AdminVerifyEmail from "./pages/admin/AdminVerifyEmail";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
 
 // SuperAdmin Pages
@@ -41,8 +43,13 @@ function App() {
                   }
                 />
 
-                {/* Admin Routes */}
-                <Route path="/admin-login" element={<AdminLogin />} />
+                {/* Seller/Admin Landing */}
+                <Route path="/seller" element={<SellerLanding />} />
+
+                {/* Admin Auth Routes */}
+                <Route path="/admin-login" element={<AdminAuthModal />} />
+                <Route path="/admin-register" element={<AdminAuthModal />} />
+                <Route path="/admin/verify-email" element={<AdminVerifyEmail />} />
 
                 {/* Protected Admin Routes */}
                 <Route
@@ -52,6 +59,7 @@ function App() {
                       <AdminLayout>
                         <Routes>
                           <Route index element={<Dashboard />} />
+                          <Route path="dashboard" element={<Dashboard />} />
                           <Route path="inventory" element={<InventoryPage />} />
                           <Route path="orders" element={<OrdersPage />} />
                           <Route path="settings" element={<SettingsPage />} />
@@ -64,10 +72,13 @@ function App() {
                 {/* SuperAdmin Routes */}
                 <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                 <Route
-                  path="/superadmin/dashboard"
+                  path="/superadmin/*"
                   element={
                     <SuperAdminProtectedRoute>
-                      <SuperAdminDashboard />
+                      <Routes>
+                        <Route path="dashboard" element={<SuperAdminDashboard />} />
+                        <Route index element={<SuperAdminDashboard />} />
+                      </Routes>
                     </SuperAdminProtectedRoute>
                   }
                 />

@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, ShoppingCart, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, Store } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useAuth } from "../../context/AuthContext";
 import { useFlyToCartContext } from "../../context/FlyToCartContext";
 import { CartDrawer } from "../cart";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,6 +15,7 @@ const Navbar = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [bounceCart, setBounceCart] = useState(false);
   const { openAuthModal } = useAuth();
+  const navigate = useNavigate();
   const cartIconRef = useRef(null);
   const { cartIconRef: contextCartIconRef, isFlying } = useFlyToCartContext();
 
@@ -82,6 +84,13 @@ const Navbar = () => {
               <a href="#" className="text-gray-700 hover:text-red-600 font-medium transition">
                 New Arrivals
               </a>
+              <button
+                onClick={() => navigate("/seller")}
+                className="text-gray-700 hover:text-red-600 font-medium transition flex items-center gap-1"
+              >
+                <Store size={18} />
+                Sell with Us
+              </button>
 
               {/* Cart Icon */}
               <motion.div
@@ -186,6 +195,18 @@ const Navbar = () => {
               <a href="#" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-red-600 font-medium">
                 New Arrivals
               </a>
+              <button
+                onClick={() => {
+                  navigate("/seller");
+                  setMobileMenuOpen(false);
+                }}
+                className="block w-full text-left text-gray-700 hover:text-red-600 font-medium"
+              >
+                <span className="flex items-center gap-1">
+                  <Store size={18} />
+                  Sell with Us
+                </span>
+              </button>
               {!isLoggedIn && (
                 <div className="flex gap-2 pt-2">
                   <button

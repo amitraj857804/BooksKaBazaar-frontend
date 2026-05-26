@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { useSuperAdmin } from '../../../context/superadmin/SuperAdminContext';
 import { superAdminApi } from '../../../services/superadmin/superAdminApi';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
 const ExamManagement = () => {
-  const { token } = useSuperAdmin();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [mode, setMode] = useState('create'); // 'create' or 'update'
   const [formData, setFormData] = useState({
-    examId: '',
+        
     examName: '',
     examDescription: '',
     examDate: '',
@@ -48,7 +46,7 @@ const ExamManagement = () => {
       };
 
       if (mode === 'create') {
-        await superAdminApi.createExam(examData, token);
+        await superAdminApi.createExam(examData);
         setMessage({ type: 'success', text: 'Exam created successfully!' });
       } else {
         if (!formData.examId) {
@@ -56,7 +54,7 @@ const ExamManagement = () => {
           setLoading(false);
           return;
         }
-        await superAdminApi.updateExam(formData.examId, examData, token);
+        await superAdminApi.updateExam(formData.examId, examData);
         setMessage({ type: 'success', text: 'Exam updated successfully!' });
       }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Home, Book, Package, Settings, LogOut, Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -7,6 +7,24 @@ const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Handle responsive sidebar behavior when resizing window
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    
+    // Set initial state properly based on screen width
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const navLinks = [
     { name: "Dashboard", icon: Home, path: "/admin" },
@@ -19,8 +37,14 @@ const AdminLayout = ({ children }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
-    navigate("/");
+    localStorage.removeItem("adminData");
+    navigate("/seller");
   };
+
+  const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
+  const sellerName = adminData.sellerName || "Admin User";
+  const sellerEmail = adminData.email || "admin@booksbazaar.com";
+  const userInitials = sellerName.substring(0, 2).toUpperCase();
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -67,16 +91,20 @@ const AdminLayout = ({ children }) => {
         <div className="p-4 border-t border-slate-700">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AD</span>
+              <span className="text-white font-bold text-sm">{userInitials}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">Admin User</p>
-              <p className="text-xs text-gray-400 truncate">admin@booksbazaar.com</p>
+              <p className="text-sm font-medium text-white truncate" title={sellerName}>
+                {sellerName}
+              </p>
+              <p className="text-xs text-gray-400 truncate" title={sellerEmail}>
+                {sellerEmail}
+              </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-slate-800 text-gray-300 hover:bg-red-600 hover:text-white transition-all duration-200 text-sm font-medium"
+            className="w-full flex items-center cursor-pointer justify-center gap-2 px-3 py-2 rounded-lg bg-slate-800 text-gray-300 hover:bg-red-600 hover:text-white transition-all duration-200 text-sm font-medium"
           >
             <LogOut size={16} />
             <span>Logout</span>

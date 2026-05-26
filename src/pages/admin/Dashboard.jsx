@@ -52,18 +52,33 @@ const Dashboard = () => {
     show: { opacity: 1, y: 0 },
   };
 
+  // Retrieve admin data for personalized greeting
+  const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
+  const sellerName = adminData.sellerName || "Admin";
+  const sellerEmail = adminData.email || "";
+
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-linear-to-r from-red-500 to-red-600 rounded-xl p-8 text-white shadow-lg"
+        className="bg-linear-to-r from-red-500 to-red-600 rounded-xl p-8 text-white shadow-lg flex justify-between items-center"
       >
-        <h1 className="text-3xl font-bold mb-2">Welcome back, Admin!</h1>
-        <p className="text-red-100">
-          You have 12 pending orders and 4 new customer inquiries.
-        </p>
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Welcome back, {sellerName}!</h1>
+          <p className="text-red-100">
+            You have 12 pending orders and 4 new customer inquiries.
+          </p>
+        </div>
+        
+        {/* Display Seller Email on the Right Side (Optional check) */}
+        {sellerEmail && (
+          <div className="hidden md:block bg-red-800/30 rounded-lg py-2 px-4 border border-red-400/30 backdrop-blur-sm">
+            <p className="text-sm text-red-100 font-medium">Logged in as</p>
+            <p className="font-semibold text-white">{sellerEmail}</p>
+          </div>
+        )}
       </motion.div>
 
       {/* Stats Grid */}

@@ -1,26 +1,61 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import StatsCards from "../../components/admin/StatsCards";
 import InventoryTable from "../../components/admin/InventoryTable";
 import BookForm from "../../components/admin/BookForm";
 import { mockAdminBooks } from "../../utils/mockAdminBooks";
+import { adminApi } from "../../services/admin/adminApi";
 
 const InventoryPage = () => {
   const [books, setBooks] = useState(mockAdminBooks);
   const [showBookForm, setShowBookForm] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
   const [isLoadingForm, setIsLoadingForm] = useState(false);
+  
+  const [inventoryStats, setInventoryStats] = useState({
+    totalBooks: 0,
+    totalAvailable: 0,
+    lowStockCount: 0,
+    outOfStockCount: 0,
+    totalReserved: 0,
+    totalDamaged: 0,
+    turnoverRate: 0
+  });
 
-  // Mock stats calculation
-  const stats = {
-    totalRevenue: books.reduce((sum, book) => sum + book.price * 10, 0),
-    revenueGrowth: 12.5,
-    totalBooks: books.length,
-    booksGrowth: 8,
-    activeOrders: 342,
-    ordersGrowth: 24,
-    customerGrowth: 1284,
-    newCustomers: 52,
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  // Fetch Stats from backend
+  const fetchStats = async () => {
+    try {
+      setIsLoadingStats(true);
+      const data = await adminApi.getInventoryStats();
+      console.log(data);
+      // Handle both wrapped {success: true, data: {...}} and unwrapped {...stats} responses
+      if (data && data.success !== undefined) {
+        if (data.success && data.data) {
+          setInventoryStats(data.data);
+        }
+      } else if (data) {
+        // Unwrapped response
+        setInventoryStats({
+          totalBooks: data.totalBooks || 0,
+          totalAvailable: data.totalAvailable || 0,
+          lowStockCount: data.lowStockCount || 0,
+          outOfStockCount: data.outOfStockCount || 0,
+          totalReserved: data.totalReserved || 0,
+          totalDamaged: data.totalDamaged || 0,
+          turnoverRate: data.turnoverRate || 0
+        });
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch inventory stats:", error);
+    } finally {
+      setIsLoadingStats(false);
+    }
   };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   // Handle add book
   const handleAddBook = useCallback(() => {
@@ -73,7 +108,7 @@ const InventoryPage = () => {
   return (
     <div className="space-y-8">
       {/* Stats Overview */}
-      <StatsCards stats={stats} />
+      <StatsCards stats={inventoryStats} isLoading={isLoadingStats} />
 
       {/* Inventory Table */}
       <InventoryTable

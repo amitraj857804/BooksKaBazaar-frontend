@@ -1,39 +1,26 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { IndianRupee, BookOpen, Package, Users, TrendingUp } from "lucide-react";
+import { BookOpen, Package, AlertTriangle, Archive, RefreshCw } from "lucide-react";
 
-const StatsCards = ({ stats = {} }) => {
+const StatsCards = ({ stats = {}, isLoading = false }) => {
   const {
-    totalRevenue = 24580,
-    revenueGrowth = 12.5,
-    totalBooks = 156,
-    booksGrowth = 8,
-    activeOrders = 342,
-    ordersGrowth = 24,
-    customerGrowth = 1284,
-    newCustomers = 52,
+    totalBooks = 0,
+    totalAvailable = 0,
+    lowStockCount = 0,
+    outOfStockCount = 0,
+    totalReserved = 0,
+    totalDamaged = 0,
+    turnoverRate = 0,
   } = stats;
 
   const cards = useMemo(
     () => [
       {
         id: 1,
-        title: "Total Revenue",
-        value: `$${totalRevenue.toLocaleString()}`,
-        growth: revenueGrowth,
-        unit: "this month",
-        icon: IndianRupee,
-        bgGradient: "from-green-50 to-emerald-50",
-        iconBg: "bg-green-100",
-        iconColor: "text-green-600",
-        growthColor: "text-green-600",
-      },
-      {
-        id: 2,
-        title: "Total Books",
+        title: "Unique Book Titles",
         value: totalBooks.toLocaleString(),
-        growth: booksGrowth,
-        unit: "new this month",
+        growth: null, // Removed for inventory stats if irrelevant, or you can map it
+        unit: "titles in catalog",
         icon: BookOpen,
         bgGradient: "from-blue-50 to-cyan-50",
         iconBg: "bg-blue-100",
@@ -41,31 +28,43 @@ const StatsCards = ({ stats = {} }) => {
         growthColor: "text-blue-600",
       },
       {
-        id: 3,
-        title: "Active Orders",
-        value: activeOrders.toLocaleString(),
-        growth: ordersGrowth,
-        unit: "today",
+        id: 2,
+        title: "Total Available Stock",
+        value: totalAvailable.toLocaleString(),
+        growth: turnoverRate,
+        unit: "turnover rate",
         icon: Package,
-        bgGradient: "from-purple-50 to-pink-50",
-        iconBg: "bg-purple-100",
-        iconColor: "text-purple-600",
-        growthColor: "text-purple-600",
+        bgGradient: "from-green-50 to-emerald-50",
+        iconBg: "bg-green-100",
+        iconColor: "text-green-600",
+        growthColor: "text-green-600",
       },
       {
-        id: 4,
-        title: "Customer Growth",
-        value: customerGrowth.toLocaleString(),
-        growth: newCustomers,
-        unit: "new signups",
-        icon: Users,
-        bgGradient: "from-orange-50 to-red-50",
+        id: 3,
+        title: "Stock Warnings",
+        value: outOfStockCount.toLocaleString(),
+        growth: lowStockCount,
+        unit: "items low on stock",
+        icon: AlertTriangle,
+        bgGradient: "from-orange-50 to-amber-50",
         iconBg: "bg-orange-100",
         iconColor: "text-orange-600",
         growthColor: "text-orange-600",
       },
+      {
+        id: 4,
+        title: "Non-Sellable Stock",
+        value: totalDamaged.toLocaleString(),
+        growth: totalReserved,
+        unit: "items currently reserved",
+        icon: Archive,
+        bgGradient: "from-red-50 to-rose-50",
+        iconBg: "bg-red-100",
+        iconColor: "text-red-600",
+        growthColor: "text-red-600",
+      },
     ],
-    [totalRevenue, revenueGrowth, totalBooks, booksGrowth, activeOrders, ordersGrowth, customerGrowth, newCustomers]
+    [totalBooks, totalAvailable, turnoverRate, outOfStockCount, lowStockCount, totalDamaged, totalReserved]
   );
 
   const container = {
@@ -86,11 +85,23 @@ const StatsCards = ({ stats = {} }) => {
 
   return (
     <motion.div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative"
       variants={container}
       initial="hidden"
       animate="show"
     >
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[2px] rounded-xl flex items-center justify-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          >
+            <RefreshCw className="w-8 h-8 text-red-600" />
+          </motion.div>
+        </div>
+      )}
+
       {cards.map((card) => {
         const Icon = card.icon;
         return (
@@ -98,9 +109,9 @@ const StatsCards = ({ stats = {} }) => {
             key={card.id}
             variants={item}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            className={`bg-linear-to-br ${card.bgGradient} rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow`}
+            className={`bg-linear-to-br ${card.bgGradient} rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden`}
           >
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between mb-4 relative z-10">
               <div>
                 <p className="text-gray-600 text-sm font-medium mb-1">
                   {card.title}
@@ -121,16 +132,18 @@ const StatsCards = ({ stats = {} }) => {
               </motion.div>
             </div>
 
-            {/* Growth Indicator */}
-            <div className="flex items-center gap-2 pt-3 border-t border-gray-200/50">
-              <div className="flex items-center gap-1">
-                <TrendingUp className={`w-4 h-4 ${card.growthColor}`} />
-                <span className={`text-sm font-semibold ${card.growthColor}`}>
-                  +{card.growth}%
-                </span>
+            {/* Growth/Secondary Indicator */}
+            {card.growth !== null && (
+              <div className="flex items-center gap-2 pt-3 border-t border-gray-200/50 relative z-10">
+                <div className="flex items-center gap-1">
+                  {/* Using secondary data styling rather than just "% Growth" */}
+                  <span className={`text-sm font-semibold ${card.growthColor}`}>
+                    {card.growth}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 font-medium">{card.unit}</p>
               </div>
-              <p className="text-xs text-gray-600">{card.unit}</p>
-            </div>
+            )}
           </motion.div>
         );
       })}

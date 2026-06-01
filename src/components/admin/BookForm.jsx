@@ -4,22 +4,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Image as ImageIcon, AlertCircle, CheckCircle } from "lucide-react";
+import AuthenticatedImage from "../common/AuthenticatedImage";
 
-// Zod validation schema
-const bookFormSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  author: z.string().min(2, "Author name required"),
-  price: z.coerce.number().min(0.01, "Price must be greater than 0"),
-  category: z.string().min(1, "Category required"),
-  stock: z.coerce.number().min(0, "Stock cannot be negative").int(),
-  isbn: z.string().optional(),
-  description: z.string().optional(),
+// Zod validation schema - basic fields are required for creation, but can be optional for updates
+const getBookFormSchema = (isEdit) => z.object({
+  title: isEdit ? z.string().optional().or(z.literal("")) : z.string().min(1, "Title is required"),
+  author: isEdit ? z.string().optional().or(z.literal("")) : z.string().min(1, "Author name required"),
+  price: isEdit
+    ? z.union([z.coerce.number().min(0), z.literal(""), z.null(), z.undefined()])
+    : z.coerce.number().min(0, "Price must be at least 0"),
+  category: z.string().optional(),
+  stock: z.coerce.number().min(0, "Stock cannot be negative").int().optional().or(z.literal("")),
+  isbn: z.string().optional().or(z.literal("")),
+  description: z.string().optional().or(z.literal("")),
 });
 
 const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(initialData?.imageURL || null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -30,7 +34,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
     reset,
     setValue,
   } = useForm({
-    resolver: zodResolver(bookFormSchema),
+    resolver: zodResolver(getBookFormSchema(!!initialData)),
     defaultValues: initialData || {
       title: "",
       author: "",
@@ -51,6 +55,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
 
     setIsUploading(true);
     setUploadProgress(0);
+    setSelectedFile(file);
 
     // Read file and create preview
     const reader = new FileReader();
@@ -59,7 +64,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
     };
     reader.readAsDataURL(file);
 
-    // Simulate progress
+    // Simulate progress for UI feedback
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 90) {
@@ -68,21 +73,14 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
         }
         return prev + Math.random() * 30;
       });
-    }, 200);
+    }, 100);
 
-    // Simulate S3 upload (replace with real API)
     setTimeout(() => {
       clearInterval(interval);
       setUploadProgress(100);
       setIsUploading(false);
-
-      // In production: get actual S3 URL from backend
-      console.log("Image uploaded (simulated):", file.name);
-
-      setTimeout(() => {
-        setUploadProgress(0);
-      }, 1000);
-    }, 2000);
+      setTimeout(() => setUploadProgress(0), 1000);
+    }, 800);
   }, []);
 
   const handleDragOver = (e) => {
@@ -103,13 +101,11 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   };
 
   const onSubmitForm = async (data) => {
-    const formData = {
-      ...data,
-      imageURL: uploadedImage || initialData?.imageURL,
-    };
-    await onSubmit?.(formData);
+    // Pass both data and the actual file object
+    await onSubmit?.(data, selectedFile);
     reset();
     setUploadedImage(null);
+    setSelectedFile(null);
     onClose();
   };
 
@@ -175,78 +171,91 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
-                    isDragging
-                      ? "border-red-500 bg-red-50"
-                      : "border-gray-300 hover:border-gray-400 bg-gray-50"
-                  }`}
+                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${isDragging
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-200 hover:border-red-200 bg-gray-50/50"
+                    }`}
                   animate={{
                     backgroundColor: isDragging ? "#fef2f2" : "#f9fafb",
+                    borderColor: isDragging ? "#ef4444" : "#e5e7eb",
                   }}
                 >
                   {uploadedImage ? (
-                    <div className="flex flex-col items-center gap-4">
-                      <motion.img
-                        src={uploadedImage}
-                        alt="Preview"
-                        className="w-24 h-32 object-cover rounded-lg shadow-md"
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                      />
-                      {isUploading && (
-                        <div className="w-32">
-                          <div className="flex items-center gap-2 mb-2">
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                ease: "linear",
+                    <div className="space-y-4">
+                      <div className="relative group mx-auto w-40 h-56 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-1">
+                        <div className="w-full h-full rounded-lg overflow-hidden relative">
+                          <AuthenticatedImage
+                            src={uploadedImage}
+                            alt="Preview"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                fileInputRef.current?.click();
                               }}
+                              className="p-2 bg-white rounded-full text-red-600 shadow-lg hover:bg-red-50 transition-colors"
                             >
-                              <Upload size={16} className="text-red-600" />
-                            </motion.div>
-                            <span className="text-xs font-medium text-gray-600">
-                              {Math.round(uploadProgress)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <motion.div
-                              className="bg-red-600 h-2 rounded-full"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${uploadProgress}%` }}
-                              transition={{ duration: 0.3 }}
-                            />
+                              <ImageIcon size={20} />
+                            </button>
                           </div>
                         </div>
-                      )}
-                      {!isUploading && (
-                        <motion.button
-                          type="button"
-                          onClick={() => {
-                            fileInputRef.current?.click();
-                          }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="text-sm text-red-600 hover:text-red-700 font-medium"
-                        >
-                          Change Image
-                        </motion.button>
-                      )}
+                        {isUploading && (
+                          <div className="absolute inset-0 bg-white/80 flex items-center justify-center p-4">
+                            <div className="w-full">
+                              <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                className="mx-auto mb-2 text-red-600"
+                              >
+                                <Upload size={24} />
+                              </motion.div>
+                              <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                <motion.div
+                                  className="bg-red-600 h-full"
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${uploadProgress}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Photo Uploaded Album</p>
+                        {!isUploading && (
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="text-sm text-red-600 hover:text-red-700 font-medium underline underline-offset-4"
+                          >
+                            Upload Different Photo
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <ImageIcon size={32} className="text-gray-400" />
-                      <p className="text-sm font-medium text-gray-700">
-                        Drag and drop your image here
-                      </p>
-                      <p className="text-xs text-gray-500">or</p>
+                    <div className="flex flex-col items-center py-6 gap-3">
+                      <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-500">
+                        <ImageIcon size={32} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-gray-900">
+                          Upload Book Cover
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Drag and drop or click to browse
+                        </p>
+                      </div>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-sm text-red-600 hover:text-red-700 font-medium"
+                        className="mt-2 px-4 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition-all shadow-sm"
                       >
-                        Browse files
+                        Choose Image
                       </button>
                     </div>
                   )}
@@ -268,7 +277,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Title *
+                  Title {initialData ? "" : "*"}
                 </label>
                 <Controller
                   name="title"
@@ -278,9 +287,8 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                       <input
                         {...field}
                         placeholder="Enter book title"
-                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${
-                          errors.title ? "border-red-500" : "border-gray-300"
-                        }`}
+                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${errors.title ? "border-red-500" : "border-gray-300"
+                          }`}
                         aria-invalid={!!errors.title}
                         aria-describedby={errors.title ? "title-error" : undefined}
                       />
@@ -303,7 +311,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               {/* Author */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Author *
+                  Author {initialData ? "" : "*"}
                 </label>
                 <Controller
                   name="author"
@@ -313,9 +321,8 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                       <input
                         {...field}
                         placeholder="Enter author name"
-                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${
-                          errors.author ? "border-red-500" : "border-gray-300"
-                        }`}
+                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${errors.author ? "border-red-500" : "border-gray-300"
+                          }`}
                         aria-invalid={!!errors.author}
                         aria-describedby={errors.author ? "author-error" : undefined}
                       />
@@ -338,7 +345,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               {/* Price */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Price (₹) *
+                  Price (₹) {initialData ? "" : "*"}
                 </label>
                 <Controller
                   name="price"
@@ -351,9 +358,8 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                         placeholder="0.00"
                         step="0.01"
                         min="0"
-                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${
-                          errors.price ? "border-red-500" : "border-gray-300"
-                        }`}
+                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${errors.price ? "border-red-500" : "border-gray-300"
+                          }`}
                         aria-invalid={!!errors.price}
                         aria-describedby={errors.price ? "price-error" : undefined}
                       />
@@ -377,7 +383,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category *
+                    Category {initialData ? "" : "*"}
                   </label>
                   <Controller
                     name="category"
@@ -401,7 +407,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Stock *
+                    Stock {initialData ? "" : "*"}
                   </label>
                   <Controller
                     name="stock"
@@ -413,9 +419,8 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                           type="number"
                           placeholder="0"
                           min="0"
-                          className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${
-                            errors.stock ? "border-red-500" : "border-gray-300"
-                          }`}
+                          className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${errors.stock ? "border-red-500" : "border-gray-300"
+                            }`}
                           aria-invalid={!!errors.stock}
                           aria-describedby={errors.stock ? "stock-error" : undefined}
                         />

@@ -123,7 +123,7 @@ const SignupForm = ({ onToggle }) => {
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors mt-4"
+        className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors mt-4 cursor-pointer"
       >
         Create Account
       </button>
@@ -134,7 +134,7 @@ const SignupForm = ({ onToggle }) => {
         <button
           type="button"
           onClick={onToggle}
-          className="font-semibold text-red-600 hover:text-red-700 transition"
+          className="font-semibold text-red-600 hover:text-red-700 transition cursor-pointer"
         >
           Sign In
         </button>

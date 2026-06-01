@@ -59,12 +59,12 @@ const LoginForm = ({ onToggle }) => {
         )}
       </div>
 
-      {/* Forgot Password Link */}
-      <div className="text-right">
+      {/* Forgot Password Link - centered between password and submit */}
+      <div className="flex justify-center">
         <button
           type="button"
           onClick={() => openAuthModal("forgot")}
-          className="text-sm text-gray-600 hover:text-red-600 transition font-medium"
+          className="text-sm text-gray-600 hover:text-red-600 transition font-medium cursor-pointer"
         >
           Forgot password?
         </button>
@@ -73,7 +73,7 @@ const LoginForm = ({ onToggle }) => {
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+        className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
       >
         Sign In
       </button>
@@ -84,7 +84,7 @@ const LoginForm = ({ onToggle }) => {
         <button
           type="button"
           onClick={onToggle}
-          className="font-semibold text-red-600 hover:text-red-700 transition"
+          className="font-semibold text-red-600 hover:text-red-700 transition cursor-pointer"
         >
           Sign Up
         </button>

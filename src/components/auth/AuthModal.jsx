@@ -93,7 +93,7 @@ const AuthModal = () => {
               {/* Close Button */}
               <button
                 onClick={closeAuthModal}
-                className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
               >
                 <X className="w-6 h-6 text-gray-600" />
               </button>
@@ -156,25 +156,28 @@ const AuthModal = () => {
                 </AnimatePresence>
               </div>
 
-              {/* Divider with Text */}
-              <div className="px-8 pb-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
+              {/* Divider with Text — hidden during forgot password flow */}
+              {authMode !== "forgot" && (
+                <>
+                  <div className="px-8 pb-6">
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-200"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Or continue with</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Social Buttons */}
-              <div className="px-8 pb-8 space-y-3">
-                <button className="w-full py-2.5 border-2 border-gray-200 rounded-lg font-medium text-gray-700 hover:border-gray-300 transition-colors">
-                  Google
-                </button>
-                
-              </div>
+                  {/* Social Buttons */}
+                  <div className="px-8 pb-8 space-y-3">
+                    <button className="w-full py-2.5 border-2 border-gray-200 rounded-lg font-medium text-gray-700 hover:border-gray-300 transition-colors cursor-pointer">
+                      Google
+                    </button>
+                  </div>
+                </>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>

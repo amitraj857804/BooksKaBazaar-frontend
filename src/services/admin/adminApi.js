@@ -1,11 +1,11 @@
-import axiosInstance from '../axios/axiosInstance';
+import axiosInstance from "../axios/axiosInstance";
 
 // Admin API Service using centralized axios instance
 export const adminApi = {
   // Auth APIs
   register: async (registrationData) => {
     try {
-      const response = await axiosInstance.post('/auth/admin/register', {
+      const response = await axiosInstance.post("/auth/admin/register", {
         sellerName: registrationData.sellerName,
         emailId: registrationData.emailId,
         phoneNumber: registrationData.phoneNumber,
@@ -22,9 +22,12 @@ export const adminApi = {
 
   resendVerificationEmail: async (email) => {
     try {
-      const response = await axiosInstance.post('/auth/admin/resend-verification', {
-        email: email,
-      });
+      const response = await axiosInstance.post(
+        "/auth/admin/resend-verification",
+        {
+          email,
+        },
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -33,7 +36,7 @@ export const adminApi = {
 
   login: async (phone, password) => {
     try {
-      const response = await axiosInstance.post('/auth/admin/login', {
+      const response = await axiosInstance.post("/auth/admin/login", {
         phone,
         password,
       });
@@ -45,7 +48,7 @@ export const adminApi = {
 
   loginWithEmail: async (email, password) => {
     try {
-      const response = await axiosInstance.post('/auth/admin/login', {
+      const response = await axiosInstance.post("/auth/admin/login", {
         email,
         password,
       });
@@ -57,9 +60,24 @@ export const adminApi = {
 
   resendVerification: async (email) => {
     try {
-      const response = await axiosInstance.post('/auth/admin/resend-verification', {
-        email: email,
-      });
+      const response = await axiosInstance.post(
+        "/auth/admin/resend-verification",
+        {
+          email,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  forgotPassword: async (data) => {
+    try {
+      const response = await axiosInstance.post(
+        "/auth/admin/forgot-password",
+        data,
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -69,7 +87,9 @@ export const adminApi = {
   // Dashboard APIs
   getInventoryStats: async () => {
     try {
-      const response = await axiosInstance.get('/admin/dashboard/inventory-stats');
+      const response = await axiosInstance.get(
+        "/admin/dashboard/inventory-stats",
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -78,7 +98,9 @@ export const adminApi = {
 
   getLowStockAlerts: async () => {
     try {
-      const response = await axiosInstance.get('/admin/dashboard/low-stock-alerts');
+      const response = await axiosInstance.get(
+        "/admin/dashboard/low-stock-alerts",
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -89,20 +111,61 @@ export const adminApi = {
   createBook: async (bookData, image) => {
     try {
       const formData = new FormData();
-      
-      // Append image file
       if (image) {
-        formData.append('image', image);
+        formData.append("image", image);
       }
       
-      // Append book data as JSON string
-      formData.append('book', JSON.stringify(bookData));
-      
-      const response = await axiosInstance.post('/admin/inventory/books', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const createRequest = {
+        bookTitle: bookData.title,
+        authorName: bookData.author,
+        isbn: bookData.isbn,
+        description: bookData.description,
+        category: bookData.category,
+        publisher: bookData.publisher || "",
+        publicationYear: bookData.publicationYear || new Date().getFullYear(),
+        price: bookData.price,
+        costPrice: bookData.costPrice || bookData.price * 0.7,
+        initialStock: bookData.stock
+      };
+
+      formData.append("book", new Blob([JSON.stringify(createRequest)], { type: 'application/json' }));
+
+      const response = await axiosInstance.post(
+        "/admin/inventory/books",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateBook: async (bookId, bookData, image) => {
+    try {
+      const formData = new FormData();
+      if (image) {
+        formData.append("image", image);
+      }
+
+      const updateRequest = {
+        bookId: bookId,
+        bookTitle: bookData.title,
+        authorName: bookData.author,
+        description: bookData.description || "",
+        category: bookData.category || "Fiction",
+        publisher: bookData.publisher || "",
+        price: bookData.price,
+        costPrice: bookData.costPrice || (bookData.price ? bookData.price * 0.7 : 0)
+      };
+
+      formData.append("book", new Blob([JSON.stringify(updateRequest)], { type: 'application/json' }));
+
+      const response = await axiosInstance.put(
+        `/admin/inventory/books/${bookId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -111,16 +174,16 @@ export const adminApi = {
 
   getBooks: async () => {
     try {
-      const response = await axiosInstance.get('/admin/inventory/books');
+      const response = await axiosInstance.get("/admin/inventory/books");
       return response.data;
     } catch (error) {
       throw error;
     }
   },
 
-  updateBook: async (bookId, bookData) => {
+  getBookById: async (bookId) => {
     try {
-      const response = await axiosInstance.put(`/admin/inventory/books/${bookId}`, bookData);
+      const response = await axiosInstance.get(`/admin/inventory/books/${bookId}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -136,9 +199,47 @@ export const adminApi = {
     }
   },
 
-  getBookById: async (bookId) => {
+  searchBooks: async (query) => {
     try {
-      const response = await axiosInstance.get(`/admin/inventory/books/${bookId}`);
+      const response = await axiosInstance.get("/admin/inventory/books/search", {
+        params: { query }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateStock: async (stockData) => {
+    try {
+      const response = await axiosInstance.post("/admin/inventory/stock/update", stockData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getStockHistory: async (bookId) => {
+    try {
+      const response = await axiosInstance.get(`/admin/inventory/books/${bookId}/stock-history`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getLowStockBooks: async () => {
+    try {
+      const response = await axiosInstance.get("/admin/inventory/low-stock");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getOutOfStockBooks: async () => {
+    try {
+      const response = await axiosInstance.get("/admin/inventory/out-of-stock");
       return response.data;
     } catch (error) {
       throw error;

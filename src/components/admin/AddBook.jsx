@@ -74,14 +74,9 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
     e.preventDefault();
     setError("");
 
-    // Validation
-    if (!formData.bookTitle || !formData.authorName || !formData.price || !formData.costPrice || !formData.initialStock) {
-      setError("Please fill in all required fields");
-      return;
-    }
-
-    if (!formData.image) {
-      setError("Please upload a book cover image");
+    // Validation - make it less strict as requested
+    if (!formData.bookTitle) {
+      setError("At least a book title is required");
       return;
     }
 
@@ -170,47 +165,70 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
+                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
                     isDragging
                       ? "border-red-500 bg-red-50"
-                      : "border-gray-300 hover:border-gray-400"
+                      : "border-gray-200 hover:border-red-200 bg-gray-50/50"
                   }`}
-                  animate={{ backgroundColor: isDragging ? "#fef2f2" : "#ffffff" }}
+                  animate={{ 
+                    backgroundColor: isDragging ? "#fef2f2" : "#f9fafb",
+                    borderColor: isDragging ? "#ef4444" : "#e5e7eb"
+                  }}
                 >
                   {formData.imagePreview ? (
-                    <div className="flex flex-col items-center gap-4">
-                      <img
-                        src={formData.imagePreview}
-                        alt="Preview"
-                        className="w-24 h-32 object-cover rounded shadow-md"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            image: null,
-                            imagePreview: null,
-                          }))
-                        }
-                        className="text-sm text-red-600 hover:text-red-700 font-medium"
-                      >
-                        Change Image
-                      </button>
+                    <div className="space-y-4">
+                      <div className="relative group mx-auto w-40 h-56 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-1">
+                        <div className="w-full h-full rounded-lg overflow-hidden relative">
+                          <img
+                            src={formData.imagePreview}
+                            alt="Preview"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                             <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  fileInputRef.current?.click();
+                                }}
+                                className="p-2 bg-white rounded-full text-red-600 shadow-lg hover:bg-red-50 transition-colors"
+                             >
+                                <Image size={20} />
+                             </button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Photo Uploaded Album</p>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-sm text-red-600 hover:text-red-700 font-medium underline underline-offset-4"
+                        >
+                          Upload Different Photo
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <Image size={32} className="text-gray-400" />
-                      <p className="text-sm font-medium text-gray-700">
-                        Drag and drop your image here
-                      </p>
-                      <p className="text-xs text-gray-500">or</p>
+                    <div className="flex flex-col items-center py-6 gap-3">
+                      <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-500">
+                        <Image size={32} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-gray-900">
+                          Upload Book Cover
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Drag and drop or click to browse
+                        </p>
+                      </div>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-sm text-red-600 hover:text-red-700 font-medium"
+                        className="mt-2 px-4 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition-all shadow-sm"
                       >
-                        Browse files
+                        Choose Image
                       </button>
                     </div>
                   )}
@@ -228,7 +246,7 @@ const AddBook = ({ isOpen, onClose, onSubmit }) => {
                 </motion.div>
                 {isUploading && (
                   <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
-                    <Upload size={14} /> Uploading to S3...
+                    <Upload size={14} /> Uploading...
                   </p>
                 )}
               </div>

@@ -143,7 +143,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
             aria-labelledby="book-form-title"
           >
             {/* Sticky Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
               <h2 id="book-form-title" className="text-xl font-bold text-gray-900">
                 {initialData ? "Edit Book" : "Add New Book"}
               </h2>
@@ -152,7 +152,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 aria-label="Close form"
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X size={24} className="text-gray-600" />
+                <X size={24} className="text-gray-600 cursor-pointer" />
               </button>
             </div>
 
@@ -171,9 +171,9 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${isDragging
+                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${isDragging
                     ? "border-red-500 bg-red-50"
-                    : "border-gray-200 hover:border-red-200 bg-gray-50/50"
+                    : "border-gray-200 hover:border-red-200 bg-gray-50/50 hover:cursor-pointer"
                     }`}
                   animate={{
                     backgroundColor: isDragging ? "#fef2f2" : "#f9fafb",
@@ -182,7 +182,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 >
                   {uploadedImage ? (
                     <div className="space-y-4">
-                      <div className="relative group mx-auto w-40 h-56 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-1">
+                      <div className="relative group mx-auto w-40 h-56 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-1 ">
                         <div className="w-full h-full rounded-lg overflow-hidden relative">
                           <AuthenticatedImage
                             src={uploadedImage}
@@ -196,7 +196,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                                 e.stopPropagation();
                                 fileInputRef.current?.click();
                               }}
-                              className="p-2 bg-white rounded-full text-red-600 shadow-lg hover:bg-red-50 transition-colors"
+                              className="p-2 bg-white rounded-full text-red-600 cursor-pointer shadow-lg hover:bg-red-50 transition-colors"
                             >
                               <ImageIcon size={20} />
                             </button>
@@ -230,7 +230,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                           <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="text-sm text-red-600 hover:text-red-700 font-medium underline underline-offset-4"
+                            className="text-sm text-red-600 cursor-pointer hover:text-red-700 font-medium underline underline-offset-4"
                           >
                             Upload Different Photo
                           </button>
@@ -253,7 +253,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="mt-2 px-4 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition-all shadow-sm"
+                        className="mt-2 px-4 py-1.5 bg-white border cursor-pointer border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition-all shadow-sm"
                       >
                         Choose Image
                       </button>
@@ -479,7 +479,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-6 border-t border-gray-200 sticky bottom-0 bg-white pb-6">
+              <div className="flex gap-3 pt-6 border-t border-gray-200 sticky bottom-0 bg-white pb-6 z-10">
                 <motion.button
                   type="button"
                   onClick={handleClose}

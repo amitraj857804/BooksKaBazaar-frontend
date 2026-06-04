@@ -36,20 +36,25 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Check if user is admin or superadmin
-      const adminToken = localStorage.getItem('adminToken');
-      const superAdminToken = localStorage.getItem(import.meta.env.VITE_JWT_STORAGE_KEY || 'superAdminToken');
+      // If the 401 is from a login endpoint, it's just invalid credentials, not an expired token.
+      const isLoginRequest = error.config?.url?.includes('/login');
       
-      if (adminToken) {
-        // Admin token expired - clear admin storage only
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminData');
-        // Don't redirect here - let ProtectedRoute handle it
-      } else if (superAdminToken) {
-        // SuperAdmin token expired - clear superadmin storage and redirect
-        localStorage.removeItem(import.meta.env.VITE_JWT_STORAGE_KEY || 'superAdminToken');
-        localStorage.removeItem(import.meta.env.VITE_USER_STORAGE_KEY || 'superAdminUser');
-        window.location.href = '/superadmin/login';
+      if (!isLoginRequest) {
+        // Check if user is admin or superadmin
+        const adminToken = localStorage.getItem('adminToken');
+        const superAdminToken = localStorage.getItem(import.meta.env.VITE_JWT_STORAGE_KEY || 'superAdminToken');
+        
+        if (adminToken) {
+          // Admin token expired - clear admin storage only
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminData');
+          // Don't redirect here - let ProtectedRoute handle it
+        } else if (superAdminToken) {
+          // SuperAdmin token expired - clear superadmin storage and redirect
+          localStorage.removeItem(import.meta.env.VITE_JWT_STORAGE_KEY || 'superAdminToken');
+          localStorage.removeItem(import.meta.env.VITE_USER_STORAGE_KEY || 'superAdminUser');
+          window.location.href = '/superadmin/login';
+        }
       }
     }
     return Promise.reject(error);

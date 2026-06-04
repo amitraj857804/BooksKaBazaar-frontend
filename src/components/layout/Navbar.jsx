@@ -8,13 +8,13 @@ import { CartDrawer } from "../cart";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { openAuthModal, user, logoutUser } = useAuth();
+  const isLoggedIn = !!user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchHovered, setSearchHovered] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [bounceCart, setBounceCart] = useState(false);
-  const { openAuthModal } = useAuth();
   const navigate = useNavigate();
   const cartIconRef = useRef(null);
   const { cartIconRef: contextCartIconRef, isFlying } = useFlyToCartContext();
@@ -60,7 +60,7 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
               {/* Search Bar */}
-              <div 
+              <div
                 className="relative transition-all duration-300"
                 onMouseEnter={() => setSearchHovered(true)}
                 onMouseLeave={() => setSearchHovered(false)}
@@ -70,9 +70,8 @@ const Navbar = () => {
                   placeholder="Search books..."
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setSearchFocused(false)}
-                  className={`px-4 py-2 rounded-lg bg-gray-100 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-300 ${
-                    searchHovered || searchFocused ? "w-96" : "w-64"
-                  }`}
+                  className={`px-4 py-2 rounded-lg bg-gray-100 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-300 ${searchHovered || searchFocused ? "w-96" : "w-64"
+                    }`}
                 />
                 <Search className="absolute right-3 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
@@ -135,9 +134,9 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-4">
-                  <span className="text-gray-700 font-medium">Profile</span>
+                  <span className="text-gray-700 font-medium">{user?.fullName || "Profile"}</span>
                   <button
-                    onClick={() => setIsLoggedIn(false)}
+                    onClick={logoutUser}
                     className="px-4 py-2 text-gray-700 font-medium hover:text-red-600 transition"
                   >
                     Logout
@@ -180,19 +179,30 @@ const Navbar = () => {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden pb-4 space-y-4">
+            <div className="md:hidden pb-4 space-y-4 mt-2 p-4 bg-gray-50/95 backdrop-blur-md rounded-xl text-gray-800 shadow-lg border border-gray-200/50">
+              {/* Search Bar */}
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search books..."
-                  className="w-full px-4 py-2 rounded-lg bg-gray-100 text-sm placeholder-gray-500 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white text-gray-800 placeholder-gray-400 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm shadow-sm"
                 />
                 <Search className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
               </div>
-              <a href="#" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-red-600 font-medium">
+
+              {/* Links */}
+              <a 
+                href="#" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="block text-gray-700 hover:text-red-600 font-semibold py-1 transition"
+              >
                 Categories
               </a>
-              <a href="#" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-red-600 font-medium">
+              <a 
+                href="#" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="block text-gray-700 hover:text-red-600 font-semibold py-1 transition"
+              >
                 New Arrivals
               </a>
               <button
@@ -200,21 +210,21 @@ const Navbar = () => {
                   navigate("/seller");
                   setMobileMenuOpen(false);
                 }}
-                className="block w-full text-left text-gray-700 hover:text-red-600 font-medium"
+                className="block w-full text-left text-gray-700 hover:text-red-600 font-semibold py-1 transition flex items-center gap-1.5 cursor-pointer"
               >
-                <span className="flex items-center gap-1">
-                  <Store size={18} />
-                  Sell with Us
-                </span>
+                <Store size={18} className="text-gray-500" />
+                Sell with Us
               </button>
-              {!isLoggedIn && (
-                <div className="flex gap-2 pt-2">
+
+              {/* Auth section in Mobile Menu */}
+              {!isLoggedIn ? (
+                <div className="flex gap-2 pt-2 border-t border-gray-200">
                   <button
                     onClick={() => {
                       openAuthModal("login");
                       setMobileMenuOpen(false);
                     }}
-                    className="flex-1 px-4 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg"
+                    className="flex-1 px-4 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg hover:bg-gray-100 transition cursor-pointer"
                   >
                     Login
                   </button>
@@ -223,9 +233,29 @@ const Navbar = () => {
                       openAuthModal("signup");
                       setMobileMenuOpen(false);
                     }}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white font-medium rounded-lg"
+                    className="flex-1 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition cursor-pointer"
                   >
                     Sign Up
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-2 border-t border-gray-200 space-y-3">
+                  <div className="flex items-center gap-2 px-1">
+                    <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center font-bold text-white shadow-sm">
+                      {user?.fullName ? user.fullName[0].toUpperCase() : "U"}
+                    </div>
+                    <span className="text-gray-800 font-semibold text-sm">
+                      {user?.fullName || "User Profile"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logoutUser();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-2 bg-gray-100 text-gray-700 font-medium border border-gray-200 rounded-lg hover:bg-gray-200 transition cursor-pointer"
+                  >
+                    Logout
                   </button>
                 </div>
               )}

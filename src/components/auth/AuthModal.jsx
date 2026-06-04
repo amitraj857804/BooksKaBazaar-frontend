@@ -104,15 +104,15 @@ const AuthModal = () => {
                   {authMode === "login"
                     ? "Welcome Back"
                     : authMode === "signup"
-                    ? "Join BooksKaBazaar"
-                    : "Reset Password"}
+                      ? "Join BooksKaBazaar"
+                      : "Reset Password"}
                 </h2>
                 <p className="text-gray-600">
                   {authMode === "login"
                     ? "Sign in to discover your next favorite book"
                     : authMode === "signup"
-                    ? "Create an account and start exploring amazing books"
-                    : "Enter your email and we'll send you a link to reset your password"}
+                      ? "Create an account and start exploring amazing books"
+                      : "Enter your email and we'll send you a link to reset your password"}
                 </p>
               </div>
 

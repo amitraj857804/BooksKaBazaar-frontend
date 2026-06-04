@@ -1,0 +1,50 @@
+import axiosInstance from "../axios/axiosInstance";
+
+export const userApi = {
+  register: async (userData) => {
+    try {
+      const response = await axiosInstance.post("/auth/user/register", {
+        fullName: userData.fullName,
+        emailId: userData.emailId,
+        phoneNumber: userData.phoneNumber,
+        password: userData.password,
+        address: userData.address,
+        city: userData.city,
+        state: userData.state,
+        pincode: userData.pincode,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  login: async (identifier, password) => {
+    try {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+      const response = await axiosInstance.post("/auth/user/login", {
+        email: isEmail ? identifier : "",
+        phone: !isEmail ? identifier : "",
+        password: password,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  forgotPassword: async (identifier) => {
+    try {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+      const response = await axiosInstance.post("/auth/user/forgot-password", {
+        email: isEmail ? identifier : "",
+        phone: !isEmail ? identifier : "",
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
+export default userApi;

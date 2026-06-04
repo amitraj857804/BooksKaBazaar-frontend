@@ -27,7 +27,7 @@ const SkeletonCard = () => {
 
   return (
     <motion.div
-      className="h-full"
+      className="h-full max-w-[220px] sm:max-w-none mx-auto w-full"
       variants={containerVariants}
       initial="initial"
       animate="animate"
@@ -35,7 +35,7 @@ const SkeletonCard = () => {
       <div className="bg-white rounded-lg shadow-sm overflow-hidden h-full flex flex-col border border-gray-100 hover:shadow-md transition-shadow duration-300">
         {/* Image Skeleton */}
         <motion.div
-          className="h-64 sm:h-72 w-full bg-gray-300"
+          className="aspect-[3/4] w-full bg-gray-300 max-h-[180px] sm:max-h-[200px] md:max-h-[220px]"
           variants={elementVariants}
           whileInView={{
             opacity: [0.6, 0.8, 0.6],
@@ -44,10 +44,10 @@ const SkeletonCard = () => {
         />
 
         {/* Content Skeleton */}
-        <div className="p-4 sm:p-5 flex flex-col grow space-y-3">
+        <div className="p-3.5 sm:p-4 flex flex-col grow space-y-2.5">
           {/* Title Line 1 */}
           <motion.div
-            className="h-6 rounded-md w-4/5 bg-gray-300"
+            className="h-4 rounded-md w-4/5 bg-gray-300"
             variants={elementVariants}
             whileInView={{
               opacity: [0.6, 0.8, 0.6],
@@ -57,7 +57,7 @@ const SkeletonCard = () => {
 
           {/* Title Line 2 */}
           <motion.div
-            className="h-6 rounded-md w-3/5 bg-gray-300"
+            className="h-4 rounded-md w-3/5 bg-gray-300"
             variants={elementVariants}
             whileInView={{
               opacity: [0.6, 0.8, 0.6],
@@ -67,7 +67,7 @@ const SkeletonCard = () => {
 
           {/* Author Skeleton */}
           <motion.div
-            className="h-4 rounded-md w-2/5 bg-gray-300 mt-1"
+            className="h-3 rounded-md w-2/5 bg-gray-300 mt-1"
             variants={elementVariants}
             whileInView={{
               opacity: [0.6, 0.8, 0.6],
@@ -77,7 +77,7 @@ const SkeletonCard = () => {
 
           {/* Price Skeleton */}
           <motion.div
-            className="h-8 rounded-md w-1/3 bg-gray-300 mt-1"
+            className="h-6 rounded-md w-1/3 bg-gray-300 mt-1"
             variants={elementVariants}
             whileInView={{
               opacity: [0.6, 0.8, 0.6],
@@ -87,7 +87,7 @@ const SkeletonCard = () => {
 
           {/* Button Skeleton */}
           <motion.div
-            className="h-10 rounded-lg w-full bg-gray-300 mt-auto"
+            className="h-8 rounded-lg w-full bg-gray-300 mt-auto"
             variants={elementVariants}
             whileInView={{
               opacity: [0.6, 0.8, 0.6],

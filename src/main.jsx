@@ -16,7 +16,7 @@ function Fallback({ error }) {
           onClick={() => window.location.reload()}
           className="mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors shadow-sm"
         >
-          Refresh Page
+          Refresh Page...
         </button>
       </div>
     </div>

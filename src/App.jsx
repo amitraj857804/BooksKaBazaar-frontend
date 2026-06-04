@@ -22,10 +22,16 @@ import { SuperAdminProvider } from "./context/superadmin/SuperAdminContext";
 import SuperAdminLogin from "./pages/superadmin/SuperAdminLogin";
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 import SuperAdminProtectedRoute from "./components/superadmin/SuperAdminProtectedRoute";
+import ComingSoon from "./pages/ComingSoon";
 
 function App() {
+  if (import.meta.env.VITE_COMING_SOON === "true") {
+    return <ComingSoon />;
+  }
+
   return (
     <Provider store={store}>
+
       <FlyToCartProvider>
         <AuthProvider>
           <SuperAdminProvider>

@@ -2,6 +2,9 @@ import { Provider } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
+import Bookshelf from "./pages/Bookshelf";
 import SellerLanding from "./pages/admin/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
 import { FlyToCartProvider } from "./context/FlyToCartContext";
@@ -39,6 +42,36 @@ function App() {
                       <AuthModal />
                       <FlyingBook />
                       <Home />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/profile"
+                  element={
+                    <>
+                      <AuthModal />
+                      <Profile />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/cart"
+                  element={
+                    <>
+                      <AuthModal />
+                      <Cart />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/bookshelf"
+                  element={
+                    <>
+                      <AuthModal />
+                      <Bookshelf />
                     </>
                   }
                 />

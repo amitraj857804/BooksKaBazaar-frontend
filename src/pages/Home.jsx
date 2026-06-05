@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
-import Hero from "../features/landing/Hero";
+import Carousel from "../components/common/Carousel";
 import { BookGrid } from "../components/products";
 import { publicApi } from "../services/public/publicApi";
 
@@ -80,12 +80,14 @@ const Home = () => {
       className="bg-gray-50 min-h-screen"
     >
       <Navbar />
-      <Hero />
-      <BookGrid
-        books={books}
-        isLoading={isLoading}
-        onAddToCart={handleAddToCart}
-      />
+      <Carousel isLoading={isLoading} />
+      <div id="book-collection-section">
+        <BookGrid
+          books={books}
+          isLoading={isLoading}
+          onAddToCart={handleAddToCart}
+        />
+      </div>
     </motion.div>
   );
 };

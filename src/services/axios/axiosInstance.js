@@ -15,10 +15,11 @@ const axiosInstance = axios.create({
 // Request interceptor - Add token to headers if available
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Check for admin token first, then superadmin token
+    // Check for admin token first, then superadmin token, then user token
     const adminToken = localStorage.getItem('adminToken');
     const superAdminToken = localStorage.getItem(import.meta.env.VITE_JWT_STORAGE_KEY || 'superAdminToken');
-    const token = adminToken || superAdminToken;
+    const userToken = localStorage.getItem('userToken');
+    const token = adminToken || superAdminToken || userToken;
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

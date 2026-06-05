@@ -1,12 +1,42 @@
 import { motion } from "framer-motion";
 import { useRef } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { useFlyToCart } from "../../hooks/useFlyToCart";
+import { useDispatch, useSelector } from "react-redux";
+import { addToBookshelf, removeFromBookshelf } from "../../store/bookshelfSlice";
+import { useAuth } from "../../context/AuthContext";
+import { wishlistApi } from "../../services/user/wishlistApi";
 
 const BookCard = ({ book, onAddToCart }) => {
   const { title, author, price, imageURL, badge } = book;
   const buttonRef = useRef(null);
   const { handleFlyToCart } = useFlyToCart();
+  const dispatch = useDispatch();
+  const { user, openAuthModal } = useAuth();
+  
+  const { bookshelfItems } = useSelector((state) => state.bookshelf);
+  const isInWishlist = bookshelfItems.some((item) => item.id === book.id);
+
+  const handleWishlistToggle = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      openAuthModal("login");
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        dispatch(removeFromBookshelf(book.id));
+        await wishlistApi.remove(book.id);
+      } else {
+        dispatch(addToBookshelf(book));
+        await wishlistApi.add(book.id);
+      }
+    } catch (err) {
+      console.warn("⚠️ Syncing wishlist with backend failed, using local state: ", err.message);
+    }
+  };
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -23,7 +53,7 @@ const BookCard = ({ book, onAddToCart }) => {
       className="group h-full cursor-pointer max-w-[220px] sm:max-w-none mx-auto w-full"
     >
       <div
-        className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col transition-shadow duration-300 hover:shadow-lg"
+        className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col transition-shadow duration-300 hover:shadow-lg relative"
         style={{ backgroundColor: "#FAFAFA" }}
       >
         {/* Image Container */}
@@ -37,6 +67,20 @@ const BookCard = ({ book, onAddToCart }) => {
             }}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
+
+          {/* Wishlist Toggle Button Overlay */}
+          <button
+            onClick={handleWishlistToggle}
+            className="absolute top-2 left-2 p-1.5 rounded-full bg-white/90 hover:bg-white text-gray-400 hover:text-red-500 transition-all shadow-md z-10 cursor-pointer"
+            aria-label={isInWishlist ? "Remove from Bookshelf" : "Add to Bookshelf"}
+          >
+            <Heart 
+              size={14} 
+              className={`transition-colors duration-200 ${
+                isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"
+              }`} 
+            />
+          </button>
 
           {/* Badge */}
           {badge && (

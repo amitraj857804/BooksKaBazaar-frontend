@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Edit2, Trash2, Plus, AlertCircle, BookX } from "lucide-react";
 import { useDebounce } from "../../utils/adminUtils";
 import AuthenticatedImage from "../common/AuthenticatedImage";
+import toast from "react-hot-toast";
+
 
 const InventoryTable = ({
   books = [],
@@ -33,12 +35,55 @@ const InventoryTable = ({
   // Optimistic delete with immediate UI update
   const handleDelete = useCallback(
     (id) => {
-      if (!confirm("Are you sure you want to delete this book?")) return;
-
-      // Optimistic UI: Remove immediately
-      setDeletingIds((prev) => new Set(prev).add(id));
-
-      onDeleteBook?.(id);
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-3 p-1">
+            <div className="flex items-start gap-2.5">
+              <div className="p-1.5 bg-red-50 rounded-full text-red-600 shrink-0">
+                <Trash2 size={16} />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm">Delete Book</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Are you sure you want to delete this book? This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-1">
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="px-3 py-1.5 text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  // Optimistic UI: Remove immediately
+                  setDeletingIds((prev) => new Set(prev).add(id));
+                  onDeleteBook?.(id);
+                }}
+                className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-700 rounded-lg font-semibold shadow-sm transition-colors cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: 8000,
+          position: "top-center",
+          style: {
+            background: "#ffffff",
+            color: "#1f2937",
+            padding: "12px",
+            borderRadius: "12px",
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+            border: "1px solid #f3f4f6",
+            maxWidth: "350px",
+          },
+        }
+      );
     },
     [onDeleteBook]
   );

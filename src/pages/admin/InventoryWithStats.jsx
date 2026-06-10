@@ -2,16 +2,16 @@ import { useState, useCallback, useEffect } from "react";
 import StatsCards from "../../components/admin/StatsCards";
 import InventoryTable from "../../components/admin/InventoryTable";
 import BookForm from "../../components/admin/BookForm";
-import { mockAdminBooks } from "../../utils/mockAdminBooks";
 import { adminApi } from "../../services/admin/adminApi";
+import toast from "react-hot-toast";
+
 
 const InventoryPage = () => {
   const [books, setBooks] = useState([]);
   const [showBookForm, setShowBookForm] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
-  const [isLoadingForm, setIsLoadingForm] = useState(false);
   const [isLoadingBooks, setIsLoadingBooks] = useState(true);
-  
+
   const [inventoryStats, setInventoryStats] = useState({
     totalBooks: 0,
     totalAvailable: 0,
@@ -36,7 +36,7 @@ const InventoryPage = () => {
         const response = await adminApi.getBooks();
         data = response.data;
       }
-      
+
       let booksArray = [];
       if (data && Array.isArray(data)) {
         booksArray = data;
@@ -45,7 +45,7 @@ const InventoryPage = () => {
       } else if (data && Array.isArray(data.data)) {
         booksArray = data.data;
       }
-      
+
       const mappedBooks = booksArray.map(book => ({
         id: book.bookId,
         title: book.bookTitle,
@@ -53,7 +53,7 @@ const InventoryPage = () => {
         price: book.price,
         category: book.category,
         stock: book.availableStock,
-        imageURL: book.imageFileName 
+        imageURL: book.imageFileName
           ? `/admin/inventory/books/${book.bookId}/image`
           : "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
         isbn: book.isbn,
@@ -62,7 +62,7 @@ const InventoryPage = () => {
         reservedStock: book.reservedStock,
         damagedStock: book.damagedStock
       }));
-      
+
       setBooks(mappedBooks);
     } catch (error) {
       console.error("❌ Failed to fetch books:", error);
@@ -77,7 +77,7 @@ const InventoryPage = () => {
     try {
       setIsLoadingStats(true);
       const data = await adminApi.getInventoryStats();
-      
+
       if (data && data.success) {
         setInventoryStats(data.data);
       }
@@ -108,8 +108,6 @@ const InventoryPage = () => {
   // Handle form submission
   const handleFormSubmit = useCallback(
     async (formData, imageFile) => {
-      setIsLoadingForm(true);
-
       try {
         if (editingBook) {
           // Update existing book with potential new image
@@ -118,21 +116,20 @@ const InventoryPage = () => {
           // Add new book with image
           await adminApi.createBook(formData, imageFile);
         }
-        
+
         // Refresh data
         await fetchBooks();
         await fetchStats();
-        
+
+        toast.success(editingBook ? "Book updated successfully!" : "Book added successfully!");
         setShowBookForm(false);
         setEditingBook(null);
       } catch (error) {
         console.error("❌ Failed to save book:", error);
-        alert("Failed to save book. Please try again.");
-      } finally {
-        setIsLoadingForm(false);
+        toast.error("Failed to save book. Please try again.");
       }
     },
-    [editingBook]
+    [editingBook, fetchBooks, fetchStats]
   );
 
   // Handle delete book
@@ -142,11 +139,12 @@ const InventoryPage = () => {
       // Refresh data
       await fetchBooks();
       await fetchStats();
+      toast.success("Book deleted successfully!");
     } catch (error) {
       console.error("❌ Failed to delete book:", error);
-      alert("Failed to delete book. Please try again.");
+      toast.error("Failed to delete book. Please try again.");
     }
-  }, []);
+  }, [fetchBooks, fetchStats]);
 
   return (
     <div className="space-y-8">

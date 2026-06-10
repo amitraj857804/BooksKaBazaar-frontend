@@ -45,6 +45,15 @@ export const userApi = {
       throw error;
     }
   },
+
+  getProfile: async () => {
+    try {
+      const response = await axiosInstance.get("/auth/user/profile");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default userApi;

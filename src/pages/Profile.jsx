@@ -9,9 +9,14 @@ import Navbar from "../components/layout/Navbar";
 import { useAuth } from "../context/AuthContext";
 
 const Profile = () => {
-  const { user, logoutUser, updateUser, openAuthModal } = useAuth();
+  const { user, logoutUser, updateUser, openAuthModal, fetchUserProfile } = useAuth();
   const navigate = useNavigate();
   
+  // Fetch profile on mount to get the latest details from the server
+  useEffect(() => {
+    fetchUserProfile?.();
+  }, []);
+
   // Guard the page: Redirect to "/" and open login modal if not logged in
   useEffect(() => {
     if (!user) {

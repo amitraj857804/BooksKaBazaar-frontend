@@ -5,12 +5,16 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Bookshelf from "./pages/Bookshelf";
+import Bestsellers from "./pages/Bestsellers";
+import NewArrivals from "./pages/NewArrivals";
 import SellerLanding from "./pages/admin/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
 import { FlyToCartProvider } from "./context/FlyToCartContext";
 import AuthModal from "./components/auth/AuthModal";
 import FlyingBook from "./components/animations/FlyingBook";
 import store from "./store";
+import { Toaster } from "react-hot-toast";
+
 
 // Admin Pages
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -32,6 +36,7 @@ function App() {
       <FlyToCartProvider>
         <AuthProvider>
           <SuperAdminProvider>
+            <Toaster position="top-center" reverseOrder={false} />
             <Router>
               <Routes>
                 {/* Main User Routes */}
@@ -72,6 +77,28 @@ function App() {
                     <>
                       <AuthModal />
                       <Bookshelf />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/bestsellers"
+                  element={
+                    <>
+                      <AuthModal />
+                      <FlyingBook />
+                      <Bestsellers />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/new-arrivals"
+                  element={
+                    <>
+                      <AuthModal />
+                      <FlyingBook />
+                      <NewArrivals />
                     </>
                   }
                 />

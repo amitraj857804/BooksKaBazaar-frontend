@@ -3,7 +3,23 @@ import axiosInstance from "../axios/axiosInstance";
 export const publicApi = {
   getAllBooks: async () => {
     try {
-      const response = await axiosInstance.get("/public/books/all");
+      const response = await axiosInstance.get("/public/books");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getBestsellers: async () => {
+    try {
+      const response = await axiosInstance.get("/public/books/bestsellers");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getNewArrivals: async () => {
+    try {
+      const response = await axiosInstance.get("/public/books/new-arrivals");
       return response.data;
     } catch (error) {
       throw error;

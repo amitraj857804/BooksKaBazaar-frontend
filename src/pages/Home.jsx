@@ -17,7 +17,7 @@ const Home = () => {
       try {
         setIsLoading(true);
         const data = await publicApi.getAllBooks();
-        
+
         let booksArray = [];
         if (data && Array.isArray(data)) {
           booksArray = data;
@@ -32,7 +32,7 @@ const Home = () => {
           title: book.bookTitle,
           author: book.authorName,
           price: parseFloat(book.price) || 0,
-          imageURL: book.imageFileName 
+          imageURL: book.imageFileName
             ? `${API_BASE_URL}/public/books/${book.bookId}/image`
             : "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
           badge: book.category || null,

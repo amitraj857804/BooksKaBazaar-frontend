@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Image as ImageIcon, AlertCircle, CheckCircle } from "lucide-react";
@@ -49,7 +51,7 @@ const BookForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   // Simulate S3 upload with progress
   const handleImageUpload = useCallback(async (file) => {
     if (!file || !file.type.startsWith("image/")) {
-      alert("Please select a valid image file");
+      toast.error("Please select a valid image file");
       return;
     }
 

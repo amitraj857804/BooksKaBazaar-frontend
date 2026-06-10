@@ -42,7 +42,7 @@ const Navbar = () => {
         } else if (data && Array.isArray(data.data)) {
           booksArray = data.data;
         }
-        
+
         const mapped = booksArray.map((item) => {
           const bk = item.bookId ? item : (item.book || {});
           const bookId = bk.bookId || item.id;
@@ -51,13 +51,13 @@ const Navbar = () => {
             title: bk.bookTitle || "Untitled Book",
             author: bk.authorName || "Unknown Author",
             price: parseFloat(bk.price) || 0,
-            imageURL: bk.imageFileName 
+            imageURL: bk.imageFileName
               ? `http://localhost:8080/api/public/books/${bookId}/image`
               : "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
             badge: bk.category || null,
           };
         });
-        
+
         dispatch(setBookshelfItems(mapped));
       } catch (err) {
         console.warn("⚠️ Central wishlist fetch failed: ", err.message);
@@ -90,13 +90,13 @@ const Navbar = () => {
   return (
     <>
       <header className="w-full bg-white z-50 shadow-sm sticky top-0 relative">
-       
+
 
 
         {/* Tier 3: Main Brand, Search & Actions */}
         <div className="border-b border-gray-100 bg-white py-3.5 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
-            
+
             {/* Mobile/Tablet Left Menu Trigger (Hamburger menu) - visible under lg */}
             <div className="lg:hidden flex items-center">
               <button
@@ -109,8 +109,8 @@ const Navbar = () => {
             </div>
 
             {/* Logo - left aligned on desktop, centered on mobile/tablet */}
-            <div 
-              onClick={() => navigate("/")} 
+            <div
+              onClick={() => navigate("/")}
               className="shrink-0 font-black text-2xl tracking-tighter cursor-pointer select-none flex items-center gap-1.5 justify-center lg:justify-start flex-1 lg:flex-initial"
             >
               <span className="text-slate-900 font-serif">Books</span>
@@ -133,7 +133,7 @@ const Navbar = () => {
 
             {/* Actions (Login/Sign Up, Bookshelf, Cart) - visible on desktop (lg and up) */}
             <div className="hidden lg:flex items-center gap-6">
-              
+
               {/* Auth Section */}
               {!isLoggedIn ? (
                 <div className="flex gap-2">
@@ -151,7 +151,7 @@ const Navbar = () => {
                   </button>
                 </div>
               ) : (
-                <div 
+                <div
                   onClick={() => navigate("/profile")}
                   className="flex items-center gap-2.5 cursor-pointer group transition select-none"
                 >
@@ -165,7 +165,7 @@ const Navbar = () => {
               )}
 
               {/* Bookshelf Widget */}
-              <button 
+              <button
                 onClick={() => navigate("/bookshelf")}
                 className="flex items-center gap-1.5 text-gray-700 hover:text-[#E31E2E] transition cursor-pointer font-semibold text-sm"
               >
@@ -202,9 +202,9 @@ const Navbar = () => {
 
             {/* Mobile/Tablet Actions (Heart, Cart, Profile User icon) - visible under lg */}
             <div className="lg:hidden flex items-center gap-4">
-              
+
               {/* Heart/Bookshelf Icon */}
-              <button 
+              <button
                 onClick={() => navigate("/bookshelf")}
                 className="text-gray-700 p-1 cursor-pointer hover:text-[#E31E2E] transition-colors"
                 aria-label="Bookshelf"
@@ -227,7 +227,7 @@ const Navbar = () => {
               </motion.div>
 
               {/* Profile/User Icon */}
-              <button 
+              <button
                 onClick={() => {
                   if (isLoggedIn) {
                     navigate("/profile");
@@ -272,9 +272,9 @@ const Navbar = () => {
         <div className="hidden lg:block border-b border-gray-100 bg-white py-2 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex items-center justify-between text-[13px] font-bold text-gray-700 uppercase tracking-wide">
             <div className="flex items-center gap-8">
-              
+
               {/* Categories Dropdown Container */}
-              <div 
+              <div
                 className="relative"
                 onMouseEnter={() => setCategoriesDropdownOpen(true)}
                 onMouseLeave={() => setCategoriesDropdownOpen(false)}
@@ -310,22 +310,16 @@ const Navbar = () => {
               </div>
 
               {/* Best Sellers */}
-              <button 
-                onClick={() => {
-                  const grid = document.querySelector("#book-collection-section");
-                  if (grid) grid.scrollIntoView({ behavior: "smooth" });
-                }}
+              <button
+                onClick={() => navigate("/bestsellers")}
                 className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
               >
                 Best Sellers
               </button>
 
               {/* New Arrivals */}
-              <button 
-                onClick={() => {
-                  const grid = document.querySelector("#book-collection-section");
-                  if (grid) grid.scrollIntoView({ behavior: "smooth" });
-                }}
+              <button
+                onClick={() => navigate("/new-arrivals")}
                 className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
               >
                 New Arrivals
@@ -333,7 +327,7 @@ const Navbar = () => {
 
               {/* Sell With Us */}
               {!isLoggedIn && (
-                <button 
+                <button
                   onClick={() => navigate("/seller")}
                   className="hover:text-[#E31E2E] transition flex items-center gap-1.5 cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
                 >
@@ -343,8 +337,8 @@ const Navbar = () => {
               )}
 
             </div>
-            
-            
+
+
           </div>
         </div>
         {/* Mobile Menu Overlay - visible on mobile and iPads (under lg), scrolls with the navbar */}
@@ -357,22 +351,22 @@ const Navbar = () => {
               className="lg:hidden absolute inset-x-0 top-full bg-white z-40 border-b border-gray-200 shadow-xl p-5 space-y-4 max-h-[calc(100vh-120px)] overflow-y-auto"
             >
 
-             
+
 
               {/* Categories & Links */}
               <div className="space-y-3 font-bold text-sm text-gray-700">
                 <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Explore Collections</div>
-                
+
                 {/* Collapsible Categories accordion section */}
                 <div className="border-b border-gray-100 pb-2">
-                  <button 
+                  <button
                     onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
                     className="flex justify-between items-center w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer"
                   >
                     <span>Categories</span>
                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileCategoriesOpen ? "rotate-180" : ""}`} />
                   </button>
-                  
+
                   <AnimatePresence>
                     {mobileCategoriesOpen && (
                       <motion.div
@@ -394,32 +388,30 @@ const Navbar = () => {
                   </AnimatePresence>
                 </div>
 
-                <button 
+                <button
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    const grid = document.querySelector("#book-collection-section");
-                    if (grid) grid.scrollIntoView({ behavior: "smooth" });
-                  }} 
+                    navigate("/bestsellers");
+                  }}
                   className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer"
                 >
                   Best Sellers
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    const grid = document.querySelector("#book-collection-section");
-                    if (grid) grid.scrollIntoView({ behavior: "smooth" });
-                  }} 
+                    navigate("/new-arrivals");
+                  }}
                   className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer"
                 >
                   New Arrivals
                 </button>
                 {!isLoggedIn && (
-                  <button 
+                  <button
                     onClick={() => {
                       setMobileMenuOpen(false);
                       navigate("/seller");
-                    }} 
+                    }}
                     className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer"
                   >
                     Sell With Us

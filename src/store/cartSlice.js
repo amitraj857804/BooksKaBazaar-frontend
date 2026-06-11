@@ -79,9 +79,16 @@ const cartSlice = createSlice({
       state.totalQuantity = 0;
       state.totalAmount = 0;
     },
+    // Set cart from backend state
+    setCart: (state, action) => {
+      const { cartItems, totalQuantity, totalAmount } = action.payload;
+      state.cartItems = cartItems;
+      state.totalQuantity = totalQuantity;
+      state.totalAmount = totalAmount;
+    },
   },
 });
 
-export const { addItem, removeItem, updateQuantity, clearCart } =
+export const { addItem, removeItem, updateQuantity, clearCart, setCart } =
   cartSlice.actions;
 export default cartSlice.reducer;

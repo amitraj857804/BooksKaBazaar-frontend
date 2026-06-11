@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  User, Mail, Phone, MapPin, ShoppingBag, LogOut, 
-  Edit3, Save, X, Shield, ChevronRight, Check, Loader2, BookOpen
+import {
+  User, Mail, Phone, MapPin, ShoppingBag, LogOut,
+  Edit3, Save, X, Shield, ChevronRight, Check, Loader2, BookOpen,
+  PackageCheck, Clock, Truck, XCircle, AlertCircle, Package
 } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
 import { useAuth } from "../context/AuthContext";
+import { checkoutApi } from "../services/user/checkoutApi";
 
 const Profile = () => {
   const { user, logoutUser, updateUser, openAuthModal, fetchUserProfile } = useAuth();
@@ -29,6 +31,11 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Order history state
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState(null);
 
   // Form states
   const [fullName, setFullName] = useState(user?.fullName || "");
@@ -97,29 +104,38 @@ const Profile = () => {
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  const mockOrders = [
-    {
-      id: "BKB-2026-9812",
-      date: "May 28, 2026",
-      status: "Delivered",
-      total: 799,
-      books: [
-        { title: "The Alchemist", quantity: 1, price: 349 },
-        { title: "React Design Patterns", quantity: 1, price: 450 }
-      ],
-      trackingId: "TRK981234567"
-    },
-    {
-      id: "BKB-2026-4531",
-      date: "June 02, 2026",
-      status: "In Transit",
-      total: 450,
-      books: [
-        { title: "Harry Potter & the Sorcerer's Stone", quantity: 1, price: 450 }
-      ],
-      trackingId: "TRK453198765"
+  // Fetch real order history when the Orders tab becomes active
+  const fetchOrders = useCallback(async () => {
+    if (!user) return;
+    setOrdersLoading(true);
+    setOrdersError(null);
+    try {
+      const data = await checkoutApi.getOrders();
+      if (data.success) {
+        setOrders(data.orders || []);
+      } else {
+        setOrdersError(data.error || "Failed to load orders.");
+      }
+    } catch (err) {
+      setOrdersError(err.response?.data?.error || err.message || "Failed to load orders.");
+    } finally {
+      setOrdersLoading(false);
     }
-  ];
+  }, [user]);
+
+  useEffect(() => {
+    if (activeTab === "orders") fetchOrders();
+  }, [activeTab, fetchOrders]);
+
+  // Status badge config
+  const statusConfig = {
+    PENDING:   { label: "Pending",    icon: Clock,        classes: "bg-amber-50 text-amber-700 border-amber-200" },
+    PAID:      { label: "Paid",       icon: PackageCheck,  classes: "bg-blue-50 text-blue-700 border-blue-200" },
+    SHIPPED:   { label: "Shipped",    icon: Truck,         classes: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+    DELIVERED: { label: "Delivered",  icon: PackageCheck,  classes: "bg-green-50 text-green-700 border-green-200" },
+    CANCELLED: { label: "Cancelled",  icon: XCircle,       classes: "bg-gray-50 text-gray-500 border-gray-200" },
+    FAILED:    { label: "Failed",     icon: AlertCircle,   classes: "bg-red-50 text-red-700 border-red-200" },
+  };
 
   // Helper to render user initials avatar
   const initials = fullName
@@ -431,74 +447,140 @@ const Profile = () => {
               {/* Tab 3: Orders */}
               {activeTab === "orders" && (
                 <div>
-                  <div className="pb-5 border-b border-gray-100 mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">Order History</h3>
-                    <p className="text-xs text-gray-500 mt-1">Review your recent purchases and check shipping progress.</p>
+                  <div className="flex items-center justify-between pb-5 border-b border-gray-100 mb-6">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Order History</h3>
+                      <p className="text-xs text-gray-500 mt-1">All your purchases from BooksKaBazaar.</p>
+                    </div>
+                    <button
+                      onClick={fetchOrders}
+                      disabled={ordersLoading}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-xs text-gray-600 transition cursor-pointer disabled:opacity-50"
+                    >
+                      {ordersLoading ? <Loader2 size={13} className="animate-spin" /> : <Package size={13} />}
+                      Refresh
+                    </button>
                   </div>
 
-                  <div className="space-y-6">
-                    {mockOrders.map((order) => (
-                      <div 
-                        key={order.id} 
-                        className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-200 bg-white"
-                      >
-                        {/* Order Card Header */}
-                        <div className="bg-gray-50 px-5 py-4 flex flex-wrap justify-between items-center gap-3 border-b border-gray-100">
-                          <div className="flex gap-6">
-                            <div>
-                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order Placed</p>
-                              <p className="text-xs font-bold text-gray-700 mt-0.5">{order.date}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Amount</p>
-                              <p className="text-xs font-bold text-gray-900 mt-0.5">₹{order.total}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order ID</p>
-                              <p className="text-xs font-bold text-slate-800 mt-0.5 select-all">{order.id}</p>
-                            </div>
+                  {/* Loading skeleton */}
+                  {ordersLoading && (
+                    <div className="space-y-4">
+                      {[1, 2].map(i => (
+                        <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden animate-pulse">
+                          <div className="bg-gray-50 px-5 py-4 h-16" />
+                          <div className="p-5 space-y-3">
+                            <div className="h-4 bg-gray-100 rounded-lg w-3/4" />
+                            <div className="h-4 bg-gray-100 rounded-lg w-1/2" />
                           </div>
-                          
-                          {/* Status Badge */}
-                          <span className={`px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide uppercase ${
-                            order.status === "Delivered"
-                              ? "bg-green-50 text-green-700 border border-green-200"
-                              : "bg-amber-50 text-amber-700 border border-amber-200 animate-pulse"
-                          }`}>
-                            {order.status}
-                          </span>
                         </div>
+                      ))}
+                    </div>
+                  )}
 
-                        {/* Order Items */}
-                        <div className="p-5 space-y-4">
-                          {order.books.map((book, idx) => (
-                            <div key={idx} className="flex justify-between items-center gap-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-13 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 text-gray-400">
-                                  <BookOpen size={18} />
+                  {/* Error state */}
+                  {!ordersLoading && ordersError && (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <AlertCircle size={40} className="text-red-300 mb-3" />
+                      <p className="text-sm font-bold text-gray-600">Failed to load orders</p>
+                      <p className="text-xs text-gray-400 mt-1 mb-4">{ordersError}</p>
+                      <button onClick={fetchOrders} className="px-4 py-2 bg-[#E31E2E] text-white rounded-xl font-bold text-xs hover:bg-red-700 transition cursor-pointer">
+                        Try Again
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Empty state */}
+                  {!ordersLoading && !ordersError && orders.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <ShoppingBag size={28} className="text-gray-300" />
+                      </div>
+                      <p className="text-sm font-bold text-gray-600">No orders yet</p>
+                      <p className="text-xs text-gray-400 mt-1">Your completed orders will appear here.</p>
+                    </div>
+                  )}
+
+                  {/* Real order cards */}
+                  {!ordersLoading && !ordersError && orders.length > 0 && (
+                    <div className="space-y-5">
+                      {orders.map((order) => {
+                        const cfg = statusConfig[order.status] || statusConfig.PENDING;
+                        const StatusIcon = cfg.icon;
+                        const orderDate = order.orderDate
+                          ? new Date(order.orderDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                          : "—";
+
+                        return (
+                          <motion.div
+                            key={order.orderId}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-200 bg-white"
+                          >
+                            {/* Order Card Header */}
+                            <div className="bg-gray-50 px-5 py-4 flex flex-wrap justify-between items-center gap-3 border-b border-gray-100">
+                              <div className="flex flex-wrap gap-5">
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order Placed</p>
+                                  <p className="text-xs font-bold text-gray-700 mt-0.5">{orderDate}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-bold text-gray-900 leading-tight">{book.title}</p>
-                                  <p className="text-xs font-semibold text-gray-500 mt-1">Qty: {book.quantity}</p>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Amount</p>
+                                  <p className="text-xs font-bold text-gray-900 mt-0.5">₹{parseFloat(order.totalAmount).toFixed(2)}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order ID</p>
+                                  <p className="text-xs font-bold text-slate-800 mt-0.5 select-all">BKB-{order.orderId}</p>
                                 </div>
                               </div>
-                              <span className="text-sm font-bold text-gray-800">₹{book.price * book.quantity}</span>
-                            </div>
-                          ))}
 
-                          {/* Order Footer Actions */}
-                          <div className="pt-4 border-t border-gray-50 flex items-center justify-between text-xs font-bold">
-                            <span className="text-gray-500 select-all font-semibold">
-                              Tracking ID: <span className="text-gray-700">{order.trackingId}</span>
-                            </span>
-                            <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition">
-                              Track Shipments
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                              {/* Status badge */}
+                              <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide uppercase border ${cfg.classes}`}>
+                                <StatusIcon size={11} />
+                                {cfg.label}
+                              </span>
+                            </div>
+
+                            {/* Order Items */}
+                            <div className="p-5 space-y-3.5">
+                              {(order.items || []).map((item) => (
+                                <div key={item.orderItemId} className="flex items-center gap-4">
+                                  <img
+                                    src={item.imageUrl}
+                                    alt={item.bookTitle}
+                                    onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=80&h=100&fit=crop"; }}
+                                    className="w-10 h-14 object-cover rounded-lg shadow-sm shrink-0"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-gray-900 truncate leading-tight">{item.bookTitle}</p>
+                                    <p className="text-xs text-gray-500 mt-0.5">by {item.authorName}</p>
+                                    <p className="text-xs text-gray-400 mt-0.5">Qty: {item.quantity} × ₹{parseFloat(item.priceAtPurchase).toFixed(2)}</p>
+                                  </div>
+                                  <span className="text-sm font-black text-gray-800 shrink-0">
+                                    ₹{parseFloat(item.subTotal).toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+
+                              {/* Footer */}
+                              <div className="pt-3.5 border-t border-gray-50 flex items-center justify-between">
+                                <span className="text-xs text-gray-400 font-semibold">
+                                  {order.paymentId ? (
+                                    <>Payment ID: <span className="text-gray-600 select-all">{order.paymentId}</span></>
+                                  ) : (
+                                    <span className="text-amber-600">Payment pending</span>
+                                  )}
+                                </span>
+                                <span className="text-xs font-bold text-gray-500">
+                                  {order.city && `${order.city}, ${order.state}`}
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 

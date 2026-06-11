@@ -4,15 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { Heart, Trash2, ShoppingCart, ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
 import { removeFromBookshelf, setBookshelfItems } from "../store/bookshelfSlice";
-import { addItem } from "../store/cartSlice";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 import { wishlistApi } from "../services/user/wishlistApi";
+import { useCart } from "../hooks/useCart";
 
 const Bookshelf = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, openAuthModal } = useAuth();
+  const { addToCart } = useCart();
   const { bookshelfItems } = useSelector((state) => state.bookshelf);
 
   // Fetch wishlist from backend on load
@@ -29,7 +30,7 @@ const Bookshelf = () => {
         } else if (data && Array.isArray(data.data)) {
           booksArray = data.data;
         }
-        
+
         const mapped = booksArray.map((item) => {
           const bk = item.bookId ? item : (item.book || {});
           const bookId = bk.bookId || item.id;
@@ -38,13 +39,13 @@ const Bookshelf = () => {
             title: bk.bookTitle || "Untitled Book",
             author: bk.authorName || "Unknown Author",
             price: parseFloat(bk.price) || 0,
-            imageURL: bk.imageFileName 
+            imageURL: bk.imageFileName
               ? `http://localhost:8080/api/public/books/${bookId}/image`
               : "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
             badge: bk.category || null,
           };
         });
-        
+
         dispatch(setBookshelfItems(mapped));
       } catch (err) {
         console.warn("⚠️ Fetching wishlist from backend failed: ", err.message);
@@ -54,14 +55,7 @@ const Bookshelf = () => {
   }, [user, dispatch]);
 
   const handleAddToCart = (book) => {
-    dispatch(addItem({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      price: book.price,
-      imageURL: book.imageURL,
-      quantity: 1
-    }));
+    addToCart(book);
   };
 
   const handleRemove = async (bookId) => {
@@ -77,7 +71,7 @@ const Bookshelf = () => {
     return (
       <div className="bg-gray-50 min-h-screen pb-16">
         <Navbar />
-        
+
         <main className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center max-w-md mx-auto">
             <div className="w-16 h-16 bg-red-50 text-[#E31E2E] rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
@@ -110,7 +104,7 @@ const Bookshelf = () => {
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
       <Navbar />
-      
+
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-6 uppercase tracking-wider">
@@ -158,7 +152,7 @@ const Bookshelf = () => {
               </button>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               layout
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 sm:gap-6"
             >
@@ -174,24 +168,26 @@ const Bookshelf = () => {
                 >
                   {/* cover image */}
                   <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-                    <img 
-                      src={book.imageURL} 
-                      alt={book.title} 
+                    <img
+                      src={book.imageURL}
+                      alt={book.title}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop";
                       }}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    
+
                     {/* remove absolute trash button */}
-                    <button
+                    <motion.button
                       onClick={() => handleRemove(book.id)}
-                      className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-gray-400 hover:text-red-500 shadow-md transition cursor-pointer hover:scale-105"
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-gray-400 hover:text-red-500 shadow-md cursor-pointer z-10"
                       title="Remove from wishlist"
+                      whileHover={{ scale: 1.15, rotate: [0, -8, 8, -8, 0], transition: { duration: 0.3 } }}
+                      whileTap={{ scale: 0.85 }}
                     >
                       <Trash2 size={14} />
-                    </button>
+                    </motion.button>
 
                     {book.badge && (
                       <span className="absolute top-2 left-2 px-2 py-0.5 bg-[#E31E2E] text-white text-[9px] font-black uppercase rounded shadow-sm">
@@ -206,10 +202,10 @@ const Bookshelf = () => {
                       {book.title}
                     </h3>
                     <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-1 mb-2">by {book.author}</p>
-                    
+
                     <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
                       <span className="text-sm font-black text-gray-900">${book.price.toFixed(2)}</span>
-                      
+
                       <button
                         onClick={() => handleAddToCart(book)}
                         className="p-2 bg-[#E31E2E] hover:bg-red-700 text-white rounded-lg transition-colors cursor-pointer"

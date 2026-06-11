@@ -7,6 +7,7 @@ import Cart from "./pages/Cart";
 import Bookshelf from "./pages/Bookshelf";
 import Bestsellers from "./pages/Bestsellers";
 import NewArrivals from "./pages/NewArrivals";
+import BookDetails from "./pages/BookDetails";
 import SellerLanding from "./pages/admin/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
 import { FlyToCartProvider } from "./context/FlyToCartContext";
@@ -99,6 +100,17 @@ function App() {
                       <AuthModal />
                       <FlyingBook />
                       <NewArrivals />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/book/:bookId"
+                  element={
+                    <>
+                      <AuthModal />
+                      <FlyingBook />
+                      <BookDetails />
                     </>
                   }
                 />

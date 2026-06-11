@@ -14,10 +14,7 @@ export const wishlistApi = {
 
   remove: async (bookId) => {
     try {
-      // Attempt standard /remove post first, fall back to /delete or delete request if needed
-      const response = await axiosInstance.post("/auth/user/wishlist/remove", {
-        bookId: parseInt(bookId, 10),
-      });
+      const response = await axiosInstance.delete(`/auth/user/wishlist/remove/${parseInt(bookId, 10)}`);
       return response.data;
     } catch (error) {
       throw error;

@@ -4,12 +4,14 @@ import Navbar from "../components/layout/Navbar";
 import { BookGrid } from "../components/products";
 import { publicApi } from "../services/public/publicApi";
 import { Sparkles, Clock } from "lucide-react";
+import { useCart } from "../hooks/useCart";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const NewArrivals = () => {
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchNewArrivals = async () => {
@@ -89,7 +91,7 @@ const NewArrivals = () => {
   }, []);
 
   const handleAddToCart = (book) => {
-    console.log("New Arrival added to cart:", book);
+    addToCart(book);
   };
 
   // Page entry animation

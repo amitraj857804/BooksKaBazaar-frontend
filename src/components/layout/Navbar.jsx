@@ -6,7 +6,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useFlyToCartContext } from "../../context/FlyToCartContext";
 import { useNavigate } from "react-router-dom";
 import { wishlistApi } from "../../services/user/wishlistApi";
-import { setBookshelfItems } from "../../store/bookshelfSlice";
+import { setBookshelfItems, clearBookshelf } from "../../store/bookshelfSlice";
+import { clearCart } from "../../store/cartSlice";
+import { useCart } from "../../hooks/useCart";
 
 const Navbar = () => {
   const { openAuthModal, user, logoutUser } = useAuth();
@@ -25,8 +27,42 @@ const Navbar = () => {
   const cartIconRef = useRef(null);
   const { cartIconRef: contextCartIconRef, isFlying } = useFlyToCartContext();
 
-  // Get cart data from Redux
+  // Get cart and bookshelf data from Redux
   const { totalQuantity } = useSelector((state) => state.cart);
+  const { bookshelfItems } = useSelector((state) => state.bookshelf);
+  
+  const { syncCart } = useCart();
+
+  const [bounceBookshelf, setBounceBookshelf] = useState(false);
+  const prevBookshelfLength = useRef(bookshelfItems?.length || 0);
+
+  useEffect(() => {
+    if (bookshelfItems && bookshelfItems.length !== prevBookshelfLength.current) {
+      setBounceBookshelf(true);
+      prevBookshelfLength.current = bookshelfItems.length;
+    }
+  }, [bookshelfItems?.length]);
+
+  // Sync cart from backend
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!isLoggedIn) return;
+      try {
+        await syncCart();
+      } catch (err) {
+        console.warn("⚠️ Central cart fetch failed: ", err.message);
+      }
+    };
+    fetchCart();
+  }, [isLoggedIn, syncCart]);
+
+  // Clear cart and bookshelf states on logout
+  useEffect(() => {
+    if (!isLoggedIn) {
+      dispatch(clearCart());
+      dispatch(clearBookshelf());
+    }
+  }, [isLoggedIn, dispatch]);
 
   // Sync wishlist from backend
   useEffect(() => {
@@ -165,13 +201,31 @@ const Navbar = () => {
               )}
 
               {/* Bookshelf Widget */}
-              <button
+              <motion.button
                 onClick={() => navigate("/bookshelf")}
-                className="flex items-center gap-1.5 text-gray-700 hover:text-[#E31E2E] transition cursor-pointer font-semibold text-sm"
+                className="flex items-center gap-1.5 text-gray-700 hover:text-[#E31E2E] transition cursor-pointer font-semibold text-sm relative"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={bounceBookshelf ? { scale: [1, 1.25, 0.9, 1.08, 1] } : {}}
+                onAnimationComplete={() => setBounceBookshelf(false)}
+                transition={{ duration: 0.4 }}
               >
-                <Heart className="w-5.5 h-5.5 text-gray-500" />
+                <div className="relative">
+                  <Heart className={`w-5.5 h-5.5 transition-colors ${bookshelfItems.length > 0 ? "fill-[#E31E2E] text-[#E31E2E]" : "text-gray-500"}`} />
+                  {bookshelfItems.length > 0 && (
+                    <motion.span
+                      key={bookshelfItems.length}
+                      className="absolute -top-2 -right-2 bg-[#E31E2E] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center border border-white"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 12 }}
+                    >
+                      {bookshelfItems.length}
+                    </motion.span>
+                  )}
+                </div>
                 <span>Bookshelf</span>
-              </button>
+              </motion.button>
 
               {/* Shopping Cart */}
               <motion.div
@@ -204,13 +258,21 @@ const Navbar = () => {
             <div className="lg:hidden flex items-center gap-4">
 
               {/* Heart/Bookshelf Icon */}
-              <button
+              <motion.button
                 onClick={() => navigate("/bookshelf")}
-                className="text-gray-700 p-1 cursor-pointer hover:text-[#E31E2E] transition-colors"
+                className="text-gray-700 p-1 cursor-pointer hover:text-[#E31E2E] transition-colors relative flex items-center justify-center"
                 aria-label="Bookshelf"
+                whileTap={{ scale: 0.95 }}
+                animate={bounceBookshelf ? { scale: [1, 1.25, 0.9, 1.08, 1] } : {}}
+                transition={{ duration: 0.4 }}
               >
-                <Heart className="w-5.5 h-5.5 text-gray-600" />
-              </button>
+                <Heart className={`w-5.5 h-5.5 transition-colors ${bookshelfItems.length > 0 ? "fill-[#E31E2E] text-[#E31E2E]" : "text-gray-600"}`} />
+                {bookshelfItems.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#E31E2E] text-white text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white">
+                    {bookshelfItems.length}
+                  </span>
+                )}
+              </motion.button>
 
               {/* Shopping Cart */}
               <motion.div

@@ -4,12 +4,14 @@ import Navbar from "../components/layout/Navbar";
 import Carousel from "../components/common/Carousel";
 import { BookGrid } from "../components/products";
 import { publicApi } from "../services/public/publicApi";
+import { useCart } from "../hooks/useCart";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { addToCart } = useCart();
 
   // Fetch all books from backend
   useEffect(() => {
@@ -56,8 +58,7 @@ const Home = () => {
   }, []);
 
   const handleAddToCart = (book) => {
-    console.log("Added to cart:", book);
-    // TODO: Implement cart functionality
+    addToCart(book);
   };
 
   // Page container animation

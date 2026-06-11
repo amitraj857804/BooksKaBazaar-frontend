@@ -1,8 +1,9 @@
-import { motion } from "framer-motion";
-import { useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useFlyToCart } from "../../hooks/useFlyToCart";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { addToBookshelf, removeFromBookshelf } from "../../store/bookshelfSlice";
 import { useAuth } from "../../context/AuthContext";
 import { wishlistApi } from "../../services/user/wishlistApi";
@@ -12,8 +13,10 @@ const BookCard = ({ book, onAddToCart }) => {
   const buttonRef = useRef(null);
   const { handleFlyToCart } = useFlyToCart();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user, openAuthModal } = useAuth();
   
+  const [particles, setParticles] = useState([]);
   const { bookshelfItems } = useSelector((state) => state.bookshelf);
   const isInWishlist = bookshelfItems.some((item) => item.id === book.id);
 
@@ -30,6 +33,17 @@ const BookCard = ({ book, onAddToCart }) => {
         dispatch(removeFromBookshelf(book.id));
         await wishlistApi.remove(book.id);
       } else {
+        // Generate particles
+        const newParticles = Array.from({ length: 6 }).map((_, i) => ({
+          id: Math.random(),
+          destX: (Math.random() - 0.5) * 50, // -25 to 25
+          destY: -80 - Math.random() * 50,  // -80 to -130
+          scale: 0.5 + Math.random() * 0.7,
+          delay: Math.random() * 0.15,
+        }));
+        setParticles(newParticles);
+        setTimeout(() => setParticles([]), 1000);
+
         dispatch(addToBookshelf(book));
         await wishlistApi.add(book.id);
       }
@@ -40,6 +54,7 @@ const BookCard = ({ book, onAddToCart }) => {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     // Trigger fly-to-cart animation
     handleFlyToCart(book, buttonRef.current);
     // Call callback if provided
@@ -51,6 +66,7 @@ const BookCard = ({ book, onAddToCart }) => {
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 300, damping: 10 }}
       className="group h-full cursor-pointer max-w-[220px] sm:max-w-none mx-auto w-full"
+      onClick={() => navigate(`/book/${book.id}`)}
     >
       <div
         className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col transition-shadow duration-300 hover:shadow-lg relative"
@@ -69,18 +85,46 @@ const BookCard = ({ book, onAddToCart }) => {
           />
 
           {/* Wishlist Toggle Button Overlay */}
-          <button
-            onClick={handleWishlistToggle}
-            className="absolute top-2 left-2 p-1.5 rounded-full bg-white/90 hover:bg-white text-gray-400 hover:text-red-500 transition-all shadow-md z-10 cursor-pointer"
-            aria-label={isInWishlist ? "Remove from Bookshelf" : "Add to Bookshelf"}
-          >
-            <Heart 
-              size={14} 
-              className={`transition-colors duration-200 ${
-                isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"
-              }`} 
-            />
-          </button>
+          <div className="absolute top-2 left-2 z-20">
+            <motion.button
+              onClick={handleWishlistToggle}
+              className="p-1.5 rounded-full bg-white/90 hover:bg-white text-gray-400 hover:text-red-500 transition-all shadow-md cursor-pointer relative flex items-center justify-center"
+              aria-label={isInWishlist ? "Remove from Bookshelf" : "Add to Bookshelf"}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.85 }}
+            >
+              <Heart 
+                size={14} 
+                className={`transition-colors duration-200 ${
+                  isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"
+                }`} 
+              />
+              {/* Floating heart particles */}
+              <AnimatePresence>
+                {particles.map((p) => (
+                  <motion.span
+                    key={p.id}
+                    className="absolute pointer-events-none select-none text-[10px]"
+                    initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
+                    animate={{ 
+                      x: p.destX, 
+                      y: p.destY, 
+                      opacity: [1, 0.8, 0], 
+                      scale: p.scale 
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ 
+                      duration: 0.8, 
+                      ease: "easeOut",
+                      delay: p.delay 
+                    }}
+                  >
+                    ❤️
+                  </motion.span>
+                ))}
+              </AnimatePresence>
+            </motion.button>
+          </div>
 
           {/* Badge */}
           {badge && (

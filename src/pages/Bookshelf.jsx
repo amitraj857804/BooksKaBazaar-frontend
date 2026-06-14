@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Heart, Trash2, ShoppingCart, ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
+import BookCard from "../components/products/BookCard";
 import { removeFromBookshelf, setBookshelfItems } from "../store/bookshelfSlice";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
@@ -121,11 +122,11 @@ const Bookshelf = () => {
             </p>
           </div>
           <button
-            onClick={() => navigate("/")}
-            className="hidden sm:flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-[#E31E2E] transition cursor-pointer"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 md:text-sm text-xs font-bold text-gray-600 hover:text-[#E31E2E] transition cursor-pointer"
           >
             <ArrowLeft size={16} />
-            <span>Continue Shopping</span>
+            <span className="hidden sm:inline">Go Back</span>
           </button>
         </div>
 
@@ -164,57 +165,8 @@ const Bookshelf = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9, y: 20 }}
                   transition={{ duration: 0.25 }}
-                  className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md flex flex-col h-full group transition-all duration-200 relative"
                 >
-                  {/* cover image */}
-                  <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-                    <img
-                      src={book.imageURL}
-                      alt={book.title}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop";
-                      }}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-
-                    {/* remove absolute trash button */}
-                    <motion.button
-                      onClick={() => handleRemove(book.id)}
-                      className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-gray-400 hover:text-red-500 shadow-md cursor-pointer z-10"
-                      title="Remove from wishlist"
-                      whileHover={{ scale: 1.15, rotate: [0, -8, 8, -8, 0], transition: { duration: 0.3 } }}
-                      whileTap={{ scale: 0.85 }}
-                    >
-                      <Trash2 size={14} />
-                    </motion.button>
-
-                    {book.badge && (
-                      <span className="absolute top-2 left-2 px-2 py-0.5 bg-[#E31E2E] text-white text-[9px] font-black uppercase rounded shadow-sm">
-                        {book.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* details */}
-                  <div className="p-3.5 flex flex-col flex-1">
-                    <h3 className="text-xs sm:text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-1 h-8 sm:h-10 group-hover:text-red-600 transition-colors">
-                      {book.title}
-                    </h3>
-                    <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-1 mb-2">by {book.author}</p>
-
-                    <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
-                      <span className="text-sm font-black text-gray-900">${book.price.toFixed(2)}</span>
-
-                      <button
-                        onClick={() => handleAddToCart(book)}
-                        className="p-2 bg-[#E31E2E] hover:bg-red-700 text-white rounded-lg transition-colors cursor-pointer"
-                        title="Add to cart"
-                      >
-                        <ShoppingCart size={14} />
-                      </button>
-                    </div>
-                  </div>
+                  <BookCard book={book} onAddToCart={handleAddToCart} />
                 </motion.div>
               ))}
             </motion.div>

@@ -54,6 +54,16 @@ export const userApi = {
       throw error;
     }
   },
+
+  updateProfile: async (profileData) => {
+    try {
+      const response = await axiosInstance.put("/auth/user/profile", profileData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default userApi;
+

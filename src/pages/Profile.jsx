@@ -9,6 +9,7 @@ import {
 import Navbar from "../components/layout/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { checkoutApi } from "../services/user/checkoutApi";
+import toast from "react-hot-toast";
 
 const Profile = () => {
   const { user, logoutUser, updateUser, openAuthModal, fetchUserProfile } = useAuth();
@@ -30,7 +31,8 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("info"); // "info" | "address" | "orders"
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [banner, setBanner] = useState(null); // null or { type: "success" | "error", message: string }
+  const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
 
   // Order history state
   const [orders, setOrders] = useState([]);
@@ -61,49 +63,6 @@ const Profile = () => {
     }
   }, [user]);
 
-  if (!user) return null;
-
-  const handleInfoSave = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setSaveSuccess(false);
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    updateUser({
-      fullName,
-      email,
-      phone,
-    });
-
-    setIsSaving(false);
-    setIsEditing(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
-  };
-
-  const handleAddressSave = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setSaveSuccess(false);
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    updateUser({
-      address,
-      city,
-      state: stateName,
-      pincode,
-    });
-
-    setIsSaving(false);
-    setIsEditing(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
-  };
-
   // Fetch real order history when the Orders tab becomes active
   const fetchOrders = useCallback(async () => {
     if (!user) return;
@@ -126,6 +85,73 @@ const Profile = () => {
   useEffect(() => {
     if (activeTab === "orders") fetchOrders();
   }, [activeTab, fetchOrders]);
+
+  if (!user) return null;
+
+  const handleInfoSave = async (e) => {
+    if (e) e.preventDefault();
+
+    const isEmailChanged = email.toLowerCase() !== (user.email || user.emailId || "").toLowerCase();
+    if (isEmailChanged && !showEmailConfirmModal) {
+      setShowEmailConfirmModal(true);
+      return;
+    }
+
+    setIsSaving(true);
+    setBanner(null);
+    setShowEmailConfirmModal(false);
+
+    try {
+      await updateUser({
+        fullName,
+        email,
+        phone,
+      });
+      setIsEditing(false);
+      if (isEmailChanged) {
+        logoutUser();
+        navigate("/");
+        setTimeout(() => {
+          openAuthModal("login");
+        }, 100);
+      } else {
+        setBanner({ type: "success", message: "Profile details updated successfully!" });
+        setTimeout(() => setBanner(null), 4000);
+      }
+    } catch (err) {
+      console.error("Failed to save profile details:", err);
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || err.message || "Failed to update profile";
+      setBanner({ type: "error", message: errorMsg });
+      setTimeout(() => setBanner(null), 6000);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAddressSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setBanner(null);
+
+    try {
+      await updateUser({
+        address,
+        city,
+        state: stateName,
+        pincode,
+      });
+      setIsEditing(false);
+      setBanner({ type: "success", message: "Address updated successfully!" });
+      setTimeout(() => setBanner(null), 4000);
+    } catch (err) {
+      console.error("Failed to save address:", err);
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || err.message || "Failed to update address";
+      setBanner({ type: "error", message: errorMsg });
+      setTimeout(() => setBanner(null), 6000);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Status badge config
   const statusConfig = {
@@ -154,19 +180,25 @@ const Profile = () => {
           <span className="text-[#E31E2E]">My Profile</span>
         </div>
 
-        {/* Success message banner */}
+        {/* Status message banner */}
         <AnimatePresence>
-          {saveSuccess && (
+          {banner && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-sm font-bold text-green-700 shadow-sm"
+              className={`mb-6 p-4 border rounded-xl flex items-center gap-3 text-sm font-bold shadow-sm ${
+                banner.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
             >
-              <div className="bg-green-500 text-white rounded-full p-1 shrink-0">
-                <Check size={16} />
+              <div className={`text-white rounded-full p-1 shrink-0 ${
+                banner.type === "success" ? "bg-green-500" : "bg-red-500"
+              }`}>
+                {banner.type === "success" ? <Check size={16} /> : <AlertCircle size={16} />}
               </div>
-              <span>Profile details updated successfully!</span>
+              <span>{banner.message}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -192,7 +224,7 @@ const Profile = () => {
               <div className="mt-8 space-y-1.5 text-left">
                 <button
                   onClick={() => { setActiveTab("info"); setIsEditing(false); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 cursor-pointer rounded-xl font-bold text-sm transition-all ${
                     activeTab === "info"
                       ? "bg-[#E31E2E] text-white shadow-md shadow-[#E31E2E]/10"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -203,7 +235,7 @@ const Profile = () => {
                 </button>
                 <button
                   onClick={() => { setActiveTab("address"); setIsEditing(false); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-sm transition-all ${
                     activeTab === "address"
                       ? "bg-[#E31E2E] text-white shadow-md shadow-[#E31E2E]/10"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -214,7 +246,7 @@ const Profile = () => {
                 </button>
                 <button
                   onClick={() => { setActiveTab("orders"); setIsEditing(false); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-sm transition-all ${
                     activeTab === "orders"
                       ? "bg-[#E31E2E] text-white shadow-md shadow-[#E31E2E]/10"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -231,7 +263,7 @@ const Profile = () => {
                     logoutUser();
                     navigate("/");
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+                  className="w-full flex items-center gap-3 px-4 py-3  rounded-xl font-bold text-sm text-red-600 hover:bg-red-50 transition-all cursor-pointer"
                 >
                   <LogOut size={18} />
                   <span>Logout Account</span>
@@ -511,7 +543,7 @@ const Profile = () => {
                           : "—";
 
                         return (
-                          <motion.div
+                           <motion.div
                             key={order.orderId}
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -588,6 +620,58 @@ const Profile = () => {
           </div>
         </div>
       </main>
+      {/* Email Change Confirmation Modal */}
+      <AnimatePresence>
+        {showEmailConfirmModal && (
+          <motion.div
+            key="email-confirm-backdrop"
+            className="fixed inset-0 z-[9999] backdrop-blur-sm"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowEmailConfirmModal(false)}
+          >
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative text-center"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle size={24} />
+                </div>
+                
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Change Email Address?</h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  For security reasons, changing your email to <strong className="text-gray-900">{email}</strong> will invalidate your current session. You will be logged out and must sign in again using your new email address.
+                </p>
+
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => handleInfoSave()}
+                    className="flex-1 py-3 bg-[#E31E2E] hover:bg-[#E31E2E]/90 text-white rounded-xl font-bold text-sm shadow-md transition cursor-pointer"
+                  >
+                    Yes, Update & Logout
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowEmailConfirmModal(false);
+                      // Restore original email
+                      setEmail(user.email || user.emailId || "");
+                    }}
+                    className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

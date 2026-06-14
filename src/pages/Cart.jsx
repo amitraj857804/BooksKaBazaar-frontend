@@ -292,11 +292,11 @@ const Cart = () => {
             </p>
           </div>
           <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-[#E31E2E] transition cursor-pointer"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 md:text-sm text-xs font-bold text-gray-600 hover:text-[#E31E2E] transition cursor-pointer"
           >
             <ArrowLeft size={16} />
-            <span>Continue Shopping</span>
+            <span className="hidden sm:inline">Go Back</span>
           </button>
         </div>
 

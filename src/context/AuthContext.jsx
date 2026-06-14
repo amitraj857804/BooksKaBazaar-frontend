@@ -7,7 +7,18 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login"); // "login" or "signup"
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("userData");
+    const storedToken = localStorage.getItem("userToken");
+    if (storedUser && storedToken) {
+      try {
+        return JSON.parse(storedUser);
+      } catch (e) {
+        console.error("Error parsing stored user data", e);
+      }
+    }
+    return null;
+  });
 
   const fetchUserProfile = async () => {
     const token = localStorage.getItem("userToken");
@@ -38,15 +49,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("userData");
     const storedToken = localStorage.getItem("userToken");
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Error parsing stored user data", e);
-      }
-    }
     if (storedToken) {
       fetchUserProfile();
     }
@@ -73,10 +76,20 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const updateUser = (newUserData) => {
-    const updated = { ...user, ...newUserData };
-    localStorage.setItem("userData", JSON.stringify(updated));
-    setUser(updated);
+  const updateUser = async (newUserData) => {
+    const mergedData = { ...user, ...newUserData };
+    const requestBody = {
+      fullName: mergedData.fullName,
+      emailId: mergedData.email || mergedData.emailId,
+      phoneNumber: mergedData.phone || mergedData.phoneNumber,
+      address: mergedData.address,
+      city: mergedData.city,
+      state: mergedData.state,
+      pincode: mergedData.pincode,
+    };
+    await userApi.updateProfile(requestBody);
+    const freshUserData = await fetchUserProfile();
+    return freshUserData;
   };
 
   return (

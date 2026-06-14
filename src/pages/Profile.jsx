@@ -7,6 +7,7 @@ import {
   PackageCheck, Clock, Truck, XCircle, AlertCircle, Package
 } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
 import AddressManager from "../components/profile/AddressManager";
 import { useAuth } from "../context/AuthContext";
 import { userApi } from "../services/user/userApi";
@@ -179,10 +180,11 @@ const Profile = () => {
   const defaultAddress = addresses.find((addr) => addr.isDefault === true || addr.isDefault === "true");
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-12">
+    <div className="bg-gray-50 min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex-grow pb-12">
+        <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-6 uppercase tracking-wider">
           <span className="hover:text-[#E31E2E] cursor-pointer transition" onClick={() => navigate("/")}>Home</span>
@@ -624,6 +626,8 @@ const Profile = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
+      <Footer />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
 import BookCard from "../components/products/BookCard";
 import SkeletonCard from "../components/products/SkeletonCard";
 import { publicApi } from "../services/public/publicApi";
@@ -177,28 +178,29 @@ const SearchPage = () => {
       variants={pageVariants}
       initial="hidden"
       animate="visible"
-      className="bg-gray-50 min-h-screen pb-16"
+      className="bg-gray-50 min-h-screen flex flex-col"
     >
       <Navbar />
 
-      {/* Hero Banner Section */}
-      <section className="bg-slate-50/70 border-b border-slate-200/60 py-8 sm:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#E31E2E]/10 border border-[#E31E2E]/20 text-[#E31E2E] text-xs font-bold uppercase tracking-wide mb-3 font-sans">
-            <Search size={12} className="stroke-[3]" />
-            <span>Search Results</span>
+      <div className="flex-grow">
+        {/* Hero Banner Section */}
+        <section className="bg-slate-50/70 border-b border-slate-200/60 py-8 sm:py-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#E31E2E]/10 border border-[#E31E2E]/20 text-[#E31E2E] text-xs font-bold uppercase tracking-wide mb-3 font-sans">
+              <Search size={12} className="stroke-[3]" />
+              <span>Search Results</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Showing results for <span className="text-[#E31E2E] italic font-serif">"{query}"</span>
+            </h1>
+            <p className="text-gray-500 text-sm mt-2 font-medium font-sans">
+              {isLoading 
+                ? "Scanning our shelves for matching titles, authors, and genres..." 
+                : `Found ${books.length} matching book${books.length === 1 ? "" : "s"} in our inventory.`
+              }
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Showing results for <span className="text-[#E31E2E] italic font-serif">"{query}"</span>
-          </h1>
-          <p className="text-gray-500 text-sm mt-2 font-medium font-sans">
-            {isLoading 
-              ? "Scanning our shelves for matching titles, authors, and genres..." 
-              : `Found ${books.length} matching book${books.length === 1 ? "" : "s"} in our inventory.`
-            }
-          </p>
-        </div>
-      </section>
+        </section>
 
       {/* Main Results Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -301,6 +303,8 @@ const SearchPage = () => {
           </div>
         )}
       </div>
+      </div>
+      <Footer />
     </motion.div>
   );
 };

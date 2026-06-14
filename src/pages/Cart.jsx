@@ -8,6 +8,7 @@ import {
   Loader2, MapPin, X, AlertCircle, CreditCard, Home, Briefcase, Compass, Check
 } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
 import { clearCart } from "../store/cartSlice";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../context/AuthContext";
@@ -558,10 +559,11 @@ const Cart = () => {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="bg-gray-50 min-h-screen pb-16">
+    <div className="bg-gray-50 min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex-grow pb-16">
+        <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-6 uppercase tracking-wider">
           <span className="hover:text-[#E31E2E] cursor-pointer transition" onClick={() => navigate("/")}>Home</span>
@@ -850,6 +852,8 @@ const Cart = () => {
           </div>
         )}
       </AnimatePresence>
+      </div>
+      <Footer />
     </div>
   );
 };

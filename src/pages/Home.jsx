@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
 import Carousel from "../components/common/Carousel";
 import { BookGrid } from "../components/products";
 import { publicApi } from "../services/public/publicApi";
@@ -78,17 +79,20 @@ const Home = () => {
       variants={pageVariants}
       initial="hidden"
       animate="visible"
-      className="bg-gray-50 min-h-screen"
+      className="bg-gray-50 min-h-screen flex flex-col"
     >
       <Navbar />
-      <Carousel isLoading={isLoading} />
-      <div id="book-collection-section">
-        <BookGrid
-          books={books}
-          isLoading={isLoading}
-          onAddToCart={handleAddToCart}
-        />
+      <div className="flex-grow">
+        <Carousel isLoading={isLoading} />
+        <div id="book-collection-section">
+          <BookGrid
+            books={books}
+            isLoading={isLoading}
+            onAddToCart={handleAddToCart}
+          />
+        </div>
       </div>
+      <Footer />
     </motion.div>
   );
 };

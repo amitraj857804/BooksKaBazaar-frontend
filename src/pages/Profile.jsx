@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Mail, Phone, MapPin, ShoppingBag, LogOut,
@@ -7,7 +7,9 @@ import {
   PackageCheck, Clock, Truck, XCircle, AlertCircle, Package
 } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
+import AddressManager from "../components/profile/AddressManager";
 import { useAuth } from "../context/AuthContext";
+import { userApi } from "../services/user/userApi";
 import { checkoutApi } from "../services/user/checkoutApi";
 import toast from "react-hot-toast";
 
@@ -28,7 +30,15 @@ const Profile = () => {
     }
   }, [user, navigate, openAuthModal]);
 
-  const [activeTab, setActiveTab] = useState("info"); // "info" | "address" | "orders"
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "info"); // "info" | "address" | "orders"
+
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location.state]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [banner, setBanner] = useState(null); // null or { type: "success" | "error", message: string }
@@ -44,11 +54,32 @@ const Profile = () => {
   const [email, setEmail] = useState(user?.email || user?.emailId || "");
   const [phone, setPhone] = useState(user?.phone || user?.phoneNumber || "");
   
-  // Address states
-  const [address, setAddress] = useState(user?.address || "");
-  const [city, setCity] = useState(user?.city || "");
-  const [stateName, setStateName] = useState(user?.state || "");
-  const [pincode, setPincode] = useState(user?.pincode || "");
+  // Shipping addresses states
+  const [addresses, setAddresses] = useState([]);
+  const [addressesLoading, setAddressesLoading] = useState(false);
+
+  const fetchAddresses = useCallback(async () => {
+    if (!user) return;
+    try {
+      setAddressesLoading(true);
+      const res = await userApi.getAddresses();
+      let list = [];
+      if (res && Array.isArray(res)) {
+        list = res;
+      } else if (res && res.success && Array.isArray(res.data)) {
+        list = res.data;
+      } else if (res && Array.isArray(res.data)) {
+        list = res.data;
+      } else if (res && res.addresses && Array.isArray(res.addresses)) {
+        list = res.addresses;
+      }
+      setAddresses(list);
+    } catch (err) {
+      console.warn("⚠️ Failed to load addresses in profile page:", err.message);
+    } finally {
+      setAddressesLoading(false);
+    }
+  }, [user]);
 
   // Update local inputs when user changes (e.g. after refresh/login)
   useEffect(() => {
@@ -56,12 +87,14 @@ const Profile = () => {
       setFullName(user.fullName || "");
       setEmail(user.email || user.emailId || "");
       setPhone(user.phone || user.phoneNumber || "");
-      setAddress(user.address || "");
-      setCity(user.city || "");
-      setStateName(user.state || "");
-      setPincode(user.pincode || "");
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && activeTab === "info") {
+      fetchAddresses();
+    }
+  }, [activeTab, fetchAddresses, user]);
 
   // Fetch real order history when the Orders tab becomes active
   const fetchOrders = useCallback(async () => {
@@ -128,31 +161,6 @@ const Profile = () => {
     }
   };
 
-  const handleAddressSave = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setBanner(null);
-
-    try {
-      await updateUser({
-        address,
-        city,
-        state: stateName,
-        pincode,
-      });
-      setIsEditing(false);
-      setBanner({ type: "success", message: "Address updated successfully!" });
-      setTimeout(() => setBanner(null), 4000);
-    } catch (err) {
-      console.error("Failed to save address:", err);
-      const errorMsg = err.response?.data?.message || err.response?.data?.error || err.message || "Failed to update address";
-      setBanner({ type: "error", message: errorMsg });
-      setTimeout(() => setBanner(null), 6000);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   // Status badge config
   const statusConfig = {
     PENDING:   { label: "Pending",    icon: Clock,        classes: "bg-amber-50 text-amber-700 border-amber-200" },
@@ -167,6 +175,8 @@ const Profile = () => {
   const initials = fullName
     ? fullName.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()
     : "U";
+
+  const defaultAddress = addresses.find((addr) => addr.isDefault === true || addr.isDefault === "true");
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
@@ -368,112 +378,54 @@ const Profile = () => {
                       </div>
                     )}
                   </form>
+
+                  {/* Default Address Section */}
+                  <div className="mt-8 pt-6 border-t border-gray-100 font-sans">
+                    <h4 className="text-xs font-bold text-gray-405 uppercase tracking-wider mb-3">Default Shipping Address</h4>
+                    {addressesLoading ? (
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <Loader2 size={12} className="animate-spin text-[#E31E2E]" />
+                        <span>Loading address...</span>
+                      </div>
+                    ) : defaultAddress ? (
+                      <div className="bg-slate-50/70 border border-slate-200/50 rounded-xl p-4 flex items-start gap-3.5 max-w-xl">
+                        <div className="w-8 h-8 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center shrink-0">
+                          <MapPin size={16} className="text-green-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-sm text-slate-800">{defaultAddress.fullName}</span>
+                            <span className="text-[9px] font-black text-slate-500 bg-slate-200/60 px-1.5 py-0.5 rounded uppercase tracking-wide">
+                              {defaultAddress.addressType || "HOME"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 mt-1.5 font-medium select-all leading-relaxed font-sans">
+                            {defaultAddress.addressLine1}, {defaultAddress.city}, {defaultAddress.state} - {defaultAddress.pincode}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1 font-medium font-sans">
+                            Phone: <span className="text-slate-700 font-bold select-all">{defaultAddress.phoneNumber}</span>
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-450 flex items-center gap-2 font-medium">
+                        <span>No default shipping address set.</span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("address")}
+                          className="text-[#E31E2E] hover:underline font-bold cursor-pointer bg-transparent border-none p-0 inline font-sans text-xs"
+                        >
+                          Manage Addresses &rarr;
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
               {/* Tab 2: Addresses */}
               {activeTab === "address" && (
-                <div>
-                  <div className="flex justify-between items-center pb-5 border-b border-gray-100 mb-6">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">Delivery Address</h3>
-                      <p className="text-xs text-gray-500 mt-1">Manage your default shipping location details.</p>
-                    </div>
-                    {!isEditing && (
-                      <button
-                        onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 hover:bg-[#E31E2E] hover:text-white rounded-xl font-bold text-xs text-gray-700 transition cursor-pointer"
-                      >
-                        <Edit3 size={14} />
-                        <span>Edit Address</span>
-                      </button>
-                    )}
-                  </div>
-
-                  <form onSubmit={handleAddressSave} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="md:col-span-3">
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Street Address</label>
-                        <div className="relative">
-                          <MapPin className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-gray-400" />
-                          <input
-                            type="text"
-                            required
-                            placeholder="Apartment, building, street address"
-                            disabled={!isEditing}
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 disabled:bg-gray-50 disabled:text-gray-500 font-semibold text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">City</label>
-                        <input
-                          type="text"
-                          required
-                          disabled={!isEditing}
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 disabled:bg-gray-50 disabled:text-gray-500 font-semibold text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] transition-all"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">State</label>
-                        <input
-                          type="text"
-                          required
-                          disabled={!isEditing}
-                          value={stateName}
-                          onChange={(e) => setStateName(e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 disabled:bg-gray-50 disabled:text-gray-500 font-semibold text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] transition-all"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Pincode</label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={6}
-                          disabled={!isEditing}
-                          value={pincode}
-                          onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 disabled:bg-gray-50 disabled:text-gray-500 font-semibold text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    {isEditing && (
-                      <div className="flex gap-3 pt-4 border-t border-gray-100">
-                        <button
-                          type="submit"
-                          disabled={isSaving}
-                          className="flex items-center justify-center gap-2 px-6 py-3 bg-[#E31E2E] hover:bg-[#E31E2E]/90 disabled:bg-gray-200 text-white rounded-xl font-bold text-sm shadow-md transition cursor-pointer"
-                        >
-                          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                          <span>Save Address</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsEditing(false);
-                            setAddress(user.address || "");
-                            setCity(user.city || "");
-                            setStateName(user.state || "");
-                            setPincode(user.pincode || "");
-                          }}
-                          className="flex items-center justify-center gap-1.5 px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition cursor-pointer"
-                        >
-                          <X size={16} />
-                          <span>Cancel</span>
-                        </button>
-                      </div>
-                    )}
-                  </form>
-                </div>
+                <AddressManager />
               )}
 
               {/* Tab 3: Orders */}

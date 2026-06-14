@@ -33,6 +33,14 @@ export const publicApi = {
       throw error;
     }
   },
+  searchBooks: async (query) => {
+    try {
+      const response = await axiosInstance.get(`/public/books/search?query=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default publicApi;

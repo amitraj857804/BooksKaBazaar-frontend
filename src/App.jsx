@@ -8,6 +8,8 @@ import Bookshelf from "./pages/Bookshelf";
 import Bestsellers from "./pages/Bestsellers";
 import NewArrivals from "./pages/NewArrivals";
 import BookDetails from "./pages/BookDetails";
+import SearchPage from "./pages/SearchPage";
+import ScrollToTop from "./components/common/ScrollToTop";
 import SellerLanding from "./pages/admin/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
 import { FlyToCartProvider } from "./context/FlyToCartContext";
@@ -39,6 +41,7 @@ function App() {
           <SuperAdminProvider>
             <Toaster position="top-center" reverseOrder={false} />
             <Router>
+              <ScrollToTop />
               <Routes>
                 {/* Main User Routes */}
                 <Route
@@ -111,6 +114,17 @@ function App() {
                       <AuthModal />
                       <FlyingBook />
                       <BookDetails />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/search"
+                  element={
+                    <>
+                      <AuthModal />
+                      <FlyingBook />
+                      <SearchPage />
                     </>
                   }
                 />

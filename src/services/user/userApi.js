@@ -63,6 +63,51 @@ export const userApi = {
       throw error;
     }
   },
+
+  getAddresses: async () => {
+    try {
+      const response = await axiosInstance.get("/auth/user/addresses");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  createAddress: async (addressData) => {
+    try {
+      const response = await axiosInstance.post("/auth/user/addresses", addressData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteAddress: async (addressId) => {
+    try {
+      const response = await axiosInstance.delete(`/auth/user/addresses/${addressId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateAddress: async (addressId, addressData) => {
+    try {
+      const response = await axiosInstance.put(`/auth/user/addresses/${addressId}`, addressData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  setDefaultAddress: async (addressId) => {
+    try {
+      const response = await axiosInstance.put(`/auth/user/addresses/${addressId}/default`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default userApi;

@@ -1,113 +1,398 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ShoppingBag, Trash2, Plus, Minus, ArrowLeft,
   ChevronRight, Sparkles, Tag, ShieldCheck, CheckCircle,
-  Loader2, MapPin, X, AlertCircle, CreditCard
+  Loader2, MapPin, X, AlertCircle, CreditCard, Home, Briefcase, Compass, Check
 } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
 import { clearCart } from "../store/cartSlice";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../context/AuthContext";
+import { userApi } from "../services/user/userApi";
 import { checkoutApi } from "../services/user/checkoutApi";
 import toast from "react-hot-toast";
 
-// ─── Address Modal ────────────────────────────────────────────────────────────
+// ─── Address Modal (Multiple Shipping Address Selector) ──────────────────────────────────
 const AddressModal = ({ user, onClose, onConfirm, isLoading }) => {
-  const [form, setForm] = useState({
-    fullName: user?.fullName || "",
-    phoneNumber: user?.phone || "",
-    addressLine1: user?.address || "",
-    addressLine2: "",
-    city: user?.city || "",
-    state: user?.state || "",
-    pincode: user?.pincode || "",
-  });
+  const [addresses, setAddresses] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [isSavingNew, setIsSavingNew] = useState(false);
+
+  // Form states for new address
+  const [addressType, setAddressType] = useState("HOME");
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [addressLine1, setAddressLine1] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [pincode, setPincode] = useState("");
   const [errors, setErrors] = useState({});
 
-  const validate = () => {
+  useEffect(() => {
+    loadAddresses();
+  }, []);
+
+  const loadAddresses = async () => {
+    try {
+      setIsFetching(true);
+      const res = await userApi.getAddresses();
+      
+      let list = [];
+      if (res && Array.isArray(res)) {
+        list = res;
+      } else if (res && res.success && Array.isArray(res.data)) {
+        list = res.data;
+      } else if (res && Array.isArray(res.data)) {
+        list = res.data;
+      } else if (res && res.addresses && Array.isArray(res.addresses)) {
+        list = res.addresses;
+      }
+      
+      setAddresses(list);
+      
+      // Auto-select the default address, or the first one available
+      if (list.length > 0) {
+        const defaultAddr = list.find(a => a.isDefault === true || a.isDefault === "true");
+        setSelectedAddress(defaultAddr || list[0]);
+      }
+    } catch (err) {
+      console.warn("⚠️ Failed to load addresses in checkout modal:", err.message);
+      toast.error("Failed to load saved addresses.");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const handleOpenAddForm = () => {
+    setFullName("");
+    setPhoneNumber("");
+    setAddressLine1("");
+    setAddressLine2("");
+    setCity("");
+    setState("");
+    setPincode("");
+    setAddressType("HOME");
+    setErrors({});
+    setShowNewForm(true);
+  };
+
+  const getAddressIcon = (type) => {
+    switch (type?.toUpperCase()) {
+      case "HOME":
+        return <Home size={13} className="text-blue-500" />;
+      case "WORK":
+        return <Briefcase size={13} className="text-amber-500" />;
+      default:
+        return <Compass size={13} className="text-purple-500" />;
+    }
+  };
+
+  const validateForm = () => {
     const e = {};
-    if (!form.fullName.trim()) e.fullName = "Full name is required";
-    if (!form.phoneNumber.trim()) e.phoneNumber = "Phone number is required";
-    else if (!/^[6-9]\d{9}$/.test(form.phoneNumber)) e.phoneNumber = "Enter a valid 10-digit mobile number";
-    if (!form.addressLine1.trim()) e.addressLine1 = "Address is required";
-    if (!form.city.trim()) e.city = "City is required";
-    if (!form.state.trim()) e.state = "State is required";
-    if (!form.pincode.trim()) e.pincode = "Pincode is required";
-    else if (!/^[1-9][0-9]{5}$/.test(form.pincode)) e.pincode = "Enter a valid 6-digit pincode";
+    if (!fullName.trim()) e.fullName = "Full name is required";
+    if (!phoneNumber.trim()) e.phoneNumber = "Phone number is required";
+    else if (!/^[6-9]\d{9}$/.test(phoneNumber)) e.phoneNumber = "Enter a valid 10-digit mobile number";
+    if (!addressLine1.trim()) e.addressLine1 = "Address line 1 is required";
+    if (!city.trim()) e.city = "City is required";
+    if (!state.trim()) e.state = "State is required";
+    if (!pincode.trim()) e.pincode = "Pincode is required";
+    else if (!/^[1-9][0-9]{5}$/.test(pincode)) e.pincode = "Enter a valid 6-digit pincode";
     return e;
   };
 
-  const handleSubmit = (e) => {
+  const handleCreateNewAddress = async (e) => {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
-    onConfirm(form);
+    const errs = validateForm();
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+
+    try {
+      setIsSavingNew(true);
+      const newAddrPayload = {
+        addressType,
+        fullName,
+        phoneNumber,
+        addressLine1,
+        city,
+        state,
+        pincode,
+        country: "India", // Static
+        isDefault: (addresses.length === 0).toString()
+      };
+
+      // Exclude country from direct API payload to prevent Spring Jackson parsing errors
+      const { country, ...apiPayload } = newAddrPayload;
+
+      const response = await userApi.createAddress(apiPayload);
+      toast.success("Shipping address saved!");
+      
+      // Re-fetch all addresses and auto-select the newly added address
+      const res = await userApi.getAddresses();
+      let list = [];
+      if (res && Array.isArray(res)) {
+        list = res;
+      } else if (res && res.success && Array.isArray(res.data)) {
+        list = res.data;
+      } else if (res && Array.isArray(res.data)) {
+        list = res.data;
+      } else if (res && res.addresses && Array.isArray(res.addresses)) {
+        list = res.addresses;
+      }
+
+      setAddresses(list);
+      
+      // Auto-select the last added address
+      const newlyAdded = list.find(a => a.addressLine1 === addressLine1 && a.fullName === fullName) || list[list.length - 1];
+      setSelectedAddress(newlyAdded || list[0]);
+      
+      // Reset form states
+      setFullName("");
+      setPhoneNumber("");
+      setAddressLine1("");
+      setAddressLine2("");
+      setCity("");
+      setState("");
+      setPincode("");
+      setAddressType("HOME");
+      setErrors({});
+      setShowNewForm(false);
+    } catch (err) {
+      console.error("❌ Failed to add shipping address:", err);
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message || "Failed to save address";
+      toast.error(msg);
+    } finally {
+      setIsSavingNew(false);
+    }
   };
 
-  const field = (label, key, placeholder, type = "text") => (
+  const handleCheckoutProceed = () => {
+    if (!selectedAddress) {
+      toast.error("Please select a delivery address to proceed.");
+      return;
+    }
+
+    // Format address object to matching checkout API fields
+    const addressPayload = {
+      fullName: selectedAddress.fullName,
+      phoneNumber: selectedAddress.phoneNumber,
+      addressLine1: selectedAddress.addressLine1,
+      addressLine2: addressLine2 || "",
+      city: selectedAddress.city,
+      state: selectedAddress.state,
+      pincode: selectedAddress.pincode
+    };
+
+    onConfirm(addressPayload);
+  };
+
+  const formField = (label, value, setter, errorKey, placeholder, type = "text", maxLength) => (
     <div>
-      <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">{label}</label>
+      <label className="block text-[11px] font-bold text-gray-500 mb-1.5 uppercase tracking-wider">{label}</label>
       <input
         type={type}
-        value={form[key]}
-        onChange={(e) => { setForm(f => ({ ...f, [key]: e.target.value })); setErrors(err => ({ ...err, [key]: "" })); }}
+        value={value}
+        maxLength={maxLength}
+        onChange={(e) => {
+          setter(e.target.value);
+          setErrors(err => ({ ...err, [errorKey]: "" }));
+        }}
         placeholder={placeholder}
-        className={`w-full px-3 py-2.5 border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 transition-all
-          ${errors[key] ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E]"}`}
+        className={`w-full px-4 py-2.5 border rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 transition-all
+          ${errors[errorKey] ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E]"}`}
       />
-      {errors[key] && <p className="text-xs text-red-500 font-semibold mt-1">{errors[key]}</p>}
+      {errors[errorKey] && <p className="text-xs text-red-500 font-bold mt-1">{errors[errorKey]}</p>}
     </div>
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+        exit={{ opacity: 0, scale: 0.96, y: 15 }}
+        className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] font-sans"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4.5 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-red-50 rounded-full flex items-center justify-center">
               <MapPin size={16} className="text-[#E31E2E]" />
             </div>
-            <h2 className="text-base font-extrabold text-gray-900">Shipping Address</h2>
+            <h2 className="text-base font-extrabold text-gray-900">
+              {showNewForm ? "Add Delivery Location" : "Choose Delivery Address"}
+            </h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition cursor-pointer">
             <X size={18} />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-3">
-            {field("Full Name", "fullName", "John Doe")}
-            {field("Phone Number", "phoneNumber", "9XXXXXXXXX", "tel")}
-          </div>
-          {field("Address Line 1", "addressLine1", "House / Flat No., Street, Area")}
-          {field("Address Line 2 (Optional)", "addressLine2", "Landmark, Colony")}
-          <div className="grid grid-cols-3 gap-3">
-            {field("City", "city", "Mumbai")}
-            {field("State", "state", "Maharashtra")}
-            {field("Pincode", "pincode", "400001")}
-          </div>
+        {/* Modal Body Container */}
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
+          {isFetching ? (
+            <div className="py-20 flex flex-col justify-center items-center gap-2.5 text-gray-500 font-bold text-sm">
+              <Loader2 size={24} className="animate-spin text-[#E31E2E]" />
+              <span>Fetching your addresses...</span>
+            </div>
+          ) : showNewForm ? (
+            /* Add Address Form */
+            <form onSubmit={handleCreateNewAddress} className="space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-wider">Address Type</label>
+                <div className="flex gap-3">
+                  {["HOME", "WORK", "OTHER"].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setAddressType(type)}
+                      className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition border cursor-pointer ${
+                        addressType === type
+                          ? "bg-white border-[#E31E2E] text-[#E31E2E] shadow-xs"
+                          : "bg-transparent border-slate-200 text-slate-500 hover:bg-slate-50"
+                      }`}
+                    >
+                      {getAddressIcon(type)}
+                      <span className="capitalize">{type.toLowerCase()}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                {formField("Recipient Name", fullName, setFullName, "fullName", "e.g. Tribhuvan nath sagar")}
+                {formField("Phone Number", phoneNumber, setPhoneNumber, "phoneNumber", "10-digit number", "tel", 10)}
+              </div>
+
+              {formField("Street Address / Address Line 1", addressLine1, setAddressLine1, "addressLine1", "Flat/House No., Street name, Area")}
+              {formField("Address Line 2 (Optional landmark)", addressLine2, setAddressLine2, "addressLine2", "Near Metro / Colony name")}
+
+              <div className="grid grid-cols-3 gap-4">
+                {formField("City", city, setCity, "city", "e.g. Patna")}
+                {formField("State", state, setState, "state", "e.g. Bihar")}
+                {formField("Pincode", pincode, setPincode, "pincode", "6-digit code", "text", 6)}
+              </div>
+
+              <div className="flex gap-4 pt-4 border-t border-gray-100">
+                <button
+                  type="submit"
+                  disabled={isSavingNew}
+                  className="flex-1 py-3 bg-[#E31E2E] hover:bg-red-700 disabled:bg-gray-200 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer"
+                >
+                  {isSavingNew ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                  <span>Save Location</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowNewForm(false); setErrors({}); }}
+                  className="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* Address List */
+            <div className="space-y-4">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Saved Addresses</span>
+                <button
+                  type="button"
+                  onClick={handleOpenAddForm}
+                  className="text-xs font-bold text-[#E31E2E] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0 inline font-sans"
+                >
+                  <Plus size={13} />
+                  <span>Add New Address</span>
+                </button>
+              </div>
+
+              {addresses.length === 0 ? (
+                <div className="py-12 border border-dashed border-gray-200 rounded-2xl text-center flex flex-col items-center justify-center">
+                  <MapPin size={22} className="text-gray-300 mb-2" />
+                  <p className="text-xs font-bold text-gray-500">No shipping addresses saved.</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5 mb-4">Please add a shipping address to place your order.</p>
+                  <button
+                    onClick={handleOpenAddForm}
+                    className="px-4 py-2 bg-[#E31E2E] text-white text-[11px] font-black uppercase rounded-lg hover:bg-red-700 transition cursor-pointer"
+                  >
+                    Add Shipping Location
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {addresses.map((addr) => {
+                    const isSelected = selectedAddress && (selectedAddress.addressId || selectedAddress.id) === (addr.addressId || addr.id);
+                    const isDefault = addr.isDefault === true || addr.isDefault === "true";
+                    return (
+                      <div
+                        key={addr.addressId || addr.id}
+                        onClick={() => setSelectedAddress(addr)}
+                        className={`border rounded-xl p-4 cursor-pointer relative flex items-start gap-3 transition-all ${
+                          isSelected
+                            ? "border-green-500 bg-green-50/[0.02] shadow-xs"
+                            : "border-gray-150 hover:border-gray-300 hover:bg-slate-50/20"
+                        }`}
+                      >
+                        {/* Custom selection dot indicator */}
+                        <div className="mt-1 shrink-0">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
+                            isSelected ? "border-green-500 bg-green-500 text-white" : "border-gray-300 bg-white"
+                          }`}>
+                            {isSelected && <Check size={10} className="stroke-[3.5]" />}
+                          </div>
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-sm text-gray-900 truncate">{addr.fullName}</span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-[8px] font-black uppercase tracking-wider">
+                              {getAddressIcon(addr.addressType)}
+                              <span>{addr.addressType || "HOME"}</span>
+                            </span>
+                            {isDefault && (
+                              <span className="text-[8px] font-black text-green-700 bg-green-50 border border-green-200 px-1 py-0.5 rounded uppercase tracking-wider">
+                                Default
+                              </span>
+                            )}
+                          </div>
+                          
+                          <p className="text-xs text-gray-500 mt-1.5 font-medium leading-relaxed font-sans truncate">
+                            {addr.addressLine1}, {addr.city}, {addr.state} - {addr.pincode}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1 font-sans">
+                            Phone: <span className="text-gray-600 font-bold select-all">{addr.phoneNumber}</span>
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        {!showNewForm && !isFetching && (
+          <div className="px-6 py-4.5 bg-gray-50 border-t border-gray-100 shrink-0">
             <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3.5 bg-[#E31E2E] hover:bg-red-700 disabled:bg-gray-200 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-red-100 cursor-pointer"
+              onClick={handleCheckoutProceed}
+              disabled={isLoading || addresses.length === 0}
+              className="w-full py-3.5 bg-[#E31E2E] hover:bg-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-red-100/50 cursor-pointer"
             >
               {isLoading ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
-              {isLoading ? "Creating Order…" : "Proceed to Payment"}
+              <span>{isLoading ? "Creating Order…" : "Deliver to this Address & Pay"}</span>
             </button>
           </div>
-        </form>
+        )}
       </motion.div>
     </div>
   );
@@ -268,7 +553,7 @@ const Cart = () => {
   // ── Close success modal ───────────────────────────────────────────────────
   const handleCloseSuccess = () => {
     setCheckoutSuccess(null);
-    navigate("/");
+    navigate("/profile", { state: { activeTab: "orders" } });
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -559,7 +844,7 @@ const Cart = () => {
                 onClick={handleCloseSuccess}
                 className="w-full py-3.5 bg-gray-900 text-white font-bold rounded-xl text-sm hover:bg-black transition cursor-pointer"
               >
-                RETURN TO HOMEPAGE
+                VIEW ORDER HISTORY
               </button>
             </motion.div>
           </div>

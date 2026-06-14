@@ -9,6 +9,8 @@ import { wishlistApi } from "../../services/user/wishlistApi";
 import { setBookshelfItems, clearBookshelf } from "../../store/bookshelfSlice";
 import { clearCart } from "../../store/cartSlice";
 import { useCart } from "../../hooks/useCart";
+import { useDebounce } from "../../hooks/useDebounce";
+import { publicApi } from "../../services/public/publicApi";
 
 const Navbar = () => {
   const { openAuthModal, user, logoutUser } = useAuth();
@@ -26,6 +28,14 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const cartIconRef = useRef(null);
   const { cartIconRef: contextCartIconRef, isFlying } = useFlyToCartContext();
+
+  // Search autocomplete state and refs
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const desktopSearchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
+  const debouncedSearchTerm = useDebounce(searchInput, 400);
 
   // Get cart and bookshelf data from Redux
   const { totalQuantity } = useSelector((state) => state.cart);
@@ -122,6 +132,79 @@ const Navbar = () => {
     }
   }, [isFlying]);
 
+  // Click outside suggestions list
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        (desktopSearchRef.current && !desktopSearchRef.current.contains(event.target)) &&
+        (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target))
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch live suggestions
+  useEffect(() => {
+    const getSuggestions = async () => {
+      const trimmed = debouncedSearchTerm.trim();
+      if (!trimmed || trimmed.length < 2) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        setIsSearching(true);
+        const data = await publicApi.searchBooks(trimmed);
+        
+        let booksArray = [];
+        if (data && Array.isArray(data)) {
+          booksArray = data;
+        } else if (data && data.success && Array.isArray(data.data)) {
+          booksArray = data.data;
+        } else if (data && Array.isArray(data.data)) {
+          booksArray = data.data;
+        }
+
+        const mapped = booksArray.map((bk) => ({
+          id: bk.bookId || bk.id,
+          title: bk.bookTitle || "Untitled Book",
+          author: bk.authorName || "Unknown Author",
+          price: parseFloat(bk.price) || 0,
+          imageURL: bk.imageFileName
+            ? `http://localhost:8080/api/public/books/${bk.bookId || bk.id}/image`
+            : "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
+          badge: bk.category || null,
+        }));
+
+        // Show top 5 suggestions
+        setSuggestions(mapped.slice(0, 5));
+      } catch (err) {
+        console.warn("⚠️ Autocomplete fetch failed: ", err.message);
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    getSuggestions();
+  }, [debouncedSearchTerm]);
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (searchInput.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchInput.trim())}`);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (bookId) => {
+    navigate(`/book/${bookId}`);
+    setSearchInput("");
+    setShowSuggestions(false);
+  };
 
   return (
     <>
@@ -154,17 +237,100 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Search Bar - positioned in the middle on desktop only */}
-            <div className="hidden lg:block flex-1 max-w-xl mx-8">
-              <div className="relative w-full group">
+            <div ref={desktopSearchRef} className="hidden lg:block flex-1 max-w-xl mx-8 relative">
+              <form onSubmit={handleSearchSubmit} className="relative w-full group">
                 <input
                   type="text"
                   placeholder="Search by Title, Author, ISBN or Genre..."
                   value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full pl-11 pr-4 py-2.5 rounded-full bg-slate-50 border border-slate-300 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] hover:border-[#E31E2E]/50 transition-all shadow-sm"
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setShowSuggestions(false);
+                  }}
+                  className="w-full pl-11 pr-12 py-2.5 rounded-full bg-slate-50 border border-slate-300 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] hover:border-[#E31E2E]/50 transition-all shadow-sm"
                 />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 group-focus-within:text-[#E31E2E] transition-colors" />
-              </div>
+                <button
+                  type="button"
+                  onClick={handleSearchSubmit}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-[#E31E2E] transition-colors"
+                >
+                  <Search className="w-4.5 h-4.5 group-focus-within:text-[#E31E2E] transition-colors" />
+                </button>
+              </form>
+
+              {/* Suggestions dropdown */}
+              <AnimatePresence>
+                {showSuggestions && searchInput.trim().length >= 2 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 text-left max-h-[420px] flex flex-col font-sans"
+                  >
+                    <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+                      {isSearching ? (
+                        <div className="p-6 flex items-center justify-center gap-3 text-slate-500 text-sm">
+                          <svg className="animate-spin h-5 w-5 text-[#E31E2E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Searching books...</span>
+                        </div>
+                      ) : suggestions.length > 0 ? (
+                        suggestions.map((bk) => (
+                          <div
+                            key={bk.id}
+                            onClick={() => handleSuggestionClick(bk.id)}
+                            className="flex items-center gap-3.5 p-3 hover:bg-slate-50 cursor-pointer group transition-colors"
+                          >
+                            <div className="w-10 h-14 bg-slate-100 rounded-md overflow-hidden shrink-0 border border-slate-100 shadow-sm">
+                              <img
+                                src={bk.imageURL}
+                                alt={bk.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                onError={(e) => {
+                                  e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop";
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold text-sm text-slate-900 truncate group-hover:text-[#E31E2E] transition-colors">
+                                {bk.title}
+                              </h4>
+                              <p className="text-xs text-slate-500 font-medium truncate mt-0.5">by {bk.author}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs font-bold text-[#E31E2E]">&#8377;{bk.price}</span>
+                                {bk.badge && (
+                                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded capitalize">
+                                    {bk.badge}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-6 text-center text-slate-500 text-sm">
+                          No books found for <span className="font-semibold text-slate-700">"{searchInput}"</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {!isSearching && suggestions.length > 0 && (
+                      <div
+                        onClick={handleSearchSubmit}
+                        className="p-3.5 bg-slate-50 hover:bg-slate-100/80 text-center text-xs font-bold text-[#E31E2E] uppercase tracking-wider cursor-pointer border-t border-slate-100 hover:text-[#E31E2E]/90 transition-colors"
+                      >
+                        View all results for "{searchInput}"
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Actions (Login/Sign Up, Bookshelf, Cart) - visible on desktop (lg and up) */}
@@ -315,18 +481,101 @@ const Navbar = () => {
         </div>
 
         {/* Tier 3.5: Search Bar Row (Directly visible on mobile, iPad; hidden on desktop) */}
-        <div className="lg:hidden border-b border-gray-100 bg-white pb-3.5 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="relative w-full group">
+        <div ref={mobileSearchRef} className="lg:hidden border-b border-gray-100 bg-white pb-3.5 px-4 sm:px-6 relative">
+          <div className="max-w-7xl mx-auto relative">
+            <form onSubmit={handleSearchSubmit} className="relative w-full group">
               <input
                 type="text"
                 placeholder="Search by Title, Author, ISBN or Genre..."
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-full bg-slate-50 border border-slate-300 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] hover:border-[#E31E2E]/50 transition-all shadow-sm"
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setShowSuggestions(false);
+                }}
+                className="w-full pl-11 pr-12 py-2.5 rounded-full bg-slate-50 border border-slate-300 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] hover:border-[#E31E2E]/50 transition-all shadow-sm"
               />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 group-focus-within:text-[#E31E2E] transition-colors" />
-            </div>
+              <button
+                type="button"
+                onClick={handleSearchSubmit}
+                className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-[#E31E2E] transition-colors"
+              >
+                <Search className="w-4.5 h-4.5 group-focus-within:text-[#E31E2E] transition-colors" />
+              </button>
+            </form>
+
+            {/* Suggestions dropdown for mobile */}
+            <AnimatePresence>
+              {showSuggestions && searchInput.trim().length >= 2 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 text-left max-h-[350px] flex flex-col font-sans"
+                >
+                  <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+                    {isSearching ? (
+                      <div className="p-6 flex items-center justify-center gap-3 text-slate-500 text-sm">
+                        <svg className="animate-spin h-5 w-5 text-[#E31E2E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Searching books...</span>
+                      </div>
+                    ) : suggestions.length > 0 ? (
+                      suggestions.map((bk) => (
+                        <div
+                          key={bk.id}
+                          onClick={() => handleSuggestionClick(bk.id)}
+                          className="flex items-center gap-3.5 p-3 hover:bg-slate-50 cursor-pointer group transition-colors"
+                        >
+                          <div className="w-10 h-14 bg-slate-100 rounded-md overflow-hidden shrink-0 border border-slate-100 shadow-sm">
+                            <img
+                              src={bk.imageURL}
+                              alt={bk.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              onError={(e) => {
+                                e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop";
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-sm text-slate-900 truncate group-hover:text-[#E31E2E] transition-colors">
+                              {bk.title}
+                            </h4>
+                            <p className="text-xs text-slate-500 font-medium truncate mt-0.5">by {bk.author}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs font-bold text-[#E31E2E]">&#8377;{bk.price}</span>
+                              {bk.badge && (
+                                <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded capitalize">
+                                  {bk.badge}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-6 text-center text-slate-500 text-sm">
+                        No books found for <span className="font-semibold text-slate-700">"{searchInput}"</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {!isSearching && suggestions.length > 0 && (
+                    <div
+                      onClick={handleSearchSubmit}
+                      className="p-3.5 bg-slate-50 hover:bg-slate-100/80 text-center text-xs font-bold text-[#E31E2E] uppercase tracking-wider cursor-pointer border-t border-slate-100 hover:text-[#E31E2E]/90 transition-colors"
+                    >
+                      View all results for "{searchInput}"
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 

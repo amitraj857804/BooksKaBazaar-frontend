@@ -27,71 +27,85 @@ const SkeletonCard = () => {
 
   return (
     <motion.div
-      className="h-full max-w-[220px] sm:max-w-none mx-auto w-full"
+      className="h-full max-w-[240px] sm:max-w-none mx-auto w-full"
       variants={containerVariants}
       initial="initial"
       animate="animate"
     >
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden h-full flex flex-col border border-gray-100 hover:shadow-md transition-shadow duration-300">
-        {/* Image Skeleton */}
-        <motion.div
-          className="aspect-[3/4] w-full bg-gray-300 max-h-[180px] sm:max-h-[200px] md:max-h-[220px]"
-          variants={elementVariants}
-          whileInView={{
-            opacity: [0.6, 0.8, 0.6],
-            transition: { duration: 2, repeat: Infinity, delay: 0 },
-          }}
-        />
-
-        {/* Content Skeleton */}
-        <div className="p-3.5 sm:p-4 flex flex-col grow space-y-2.5">
-          {/* Title Line 1 */}
+      <div className="bg-white rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden p-3.5 h-full flex flex-col justify-between">
+        <div className="flex flex-col gap-3">
+          {/* Image Skeleton */}
           <motion.div
-            className="h-4 rounded-md w-4/5 bg-gray-300"
+            className="w-full bg-gray-200 rounded-xl h-[190px] sm:h-[210px] md:h-[230px]"
             variants={elementVariants}
             whileInView={{
               opacity: [0.6, 0.8, 0.6],
-              transition: { duration: 2, repeat: Infinity, delay: 0.1 },
+              transition: { duration: 2, repeat: Infinity, delay: 0 },
             }}
           />
 
-          {/* Title Line 2 */}
-          <motion.div
-            className="h-4 rounded-md w-3/5 bg-gray-300"
-            variants={elementVariants}
-            whileInView={{
-              opacity: [0.6, 0.8, 0.6],
-              transition: { duration: 2, repeat: Infinity, delay: 0.2 },
-            }}
-          />
+          {/* Content Skeleton */}
+          <div className="flex flex-col space-y-2.5">
+            {/* Rating Skeleton */}
+            <motion.div
+              className="h-3 rounded-md w-1/2 bg-gray-200"
+              variants={elementVariants}
+              whileInView={{
+                opacity: [0.6, 0.8, 0.6],
+                transition: { duration: 2, repeat: Infinity, delay: 0.1 },
+              }}
+            />
 
-          {/* Author Skeleton */}
-          <motion.div
-            className="h-3 rounded-md w-2/5 bg-gray-300 mt-1"
-            variants={elementVariants}
-            whileInView={{
-              opacity: [0.6, 0.8, 0.6],
-              transition: { duration: 2, repeat: Infinity, delay: 0.3 },
-            }}
-          />
+            {/* Title Skeleton */}
+            <motion.div
+              className="h-4.5 rounded-md w-11/12 bg-gray-200"
+              variants={elementVariants}
+              whileInView={{
+                opacity: [0.6, 0.8, 0.6],
+                transition: { duration: 2, repeat: Infinity, delay: 0.2 },
+              }}
+            />
 
-          {/* Price Skeleton */}
-          <motion.div
-            className="h-6 rounded-md w-1/3 bg-gray-300 mt-1"
-            variants={elementVariants}
-            whileInView={{
-              opacity: [0.6, 0.8, 0.6],
-              transition: { duration: 2, repeat: Infinity, delay: 0.4 },
-            }}
-          />
+            {/* Author Skeleton */}
+            <motion.div
+              className="h-3 rounded-md w-2/5 bg-gray-200"
+              variants={elementVariants}
+              whileInView={{
+                opacity: [0.6, 0.8, 0.6],
+                transition: { duration: 2, repeat: Infinity, delay: 0.3 },
+              }}
+            />
 
-          {/* Button Skeleton */}
+            {/* Price Skeleton */}
+            <motion.div
+              className="h-5 rounded-md w-1/3 bg-gray-200"
+              variants={elementVariants}
+              whileInView={{
+                opacity: [0.6, 0.8, 0.6],
+                transition: { duration: 2, repeat: Infinity, delay: 0.4 },
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Buttons Row Skeleton */}
+        <div className="flex items-center gap-2 mt-4 pt-1">
+          {/* Heart button skeleton */}
           <motion.div
-            className="h-8 rounded-lg w-full bg-gray-300 mt-auto"
+            className="w-10 h-10 rounded-xl bg-gray-200 shrink-0"
             variants={elementVariants}
             whileInView={{
               opacity: [0.6, 0.8, 0.6],
               transition: { duration: 2, repeat: Infinity, delay: 0.5 },
+            }}
+          />
+          {/* Add to cart button skeleton */}
+          <motion.div
+            className="flex-1 h-10 rounded-xl bg-gray-200"
+            variants={elementVariants}
+            whileInView={{
+              opacity: [0.6, 0.8, 0.6],
+              transition: { duration: 2, repeat: Infinity, delay: 0.6 },
             }}
           />
         </div>

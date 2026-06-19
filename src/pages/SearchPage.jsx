@@ -210,7 +210,7 @@ const SearchPage = () => {
               <BookOpen size={20} className="text-[#E31E2E]" />
               <span>Matching Books</span>
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 sm:gap-6">
               {Array(6).fill(null).map((_, idx) => (
                 <SkeletonCard key={idx} />
               ))}
@@ -223,7 +223,7 @@ const SearchPage = () => {
               <span>Matching Books ({books.length})</span>
             </h2>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 sm:gap-6">
               {books.map((book) => (
                 <BookCard
                   key={book.id}
@@ -245,7 +245,7 @@ const SearchPage = () => {
                 <p className="text-sm text-gray-500 mb-6 -mt-4">
                   Discover popular books from similar genres and tags
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 sm:gap-6">
                   {relatedBooks.map((book) => (
                     <BookCard
                       key={book.id}
@@ -289,7 +289,7 @@ const SearchPage = () => {
                     Here are some of our popular customer favorites
                   </p>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 sm:gap-6">
                   {relatedBooks.map((book) => (
                     <BookCard
                       key={book.id}

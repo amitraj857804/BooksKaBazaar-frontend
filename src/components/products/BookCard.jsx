@@ -88,8 +88,8 @@ const BookCard = ({ book, onAddToCart }) => {
       }}
     >
       <div className="flex flex-col gap-3">
-        {/* Aspect ratio cover container with hover Quick View */}
-        <div className="relative overflow-hidden bg-gray-50 aspect-[3/4] w-full rounded-xl border border-gray-100/30">
+        {/* Fixed-height cover container to keep sizes consistent across different grid layouts */}
+        <div className="relative overflow-hidden bg-gray-50 w-full h-[190px] sm:h-[210px] md:h-[230px] rounded-xl border border-gray-100/30">
           <img
             src={imageURL}
             alt={title}

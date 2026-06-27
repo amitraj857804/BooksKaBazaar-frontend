@@ -102,7 +102,7 @@ export const userApi = {
 
   setDefaultAddress: async (addressId) => {
     try {
-      const response = await axiosInstance.put(`/auth/user/addresses/${addressId}/default`);
+      const response = await axiosInstance.patch(`/auth/user/addresses/${addressId}/set-default`);
       return response.data;
     } catch (error) {
       throw error;

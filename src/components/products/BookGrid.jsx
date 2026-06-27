@@ -54,9 +54,9 @@ const BookGrid = ({ books = [], isLoading = false, onAddToCart }) => {
           animate="visible"
         >
           {displayItems.map((book, index) =>
-            isLoading ? (
+            isLoading  ? (
               <motion.div key={index} variants={itemVariants}>
-                <SkeletonCard />
+                <SkeletonCard index={index} />
               </motion.div>
             ) : (
               <motion.div key={book.id} variants={itemVariants}>

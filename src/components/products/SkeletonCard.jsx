@@ -1,47 +1,27 @@
 import { motion } from "framer-motion";
 
 const SkeletonCard = () => {
-  // Container with sequential element reveals
-  const containerVariants = {
-    initial: { opacity: 0 },
+  // Smooth, hardware-accelerated opacity pulse in unison
+  const pulseAnimation = {
+    initial: { opacity: 0.4 },
     animate: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0,
-      },
+      opacity: [0.4, 0.85, 0.4],
     },
-  };
-
-  // Individual element animations with pulse effect
-  const elementVariants = {
-    initial: { opacity: 0 },
-    animate: {
-      opacity: 1,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut",
-      },
+    transition: {
+      duration: 1.8,
+      repeat: Infinity,
+      ease: "easeInOut",
     },
   };
 
   return (
-    <motion.div
-      className="h-full max-w-[240px] sm:max-w-none mx-auto w-full"
-      variants={containerVariants}
-      initial="initial"
-      animate="animate"
-    >
+    <div className="h-full max-w-[240px] sm:max-w-none mx-auto w-full">
       <div className="bg-white rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden p-3.5 h-full flex flex-col justify-between">
         <div className="flex flex-col gap-3">
           {/* Image Skeleton */}
           <motion.div
             className="w-full bg-gray-200 rounded-xl h-[190px] sm:h-[210px] md:h-[230px]"
-            variants={elementVariants}
-            whileInView={{
-              opacity: [0.6, 0.8, 0.6],
-              transition: { duration: 2, repeat: Infinity, delay: 0 },
-            }}
+            {...pulseAnimation}
           />
 
           {/* Content Skeleton */}
@@ -49,41 +29,25 @@ const SkeletonCard = () => {
             {/* Rating Skeleton */}
             <motion.div
               className="h-3 rounded-md w-1/2 bg-gray-200"
-              variants={elementVariants}
-              whileInView={{
-                opacity: [0.6, 0.8, 0.6],
-                transition: { duration: 2, repeat: Infinity, delay: 0.1 },
-              }}
+              {...pulseAnimation}
             />
 
             {/* Title Skeleton */}
             <motion.div
               className="h-4.5 rounded-md w-11/12 bg-gray-200"
-              variants={elementVariants}
-              whileInView={{
-                opacity: [0.6, 0.8, 0.6],
-                transition: { duration: 2, repeat: Infinity, delay: 0.2 },
-              }}
+              {...pulseAnimation}
             />
 
             {/* Author Skeleton */}
             <motion.div
               className="h-3 rounded-md w-2/5 bg-gray-200"
-              variants={elementVariants}
-              whileInView={{
-                opacity: [0.6, 0.8, 0.6],
-                transition: { duration: 2, repeat: Infinity, delay: 0.3 },
-              }}
+              {...pulseAnimation}
             />
 
             {/* Price Skeleton */}
             <motion.div
               className="h-5 rounded-md w-1/3 bg-gray-200"
-              variants={elementVariants}
-              whileInView={{
-                opacity: [0.6, 0.8, 0.6],
-                transition: { duration: 2, repeat: Infinity, delay: 0.4 },
-              }}
+              {...pulseAnimation}
             />
           </div>
         </div>
@@ -93,24 +57,16 @@ const SkeletonCard = () => {
           {/* Heart button skeleton */}
           <motion.div
             className="w-10 h-10 rounded-xl bg-gray-200 shrink-0"
-            variants={elementVariants}
-            whileInView={{
-              opacity: [0.6, 0.8, 0.6],
-              transition: { duration: 2, repeat: Infinity, delay: 0.5 },
-            }}
+            {...pulseAnimation}
           />
           {/* Add to cart button skeleton */}
           <motion.div
             className="flex-1 h-10 rounded-xl bg-gray-200"
-            variants={elementVariants}
-            whileInView={{
-              opacity: [0.6, 0.8, 0.6],
-              transition: { duration: 2, repeat: Infinity, delay: 0.6 },
-            }}
+            {...pulseAnimation}
           />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

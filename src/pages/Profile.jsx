@@ -177,7 +177,7 @@ const Profile = () => {
     ? fullName.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()
     : "U";
 
-  const defaultAddress = addresses.find((addr) => addr.isDefault === true || addr.isDefault === "true");
+  const defaultAddress = addresses.find((addr) => addr.default === true);
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">

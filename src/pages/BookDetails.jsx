@@ -8,6 +8,7 @@ import Footer from "../components/layout/Footer";
 import { useAuth } from "../context/AuthContext";
 import { wishlistApi } from "../services/user/wishlistApi";
 import { publicApi } from "../services/public/publicApi";
+import { userApi } from "../services/user/userApi";
 import { addToBookshelf, removeFromBookshelf } from "../store/bookshelfSlice";
 import { useCart } from "../hooks/useCart";
 import { useFlyToCart } from "../hooks/useFlyToCart";
@@ -48,26 +49,8 @@ const BookDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
 
   // Reviews state
-  const [reviews, setReviews] = useState([
-    {
-      id: 1,
-      reviewerName: "Sarthak",
-      rating: 5,
-      date: "June 11, 2026",
-      comment: "good book",
-      helpfulCount: 2,
-      reported: false,
-    },
-    {
-      id: 2,
-      reviewerName: "User",
-      rating: 5,
-      date: "April 27, 2026",
-      comment: "Highly recommended for literature enthusiasts. The pacing is perfect.",
-      helpfulCount: 0,
-      reported: false,
-    }
-  ]);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Recommendations state
   const [authorBooks, setAuthorBooks] = useState([]);
@@ -99,6 +82,43 @@ const BookDetails = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Fetch reviews from API
+  const fetchReviews = async (id) => {
+    try {
+      setReviewsLoading(true);
+      const data = await userApi.getReviews(id);
+      if (Array.isArray(data)) {
+        const mapped = data.map((r) => ({
+          id: r.reviewId,
+          reviewerName: r.userFullName || "Anonymous",
+          rating: r.rating,
+          date: (() => {
+            // createdAt comes as [year, month, day, hour, min, sec, nano]
+            if (Array.isArray(r.createdAt) && r.createdAt.length >= 3) {
+              const [year, month, day] = r.createdAt;
+              return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+            }
+            return "";
+          })(),
+          comment: r.reviewText || "",
+          helpfulCount: 0,
+          reported: false,
+        }));
+        setReviews(mapped);
+      }
+    } catch (err) {
+      // Silently fail – user may not be logged in; reviews will show as empty
+      console.warn("Could not fetch reviews:", err?.response?.status, err?.message);
+      setReviews([]);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
 
   // Recommendations Effect
   useEffect(() => {
@@ -149,6 +169,13 @@ const BookDetails = () => {
     fetchAuthorBooks();
   }, [book]);
 
+  // Fetch reviews when bookId is resolved
+  useEffect(() => {
+    if (numericBookId) {
+      fetchReviews(numericBookId);
+    }
+  }, [numericBookId]);
+
   const handleApplyPincode = () => {
     if (tempPincode.trim().length === 6) {
       setPincode(tempPincode);
@@ -175,7 +202,8 @@ const BookDetails = () => {
     toast("Review reported to administrators.", { icon: "🚩" });
   };
 
-  const handleNewReviewSubmit = (name, rating, comment) => {
+  const handleNewReviewSubmit = async (name, rating, comment) => {
+    // Optimistic update
     const newReview = {
       id: Math.random(),
       reviewerName: name,
@@ -189,9 +217,11 @@ const BookDetails = () => {
       helpfulCount: 0,
       reported: false,
     };
-
-    setReviews([newReview, ...reviews]);
+    setReviews((prev) => [newReview, ...prev]);
     toast.success("Review submitted successfully!");
+
+    // Refresh from server after a short delay
+    setTimeout(() => fetchReviews(numericBookId), 1500);
   };
 
   // Review Stats
@@ -780,9 +810,12 @@ const BookDetails = () => {
           {/* Ratings & Reviews Section */}
           <BookReviews
             reviews={reviews}
+            bookId={numericBookId}
             onHelpfulClick={handleHelpfulClick}
             onReportClick={handleReportClick}
             onSubmitReview={handleNewReviewSubmit}
+            onUpdateReview={() => fetchReviews(numericBookId)}
+            isLoading={reviewsLoading}
           />
 
           {/* More Books By The Author */}

@@ -108,6 +108,39 @@ export const userApi = {
       throw error;
     }
   },
+
+  submitReview: async (bookId, rating, reviewText) => {
+    try {
+      const response = await axiosInstance.post(`auth/user/books/${bookId}/reviews`, {
+        rating: String(rating),
+        reviewText: reviewText,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getReviews: async (bookId) => {
+    try {
+      const response = await axiosInstance.get(`/auth/user/books/${bookId}/reviews`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateReview: async (reviewId, rating, reviewText) => {
+    try {
+      const response = await axiosInstance.put(`/auth/user/reviews/${reviewId}`, {
+        rating: String(rating),
+        reviewText: reviewText,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default userApi;

@@ -647,6 +647,14 @@ const Navbar = () => {
                 </button>
               )}
 
+              {/* About Us */}
+              <button
+                onClick={() => navigate("/about")}
+                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
+              >
+                About Us
+              </button>
+
             </div>
 
 
@@ -728,6 +736,15 @@ const Navbar = () => {
                     Sell With Us
                   </button>
                 )}
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate("/about");
+                  }}
+                  className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer"
+                >
+                  About Us
+                </button>
               </div>
 
               {/* Auth section in Mobile Menu */}

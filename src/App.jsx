@@ -9,6 +9,8 @@ import Bestsellers from "./pages/Bestsellers";
 import NewArrivals from "./pages/NewArrivals";
 import BookDetails from "./pages/BookDetails";
 import SearchPage from "./pages/SearchPage";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 import ScrollToTop from "./components/common/ScrollToTop";
 import SellerLanding from "./pages/admin/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
@@ -125,6 +127,28 @@ function App() {
                       <AuthModal />
                       <FlyingBook />
                       <SearchPage />
+                    </>
+                  }
+                />
+
+                {/* About Page */}
+                <Route
+                  path="/about"
+                  element={
+                    <>
+                      <AuthModal />
+                      <About />
+                    </>
+                  }
+                />
+
+                {/* FAQ Page */}
+                <Route
+                  path="/faq"
+                  element={
+                    <>
+                      <AuthModal />
+                      <FAQ />
                     </>
                   }
                 />

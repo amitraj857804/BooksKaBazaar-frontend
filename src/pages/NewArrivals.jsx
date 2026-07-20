@@ -4,10 +4,74 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { BookGrid } from "../components/products";
 import { publicApi } from "../services/public/publicApi";
-import { Sparkles, Clock } from "lucide-react";
 import { useCart } from "../hooks/useCart";
+import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+
+/* Slight rotation per card to create a natural fanned spread */
+const CARD_ROTATIONS = [-6, -2, 2, 6];
+
+/* ─── Single fanned arrival card ─── */
+const ArrivalCard = ({ book, index, total }) => {
+  const navigate = useNavigate();
+  const rotate = CARD_ROTATIONS[index] ?? 0;
+  const isCenter = index === 1 || index === 2;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30, rotate: rotate - 4 }}
+      animate={{ opacity: 1, y: 0, rotate }}
+      transition={{ duration: 0.55, delay: 0.08 * index + 0.15, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ rotate: 0, y: -8, scale: 1.04, zIndex: 20, transition: { duration: 0.25 } }}
+      onClick={() => { navigate(`/book/${book.id}`); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+      className="group cursor-pointer relative"
+      style={{ zIndex: isCenter ? 10 : 5 }}
+    >
+      {/* Card shadow / depth */}
+      <div
+        className="relative rounded-2xl overflow-hidden shadow-2xl"
+        style={{
+          width: 120,
+          height: 175,
+          boxShadow: "0 20px 50px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.1)",
+        }}
+      >
+        <img
+          src={book.imageURL}
+          alt={book.title}
+          onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=300&h=450&fit=crop"; }}
+          className="w-full h-full object-cover"
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* NEW badge */}
+        <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider text-white"
+          style={{ background: "linear-gradient(135deg, #E31E2E, #ff6b35)" }}>
+          New
+        </div>
+
+        {/* Hover title */}
+        <div className="absolute bottom-0 left-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <p className="text-white text-[10px] font-bold line-clamp-2 leading-tight">{book.title}</p>
+          <p className="text-white/70 text-[9px] mt-0.5">₹{book.price?.toFixed(0)}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+/* ─── Skeleton fanned card ─── */
+const ArrivalSkeleton = ({ index }) => {
+  const rotate = CARD_ROTATIONS[index] ?? 0;
+  return (
+    <div
+      className="rounded-2xl animate-pulse"
+      style={{ width: 120, height: 175, background: "#e8e2d9", transform: `rotate(${rotate}deg)` }}
+    />
+  );
+};
 
 const NewArrivals = () => {
   const [books, setBooks] = useState([]);
@@ -20,50 +84,29 @@ const NewArrivals = () => {
         setIsLoading(true);
         let booksArray = [];
         try {
-          // Attempt to fetch from dedicated New Arrivals endpoint
           const data = await publicApi.getNewArrivals();
-          if (data && Array.isArray(data)) {
-            booksArray = data;
-          } else if (data && data.success && Array.isArray(data.data)) {
-            booksArray = data.data;
-          } else if (data && Array.isArray(data.data)) {
-            booksArray = data.data;
-          }
+          if (data && Array.isArray(data)) booksArray = data;
+          else if (data && data.success && Array.isArray(data.data)) booksArray = data.data;
+          else if (data && Array.isArray(data.data)) booksArray = data.data;
         } catch (apiError) {
-          console.warn("⚠️ Dedicated New Arrivals API not available or failed. Falling back to filtering all books:", apiError.message);
-
-          // Fallback: Fetch all books and filter on the frontend
+          console.warn("⚠️ New Arrivals API not available, falling back:", apiError.message);
           const allData = await publicApi.getAllBooks();
-          let allBooksArray = [];
-          if (allData && Array.isArray(allData)) {
-            allBooksArray = allData;
-          } else if (allData && allData.success && Array.isArray(allData.data)) {
-            allBooksArray = allData.data;
-          } else if (allData && Array.isArray(allData.data)) {
-            allBooksArray = allData.data;
-          }
+          let all = [];
+          if (allData && Array.isArray(allData)) all = allData;
+          else if (allData && allData.success && Array.isArray(allData.data)) all = allData.data;
+          else if (allData && Array.isArray(allData.data)) all = allData.data;
 
-          // Filter books that are marked as new arrivals based on category/badge/title,
-          // or sort by bookId descending to show newly uploaded books
-          booksArray = allBooksArray.filter((book) => {
-            const category = (book.category || "").toLowerCase();
-            const title = (book.bookTitle || "").toLowerCase();
-            const desc = (book.description || "").toLowerCase();
-            return (
-              category.includes("new") ||
-              category.includes("arrival") ||
-              title.includes("mockingbird") || // Mockingbird and rye are new in mock data
-              title.includes("rye")
-            );
+          booksArray = all.filter((b) => {
+            const cat = (b.category || "").toLowerCase();
+            const title = (b.bookTitle || "").toLowerCase();
+            return cat.includes("new") || cat.includes("arrival") || title.includes("mockingbird") || title.includes("rye");
           });
-
-          // If no specific books match, sort general books by ID descending (newest first)
           if (booksArray.length === 0) {
-            booksArray = [...allBooksArray].sort((a, b) => (b.bookId || b.id) - (a.bookId || a.id)).slice(0, 4);
+            booksArray = [...all].sort((a, b) => (b.bookId || b.id) - (a.bookId || a.id)).slice(0, 6);
           }
         }
 
-        const mappedBooks = booksArray.map((book) => ({
+        setBooks(booksArray.map((book) => ({
           id: book.bookId || book.id,
           title: book.bookTitle || book.title,
           author: book.authorName || book.author,
@@ -78,88 +121,133 @@ const NewArrivals = () => {
           availableStock: book.availableStock,
           reservedStock: book.reservedStock,
           damagedStock: book.damagedStock,
-        }));
-
-        setBooks(mappedBooks);
+        })));
       } catch (error) {
         console.error("❌ Failed to fetch new arrivals:", error);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchNewArrivals();
   }, []);
 
-  const handleAddToCart = (book) => {
-    addToCart(book);
-  };
+  /* Show up to 4 books in the fan */
+  const fanBooks = books.slice(0, 4);
 
-  // Page entry animation
   const pageVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { duration: 0.6, ease: "easeOut" },
-    },
+    visible: { opacity: 1, transition: { duration: 0.5, ease: "easeOut" } },
   };
 
+  const currentMonth = new Date().toLocaleString("en-IN", { month: "long", year: "numeric" }).toUpperCase();
+
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-      className="bg-gray-50 min-h-screen flex flex-col"
-    >
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="min-h-screen flex flex-col" style={{ background: "#faf8f4" }}>
       <Navbar />
 
       <div className="flex-grow">
-        {/* Hero Banner Section */}
-        <section className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 py-16 text-white shadow-lg">
-          {/* Subtle Decorative Elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl pointer-events-none transform -translate-x-1/4 translate-y-1/4"></div>
+        {/* ── HERO: warm paper, no gradients, no glow blobs ── */}
+        <section style={{ background: "linear-gradient(160deg, #fff9f5 0%, #ffffff 55%, #fff5f5 100%)", borderBottom: "1px solid #e8e2d9" }}>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/25 border border-indigo-400/30 text-indigo-200 text-xs font-bold uppercase tracking-wider mb-4"
-            >
-              <Sparkles size={14} className="text-indigo-300 animate-pulse" />
-              <span>Fresh Off The Press</span>
-            </motion.div>
-            
-            <motion.h1
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-black font-serif tracking-tight text-white mb-4"
-            >
-              New <span className="text-[#E31E2E]">Arrivals</span>
-            </motion.h1>
+          <div className="px-6 sm:px-10 lg:px-28 mx-auto">
 
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="max-w-2xl mx-auto text-gray-300 text-base sm:text-lg lg:text-xl font-medium leading-relaxed"
-            >
-              Stay ahead of the curve. Be the first to explore and experience our latest literary additions.
-            </motion.p>
+            {/* Thin top rule */}
+            <div style={{ borderBottom: "1px solid #ddd8cf" }} className="pt-16 mb-6  " />
+
+            {/* Main split: text left, fan right */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-10 pb-6">
+
+              {/* LEFT ── editorial text block */}
+              <div className="flex-1 max-w-lg">
+
+                {/* Month stamp */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.45 }}
+                  className="font-sans text-[10px] font-bold text-stone-400 uppercase mb-4"
+                >
+                  {currentMonth}
+                </motion.p>
+
+                {/* Headline */}
+                <div className="overflow-hidden mb-2">
+                  <motion.h1
+                    initial={{ y: 32, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                    className="font-serif text-[clamp(3rem,7vw,6rem)] font-black text-stone-900 leading-none tracking-tighter"
+                  >
+                    Just
+                  </motion.h1>
+                </div>
+                <div className="overflow-hidden mb-7">
+                  <motion.h1
+                    initial={{ y: 32, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.65, delay: 0.07, ease: [0.22, 1, 0.36, 1] }}
+                    className="font-serif text-[clamp(3rem,7vw,6rem)] font-black leading-none tracking-tighter text-[#E31E2E]"
+                  >
+                    Landed.
+                  </motion.h1>
+                </div>
+
+                {/* Divider */}
+                <motion.div
+                  initial={{ scaleX: 0, opacity: 0 }}
+                  animate={{ scaleX: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  style={{ transformOrigin: "left", height: 1, background: "#ddd8cf" }}
+                  className="mb-7"
+                />
+
+                {/* Body copy — honest, one sentence */}
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.25 }}
+                  className="font-sans text-stone-500 text-sm leading-relaxed mb-0 max-w-sm"
+                >
+                  The freshest titles from our sellers — added this week, before everyone else finds them.
+                </motion.p>
+
+               
+              </div>
+
+              {/* RIGHT ── fanned book covers — desktop only (hides on mobile to prevent overflow) */}
+              <div className="hidden lg:flex flex-shrink-0 items-end justify-center gap-3 sm:gap-5 min-h-[210px] pb-2">
+                {isLoading ? (
+                  [0, 1, 2, 3].map((i) => <ArrivalSkeleton key={i} index={i} />)
+                ) : (
+                  fanBooks.map((book, i) => (
+                    <ArrivalCard key={book.id} book={book} index={i} total={fanBooks.length} />
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Bottom accent rule with red dot */}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1" style={{ background: "#ddd8cf" }} />
+              <span className="w-2 h-2 rounded-full" style={{ background: "#E31E2E" }} />
+              <div className="h-px flex-1" style={{ background: "#ddd8cf" }} />
+            </div>
           </div>
         </section>
 
-        {/* Main Grid Section */}
-        <div className="max-w-7xl mx-auto py-4">
+        {/* ── FULL BOOK GRID ── */}
+        <div id="all-books" className=" mx-auto py-2">
           <BookGrid
             books={books}
             isLoading={isLoading}
-            onAddToCart={handleAddToCart}
+            onAddToCart={(book) => addToCart(book)}
+            eyebrow="New Arrivals · Full List"
+            title="All New Arrivals"
+            subtitle="Every title freshly added to our shelves — browse the complete batch below."
           />
         </div>
       </div>
+
       <Footer />
     </motion.div>
   );

@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────
+   Tailwind v4 theme — font families registered once here.
+   Every className="font-sans" → Roboto
+   Every className="font-serif" → Roboto Serif
+   ───────────────────────────────────────────────────────── */
+@theme {
+  --font-sans:  'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Roboto Serif', Georgia, 'Times New Roman', serif;
+}
+
+/* ── Global defaults ── */
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

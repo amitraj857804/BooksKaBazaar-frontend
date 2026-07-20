@@ -185,7 +185,7 @@ const SearchPage = () => {
       <div className="flex-grow">
         {/* Hero Banner Section */}
         <section className="bg-slate-50/70 border-b border-slate-200/60 py-8 sm:py-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className=" mx-auto px-4 sm:px-6 lg:px-28">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#E31E2E]/10 border border-[#E31E2E]/20 text-[#E31E2E] text-xs font-bold uppercase tracking-wide mb-3 font-sans">
               <Search size={12} className="stroke-[3]" />
               <span>Search Results</span>
@@ -203,7 +203,7 @@ const SearchPage = () => {
         </section>
 
       {/* Main Results Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className=" px-6 sm:px-10 lg:px-28 mx-auto py-8 sm:py-12">
         {isLoading ? (
           <div>
             <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-3 font-sans">

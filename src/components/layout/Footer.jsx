@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import {
-  Mail, Phone, MapPin, Send, ArrowRight,
-  ShieldCheck, BookOpen, Store, ChevronRight
+  Mail, Phone, MapPin, ArrowRight,
+  ShieldCheck, BookOpen, Store, ChevronRight, MessageCircle
 } from "lucide-react";
-import toast from "react-hot-toast";
 
 const NAV = [
   { label: "Home",        to: "/" },
@@ -26,10 +25,24 @@ const CATEGORIES = [
 const SUPPORT = [
   { label: "FAQs",               to: "/faq" },
   { label: "Track Order",        to: "/profile?tab=orders" },
-  { label: "Returns & Refunds",  to: "/returns" },
-  { label: "Shipping Policy",    to: "/shipping" },
-  { label: "Privacy Policy",     to: "/privacy" },
-  { label: "Terms of Service",   to: "/terms" },
+  { label: "Terms of Use",       to: "/terms-of-use" },
+  { label: "Terms & Conditions", to: "/terms-conditions" },
+  { label: "Seller Terms & Conditions",  to: "/seller-terms" },
+  { label: "Disclaimer",         to: "/disclaimer" },
+];
+
+const POLICIES = [
+ 
+  { label: "Privacy Policy",             to: "/privacy" },
+  { label: "Returns & Refunds",          to: "/returns" },
+  { label: "Delivery & Shipping",        to: "/shipping" },
+  
+  { label: "Digital Products Policy",    to: "/digital-products-policy" },
+  { label: "IP & Copyright Policy",      to: "/ip-policy" },
+  { label: "Prohibited Items Policy",    to: "/prohibited-items" },
+  { label: "Cancellation Policy",        to: "/cancellation" },
+  { label: "Payment & Wallet Policy",    to: "/payment-policy" },
+  { label: "Grievance Redressal",        to: "/grievance" },
 ];
 
 const NavLink = ({ to, label }) => (
@@ -47,75 +60,61 @@ const NavLink = ({ to, label }) => (
   </li>
 );
 
-const Footer = () => {
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    setIsSubmitting(true);
-    setTimeout(() => {
-      toast.success("Thank you for subscribing!");
-      setEmail("");
-      setIsSubmitting(false);
-    }, 1200);
-  };
+/* ── Accordion section: collapsed on < lg, always open on lg ── */
+const FooterSection = ({ title, children, spanFull = false }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`${spanFull ? "col-span-1 md:col-span-1 lg:col-span-1 " : ""}`}>
+      {/* Header — clickable only on < lg */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between py-3.5 lg:py-0 lg:cursor-default group"
+        aria-expanded={open}
+      >
+        <h4 className="text-white font-bold text-sm uppercase tracking-widest text-left">
+          {title}
+        </h4>
+        {/* Chevron — only visible < lg */}
+        <ChevronRight
+          size={14}
+          className={`text-slate-500 transition-transform duration-300 lg:hidden ${
+            open ? "rotate-90" : "rotate-0"
+          }`}
+        />
+      </button>
+
+      {/* Links — always visible on lg, toggled on < lg */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out lg:!max-h-none lg:!opacity-100 lg:mt-4 ${
+          open ? "max-h-[600px] opacity-100 mt-4" : "max-h-0 opacity-0 mt-0 lg:mt-4"
+        }`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const Footer = () => {
 
   return (
     <footer className="bg-[#0d1117] text-slate-400 font-sans mt-auto">
 
-      {/* ── NEWSLETTER BAND ── */}
-      <div className="border-b border-white/5" style={{ background: "linear-gradient(135deg, #E31E2E 0%, #b01220 100%)" }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div>
-            <h3 className="text-white font-black text-xl tracking-tight mb-1">
-              Stay in the loop
-            </h3>
-            <p className="text-red-100 text-sm font-medium">
-              New arrivals, exclusive deals &amp; curated reading picks — straight to your inbox.
-            </p>
-          </div>
-          <form onSubmit={handleSubscribe} className="w-full max-w-md flex gap-2 shrink-0">
-            <div className="relative flex-1">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address"
-                className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white rounded-xl text-sm text-white placeholder:text-white focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-3 bg-white text-[#E31E2E] font-extrabold text-sm rounded-xl flex items-center gap-2 hover:bg-red-100 disabled:opacity-60 transition-all duration-200 cursor-pointer whitespace-nowrap shadow-lg"
-            >
-              {isSubmitting ? "Joining…" : "Subscribe"}
-              <Send size={13} />
-            </button>
-          </form>
-        </div>
-      </div>
 
       {/* ── MAIN LINKS GRID ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-14 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-10 lg:gap-8">
+      <div className="px-6 sm:px-10 lg:px-28 mx-auto pt-14 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-8 divide-y divide-white/5 md:divide-y-0">
 
-          {/* Brand column */}
-          <div className="space-y-6">
+          {/* Brand column — last on sm/md, first on lg */}
+          <div className="space-y-6 order-last py-6 md:col-span-3 md:order-last lg:col-span-1 lg:order-first lg:py-0">
             {/* Logo */}
             <Link to="/" className="inline-flex items-center gap-2.5 group">
               <div className="w-10 h-10 rounded-xl bg-[#E31E2E] flex items-center justify-center shadow-lg shadow-[#E31E2E]/30 group-hover:scale-105 transition-transform duration-300">
                 <BookOpen size={20} className="text-white" />
               </div>
-              <span className="text-white font-black text-xl tracking-tight">
-                BooksKa<span className="text-[#E31E2E]">Bazaar</span>
+              <span className="text-[#E31E2E] font-black text-xl tracking-tight">
+                Books Ka Bazaar
               </span>
             </Link>
 
@@ -143,6 +142,22 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
+
+            {/* Connect CTA */}
+            <div className="space-y-2">
+              <p className="text-slate-500 text-xs leading-relaxed">
+                Have a question or want to get in touch? We'd love to hear from you.
+              </p>
+              <Link
+                to="/connect"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold text-sm rounded-full transition-all hover:opacity-90"
+                style={{ background: "#E31E2E" }}
+              >
+                <MessageCircle size={14} />
+                Connect with Us
+              </Link>
+            </div>
+
 
             {/* Social icons */}
             <div className="flex items-center gap-2.5 pt-1">
@@ -184,8 +199,7 @@ const Footer = () => {
           </div>
 
           {/* Navigation */}
-          <div className="space-y-5">
-            <h4 className="text-white font-bold text-sm uppercase tracking-widest">Explore</h4>
+          <FooterSection title="Explore">
             <ul className="space-y-3">
               {NAV.map((item) => <NavLink key={item.to} {...item} />)}
               <li>
@@ -195,28 +209,33 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>
+          </FooterSection>
 
           {/* Categories */}
-          <div className="space-y-5">
-            <h4 className="text-white font-bold text-sm uppercase tracking-widest">Categories</h4>
+          <FooterSection title="Categories">
             <ul className="space-y-3">
               {CATEGORIES.map((item) => <NavLink key={item.to} {...item} />)}
             </ul>
-          </div>
+          </FooterSection>
 
-          {/* Support */}
-          <div className="space-y-5">
-            <h4 className="text-white font-bold text-sm uppercase tracking-widest">Help &amp; Legal</h4>
+          {/* Help & Support */}
+          <FooterSection title="Help &amp; Support">
             <ul className="space-y-3">
               {SUPPORT.map((item) => <NavLink key={item.to} {...item} />)}
             </ul>
-          </div>
+          </FooterSection>
+
+          {/* Policies */}
+          <FooterSection title="Policies" spanFull>
+            <ul className="space-y-3 columns-2 md:columns-1">
+              {POLICIES.map((item) => <NavLink key={item.to} {...item} />)}
+            </ul>
+          </FooterSection>
         </div>
       </div>
 
       {/* ── TRUST BADGES ROW ── */}
-      <div className="border-t border-white/5 max-w-7xl mx-auto px-6 lg:px-10 py-6">
+      <div className="border-t border-white/5 px-6 sm:px-10 lg:px-28 mx-auto py-6">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold">
             <ShieldCheck size={14} className="text-[#E31E2E]" />
@@ -234,108 +253,18 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* ── LEGAL DISCLAIMER ── */}
-      <div className="border-t border-white/5" style={{ background: "linear-gradient(180deg, #0a0f18 0%, #0d1117 100%)" }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
-
-          {/* Tagline — stacks gracefully on mobile */}
-          <div className="mb-8 text-center">
-            
-            <p className="text-slate-300 text-sm font-semibold leading-relaxed">
-              Books Ka Bazaar &mdash;{" "}
-              <span className="text-[#E31E2E] font-black">India&apos;s Trusted Multi-Seller Marketplace</span>{" "}
-              for Books &amp; Learning Resources
-            </p>
-          </div>
-
-          {/* Disclaimer paragraphs — single column mobile, 3 col desktop */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-800/40 rounded-2xl overflow-hidden mb-8">
-            {[
-              {
-                num: "01",
-                title: "Marketplace Notice",
-                body: (
-                  <>
-                    <strong className="text-slate-300">Books Ka Bazaar</strong> is a technology-driven multi-seller marketplace connecting buyers and registered sellers of books &amp; educational resources across India. Unless specifically identified as{" "}
-                    <strong className="text-slate-300">&lsquo;Sold by Books Ka Bazaar&rsquo;</strong>, Books Ka Bazaar is not the Seller of products listed by independent sellers on this Platform.
-                  </>
-                ),
-              },
-              {
-                num: "02",
-                title: "Seller Responsibility",
-                body: "Product descriptions, pricing, availability, condition, and warranties are solely provided by and the responsibility of respective Sellers. Books Ka Bazaar makes no warranties, express or implied, regarding the accuracy of Seller listings.",
-              },
-              {
-                num: "03",
-                title: "Platform Policies",
-                body: (
-                  <>
-                    All transactions are subject to our{" "}
-                    <Link to="/returns" className="text-slate-300 hover:text-[#E31E2E] underline underline-offset-2 transition-colors font-medium">
-                      Returns &amp; Refunds Policy
-                    </Link>
-                    ,{" "}
-                    <Link to="/shipping" className="text-slate-300 hover:text-[#E31E2E] underline underline-offset-2 transition-colors font-medium">
-                      Delivery &amp; Shipping Policy
-                    </Link>
-                    , and other applicable Platform policies.
-                  </>
-                ),
-              },
-            ].map(({ num, title, body }) => (
-              <div key={num} className="bg-slate-900/60 p-6 lg:p-7 space-y-3">
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-[#E31E2E] text-xs font-black tracking-widest opacity-60">{num}</span>
-                  <span className="text-white text-xs font-bold uppercase tracking-wider">{title}</span>
-                </div>
-                <p className="text-slate-400 text-sm leading-[1.8]">{body}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Compliance + Grievance — stacks on mobile */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Badges — wrap on small screens */}
-            <div className="flex flex-wrap gap-2">
-              {[
-                "IT Act, 2000",
-                "Consumer Protection (E-Commerce) Rules, 2020",
-                "Intermediary Platform",
-              ].map((badge) => (
-                <span
-                  key={badge}
-                  className="text-xs font-semibold text-slate-400 bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-full select-none whitespace-nowrap"
-                >
-                  {badge}
-                </span>
-              ))}
-            </div>
-
-            {/* Grievance email */}
-            <div className="text-sm text-slate-400 shrink-0">
-              <span className="text-slate-500">Disputes &amp; Grievances: </span>
-              <a
-                href="mailto:grievance@bookskabazaar.com"
-                className="text-slate-300 hover:text-[#E31E2E] transition-colors font-medium underline underline-offset-2"
-              >
-                grievance@bookskabazaar.com
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
       {/* ── COPYRIGHT BAR ── */}
       <div className="border-t border-white/5 bg-black/50">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span className="text-slate-500 text-xs text-center sm:text-left">
-            &copy; {new Date().getFullYear()} Books Ka Bazaar &mdash; AS Enterprises Pvt. Ltd. All rights reserved.
+            &copy; {new Date().getFullYear()} Books Ka Bazaar &mdash; All rights reserved.
           </span>
-          <div className="flex items-center gap-5 text-xs text-slate-600">
+          <div className="flex items-center gap-5 text-xs text-slate-500">
+            <Link to="/disclaimer" className="hover:text-slate-400 transition-colors">Disclaimer</Link>
             <Link to="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
-            <Link to="/about" className="hover:text-slate-400 transition-colors">About Us</Link>
+            <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of use</Link>
           </div>
         </div>
       </div>

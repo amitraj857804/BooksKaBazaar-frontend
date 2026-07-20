@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Heart, Trash2, ShoppingCart, ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
+import { Heart,  ArrowLeft,  ChevronRight } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import BookCard from "../components/products/BookCard";
@@ -75,7 +75,7 @@ const Bookshelf = () => {
         <Navbar />
 
         <div className="flex-grow pb-16">
-          <main className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+          <main className="px-6 sm:px-10 lg:px-28 mx-auto py-16">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center max-w-md mx-auto">
               <div className="w-16 h-16 bg-red-50 text-[#E31E2E] rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
                 <Heart size={28} className="text-[#E31E2E] animate-pulse" />
@@ -111,7 +111,7 @@ const Bookshelf = () => {
       <Navbar />
 
       <div className="flex-grow pb-16">
-        <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <main className="px-6 sm:px-10 lg:px-28 mx-auto py-8">
           {/* Navigation Breadcrumb */}
           <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-6 uppercase tracking-wider">
             <span className="hover:text-[#E31E2E] cursor-pointer transition" onClick={() => navigate("/")}>Home</span>
@@ -160,7 +160,7 @@ const Bookshelf = () => {
             ) : (
               <motion.div
                 layout
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 sm:gap-6"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-4"
               >
                 {bookshelfItems.map((book) => (
                   <motion.div

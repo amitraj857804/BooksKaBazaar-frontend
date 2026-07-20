@@ -40,7 +40,7 @@ const Navbar = () => {
   // Get cart and bookshelf data from Redux
   const { totalQuantity } = useSelector((state) => state.cart);
   const { bookshelfItems } = useSelector((state) => state.bookshelf);
-  
+
   const { syncCart } = useCart();
 
   const [bounceBookshelf, setBounceBookshelf] = useState(false);
@@ -158,7 +158,7 @@ const Navbar = () => {
       try {
         setIsSearching(true);
         const data = await publicApi.searchBooks(trimmed);
-        
+
         let booksArray = [];
         if (data && Array.isArray(data)) {
           booksArray = data;
@@ -230,10 +230,10 @@ const Navbar = () => {
             {/* Logo - left aligned on desktop, centered on mobile/tablet */}
             <div
               onClick={() => navigate("/")}
-              className="shrink-0 font-black text-2xl tracking-tighter cursor-pointer select-none flex items-center gap-1.5 justify-center lg:justify-start flex-1 lg:flex-initial"
+              className="shrink-0 font-black sm:text-2xl text-lg tracking-tighter cursor-pointer select-none flex items-center gap-1   justify-start lg:justify-start flex-1 lg:flex-initial"
             >
-              <span className="text-slate-900 font-serif">Books</span>
-              <span className="text-[#E31E2E] font-sans font-black">KaBazaar</span>
+
+              <span className="text-[#E31E2E] font-sans font-black">Books Ka Bazaar</span>
             </div>
 
             {/* Desktop Search Bar - positioned in the middle on desktop only */}
@@ -335,37 +335,7 @@ const Navbar = () => {
 
             {/* Actions (Login/Sign Up, Bookshelf, Cart) - visible on desktop (lg and up) */}
             <div className="hidden lg:flex items-center gap-6">
-
-              {/* Auth Section */}
-              {!isLoggedIn ? (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => openAuthModal("login")}
-                    className="px-4 py-2 text-gray-700 font-bold text-sm hover:text-[#E31E2E] transition cursor-pointer"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => openAuthModal("signup")}
-                    className="px-5 py-2 bg-[#E31E2E] text-white font-bold text-sm rounded-lg hover:bg-[#E31E2E]/90 hover:shadow-md transition cursor-pointer"
-                  >
-                    Sign Up
-                  </button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => navigate("/profile")}
-                  className="flex items-center gap-2.5 cursor-pointer group transition select-none"
-                >
-                  <div className="w-8 h-8 rounded-full bg-[#E31E2E]/10 border border-[#E31E2E]/20 text-[#E31E2E] flex items-center justify-center font-bold text-sm uppercase shadow-sm group-hover:bg-[#E31E2E] group-hover:text-white group-hover:border-transparent transition-all duration-200">
-                    {user?.fullName?.charAt(0) || "U"}
-                  </div>
-                  <span className="text-gray-700 font-bold text-sm group-hover:text-[#E31E2E] transition">
-                    {user?.fullName?.split(" ")[0] || "User"}
-                  </span>
-                </div>
-              )}
-
+      
               {/* Bookshelf Widget */}
               <motion.button
                 onClick={() => navigate("/bookshelf")}
@@ -418,6 +388,38 @@ const Navbar = () => {
                 </div>
                 <span className="font-semibold text-sm">Cart</span>
               </motion.div>
+
+              {/* Auth Section */}
+              {!isLoggedIn ? (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openAuthModal("login")}
+                    className="px-4 py-2 text-gray-700 font-bold text-sm hover:text-[#E31E2E] transition cursor-pointer"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => openAuthModal("signup")}
+                    className="px-5 py-2 bg-[#E31E2E] text-white font-bold text-sm rounded-lg hover:bg-[#E31E2E]/90 hover:shadow-md transition cursor-pointer"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => navigate("/profile")}
+                  className="flex items-center gap-2.5 cursor-pointer group transition select-none"
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#E31E2E]/10 border border-[#E31E2E]/20 text-[#E31E2E] flex items-center justify-center font-bold text-sm uppercase shadow-sm group-hover:bg-[#E31E2E] group-hover:text-white group-hover:border-transparent transition-all duration-200">
+                    {user?.fullName?.charAt(0) || "U"}
+                  </div>
+                  <span className="text-gray-700 font-bold text-sm group-hover:text-[#E31E2E] transition">
+                    {user?.fullName?.split(" ")[0] || "User"}
+                  </span>
+                </div>
+              )}
+
+             
             </div>
 
             {/* Mobile/Tablet Actions (Heart, Cart, Profile User icon) - visible under lg */}

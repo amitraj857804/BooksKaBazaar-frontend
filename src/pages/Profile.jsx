@@ -184,7 +184,7 @@ const Profile = () => {
       <Navbar />
 
       <div className="flex-grow pb-12">
-        <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <main className="px-6 sm:px-10 lg:px-28 mx-auto py-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-6 uppercase tracking-wider">
           <span className="hover:text-[#E31E2E] cursor-pointer transition" onClick={() => navigate("/")}>Home</span>
@@ -302,7 +302,7 @@ const Profile = () => {
                         className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 hover:bg-[#E31E2E] hover:text-white rounded-xl font-bold text-xs text-gray-700 transition cursor-pointer"
                       >
                         <Edit3 size={14} />
-                        <span>Edit Profile</span>
+                        <span >Edit</span>
                       </button>
                     )}
                   </div>

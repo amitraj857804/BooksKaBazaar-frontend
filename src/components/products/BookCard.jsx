@@ -108,7 +108,7 @@ const BookCard = ({ book, onAddToCart }) => {
         </div>
 
         {/* Info Block */}
-        <div className="flex flex-col space-y-1">
+        <div className="flex flex-col ">
           {/* Rating */}
           <div className="flex items-center gap-1 text-xs text-gray-500 font-bold">
             <span>{rating} / 5 ({reviewCount})</span>

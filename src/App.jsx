@@ -9,8 +9,25 @@ import Bestsellers from "./pages/Bestsellers";
 import NewArrivals from "./pages/NewArrivals";
 import BookDetails from "./pages/BookDetails";
 import SearchPage from "./pages/SearchPage";
-import About from "./pages/About";
-import FAQ from "./pages/FAQ";
+// Help & Support Pages
+import About from "./pages/help-support/About";
+import FAQ from "./pages/help-support/FAQ";
+import Connect from "./pages/help-support/Connect";
+import Disclaimer from "./pages/help-support/Disclaimer";
+
+// Policy Pages
+import TermsConditions from "./pages/policies/TermsConditions";
+import TermsOfUse from "./pages/policies/TermsOfUse";
+import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
+import ReturnsRefunds from "./pages/policies/ReturnsRefunds";
+import ShippingPolicy from "./pages/policies/ShippingPolicy";
+import SellerTerms from "./pages/policies/SellerTerms";
+import DigitalProductsPolicy from "./pages/policies/DigitalProductsPolicy";
+import IPPolicy from "./pages/policies/IPPolicy";
+import ProhibitedItemsPolicy from "./pages/policies/ProhibitedItemsPolicy";
+import CancellationPolicy from "./pages/policies/CancellationPolicy";
+import PaymentPolicy from "./pages/policies/PaymentPolicy";
+import GrievancePolicy from "./pages/policies/GrievancePolicy";
 import ScrollToTop from "./components/common/ScrollToTop";
 import SellerLanding from "./pages/admin/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
@@ -142,16 +159,27 @@ function App() {
                   }
                 />
 
-                {/* FAQ Page */}
-                <Route
-                  path="/faq"
-                  element={
-                    <>
-                      <AuthModal />
-                      <FAQ />
-                    </>
-                  }
-                />
+                <Route path="/faq" element={<><AuthModal /><FAQ /></>} />
+
+                {/* Connect Page */}
+                <Route path="/connect" element={<><AuthModal /><Connect /></>} />
+
+                {/* Disclaimer Page */}
+                <Route path="/disclaimer" element={<><AuthModal /><Disclaimer /></>} />
+
+                {/* Policy Pages */}
+                <Route path="/terms-conditions"       element={<><AuthModal /><TermsConditions /></>} />
+                <Route path="/terms-of-use"           element={<><AuthModal /><TermsOfUse /></>} />
+                <Route path="/privacy"                element={<><AuthModal /><PrivacyPolicy /></>} />
+                <Route path="/returns"                element={<><AuthModal /><ReturnsRefunds /></>} />
+                <Route path="/shipping"               element={<><AuthModal /><ShippingPolicy /></>} />
+                <Route path="/seller-terms"           element={<><AuthModal /><SellerTerms /></>} />
+                <Route path="/digital-products-policy" element={<><AuthModal /><DigitalProductsPolicy /></>} />
+                <Route path="/ip-policy"              element={<><AuthModal /><IPPolicy /></>} />
+                <Route path="/prohibited-items"       element={<><AuthModal /><ProhibitedItemsPolicy /></>} />
+                <Route path="/cancellation"           element={<><AuthModal /><CancellationPolicy /></>} />
+                <Route path="/payment-policy"         element={<><AuthModal /><PaymentPolicy /></>} />
+                <Route path="/grievance"              element={<><AuthModal /><GrievancePolicy /></>} />
 
                 {/* Seller/Admin Landing */}
                 <Route path="/seller" element={<SellerLanding />} />

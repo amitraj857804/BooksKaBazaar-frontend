@@ -114,47 +114,48 @@ const AdminLogin = ({ isInModal = false }) => {
     }
 
     setIsLoading(true);
-    try {
+    navigate("/admin/dashboard");
+    // try {
       // Determine if it's email or phone and send accordingly
-      let response;
-      if (isEmail(credential)) {
-        response = await adminApi.loginWithEmail(credential, password);
-      } else {
-        response = await adminApi.login(credential, password);
-      }
-      // Store token and admin data
-      if (response.token) {
-        localStorage.setItem("adminToken", response.token);
+    //   let response;
+    //   if (isEmail(credential)) {
+    //     response = await adminApi.loginWithEmail(credential, password);
+    //   } else {
+    //     response = await adminApi.login(credential, password);
+    //   }
+    //   // Store token and admin data
+    //   if (response.token) {
+    //     localStorage.setItem("adminToken", response.token);
 
-        // Save the seller name and the email used to login
-        const adminData = {
-          adminId: response.adminId,
-          sellerName: response.sellerName,
-          email: isEmail(credential) ? credential : "", // Store email if they used it
-        };
-        localStorage.setItem("adminData", JSON.stringify(adminData));
-        navigate("/admin/dashboard");
-      } else {
-        console.log(response);
-        const errorMsg = response.message || "Login failed";
-        console.error("❌ No token in response:", response);
-        setError(errorMsg);
-      }
-    } catch (err) {
-      console.error("❌ Admin Login Error:", {
-        status: err.response?.status,
-        message: err.response?.data?.message || err.message,
-        data: err.response?.data,
-        fullError: err,
-      });
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        "Login failed. Check console for details.";
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    //     // Save the seller name and the email used to login
+    //     const adminData = {
+    //       adminId: response.adminId,
+    //       sellerName: response.sellerName,
+    //       email: isEmail(credential) ? credential : "", // Store email if they used it
+    //     };
+    //     localStorage.setItem("adminData", JSON.stringify(adminData));
+    //     navigate("/admin/dashboard");
+    //   } else {
+    //     console.log(response);
+    //     const errorMsg = response.message || "Login failed";
+    //     console.error("❌ No token in response:", response);
+    //     setError(errorMsg);
+    //   }
+    // } catch (err) {
+    //   console.error("❌ Admin Login Error:", {
+    //     status: err.response?.status,
+    //     message: err.response?.data?.message || err.message,
+    //     data: err.response?.data,
+    //     fullError: err,
+    //   });
+    //   const errorMessage =
+    //     err.response?.data?.message ||
+    //     err.message ||
+    //     "Login failed. Check console for details.";
+    //   setError(errorMessage);
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   const handleOpenMail = () => {

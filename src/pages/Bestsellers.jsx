@@ -32,14 +32,14 @@ const HeroCarousel = ({ books, isLoading }) => {
   }, [isLoading, slides.length]);
 
   const imgVariants = {
-    enter:  (d) => ({ x: d > 0 ? "8%" : "-8%", opacity: 0 }),
-    center: ()  => ({ x: "0%", opacity: 1 }),
-    exit:   (d) => ({ x: d > 0 ? "-8%" : "8%",  opacity: 0 }),
+    enter: (d) => ({ x: d > 0 ? "8%" : "-8%", opacity: 0 }),
+    center: () => ({ x: "0%", opacity: 1 }),
+    exit: (d) => ({ x: d > 0 ? "-8%" : "8%", opacity: 0 }),
   };
   const infoVariants = {
-    enter:  { opacity: 0, y: 10 },
+    enter: { opacity: 0, y: 10 },
     center: { opacity: 1, y: 0 },
-    exit:   { opacity: 0, y: -10 },
+    exit: { opacity: 0, y: -10 },
   };
 
   const book = slides[current];
@@ -59,7 +59,7 @@ const HeroCarousel = ({ books, isLoading }) => {
         </p>
 
         {/* Headline */}
-        {["Books","Worth", "Reading."].map((word, i) => (
+        {["Books", "Worth", "Reading."].map((word, i) => (
           <div key={word} className="overflow-hidden">
             <motion.h1
               initial={{ y: 32, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
@@ -88,7 +88,7 @@ const HeroCarousel = ({ books, isLoading }) => {
           A curated collection of titles our sellers have listed under Bestsellers — handpicked reads across every genre.
         </p>
 
-        
+
 
         {/* Dot indicators */}
         {slides.length > 1 && (
@@ -280,7 +280,7 @@ const Bestsellers = () => {
         </div>
 
         {/* ── ALL BOOKS GRID (unchanged) ── */}
-        <div id="all-books" className=" mx-auto sm:py-10 mt-2 py-4">
+        <div id="all-books" className=" mx-auto sm:py-10 mt-2 py-4 -mb-4">
           <BookGrid
             books={books}
             isLoading={isLoading}

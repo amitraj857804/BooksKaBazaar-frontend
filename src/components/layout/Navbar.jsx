@@ -4,7 +4,7 @@ import { Search, ShoppingCart, Menu, X, Store, Heart, MapPin, ChevronDown, Smart
 import { useSelector, useDispatch } from "react-redux";
 import { useAuth } from "../../context/AuthContext";
 import { useFlyToCartContext } from "../../context/FlyToCartContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { wishlistApi } from "../../services/user/wishlistApi";
 import { setBookshelfItems, clearBookshelf } from "../../store/bookshelfSlice";
 import { clearCart } from "../../store/cartSlice";
@@ -12,20 +12,39 @@ import { useCart } from "../../hooks/useCart";
 import { useDebounce } from "../../hooks/useDebounce";
 import { publicApi } from "../../services/public/publicApi";
 
+const SEARCH_CATEGORIES = [
+  "All Categories",
+  "Academics",
+  "Fiction",
+  "Non Fiction",
+  "Children & Kids",
+  "Young Adults",
+  "Comics & Graphic",
+  "Languages",
+  "Competitive",
+  "Rare & Vintage",
+];
+
 const Navbar = () => {
   const { openAuthModal, user, logoutUser } = useAuth();
   const isLoggedIn = !!user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [pincode, setPincode] = useState("122009");
-  const [showPincodeModal, setShowPincodeModal] = useState(false);
-  const [showBookshelfAlert, setShowBookshelfAlert] = useState(false);
-  const [pincodeInput, setPincodeInput] = useState("");
   const [bounceCart, setBounceCart] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef(null);
+  const mobileCategoryDropdownRef = useRef(null);
   const navigate = useNavigate();
+  const [urlSearchParams] = useSearchParams();
   const dispatch = useDispatch();
+
+  // Derive selected category directly from the URL — no state sync needed
+  const urlQuery = urlSearchParams.get("query") || "";
+  const urlCategory = urlSearchParams.get("category") || "";
+  const selectedCategory = urlCategory || (SEARCH_CATEGORIES.slice(1).includes(urlQuery) ? urlQuery : "");
+
   const cartIconRef = useRef(null);
   const { cartIconRef: contextCartIconRef, isFlying } = useFlyToCartContext();
 
@@ -65,6 +84,19 @@ const Navbar = () => {
     };
     fetchCart();
   }, [isLoggedIn, syncCart]);
+
+  // Close category popover on outside click (desktop + mobile)
+  useEffect(() => {
+    const handler = (e) => {
+      const insideDesktop = categoryDropdownRef.current?.contains(e.target);
+      const insideMobile = mobileCategoryDropdownRef.current?.contains(e.target);
+      if (!insideDesktop && !insideMobile) {
+        setCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Clear cart and bookshelf states on logout
   useEffect(() => {
@@ -195,7 +227,14 @@ const Navbar = () => {
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
     if (searchInput.trim()) {
-      navigate(`/search?query=${encodeURIComponent(searchInput.trim())}`);
+      const cat = selectedCategory && selectedCategory !== "All Categories" ? selectedCategory : "";
+      const url = cat
+        ? `/search?query=${encodeURIComponent(searchInput.trim())}&category=${encodeURIComponent(cat)}`
+        : `/search?query=${encodeURIComponent(searchInput.trim())}`;
+      navigate(url);
+      setShowSuggestions(false);
+    } else if (selectedCategory && selectedCategory !== "All Categories") {
+      navigate(`/search?query=${encodeURIComponent(selectedCategory)}`);
       setShowSuggestions(false);
     }
   };
@@ -236,30 +275,70 @@ const Navbar = () => {
               <span className="text-[#E31E2E] font-sans font-black">Books Ka Bazaar</span>
             </div>
 
-            {/* Desktop Search Bar - positioned in the middle on desktop only */}
+            {/* Desktop Search Bar */}
             <div ref={desktopSearchRef} className="hidden lg:block flex-1 max-w-xl mx-8 relative">
-              <form onSubmit={handleSearchSubmit} className="relative w-full group">
+              <form onSubmit={handleSearchSubmit} className="relative w-full cup">
+                {/* Input */}
                 <input
                   type="text"
-                  placeholder="Search by Title, Author, ISBN or Genre..."
+                  placeholder="Search books, authors, ISBN..."
                   value={searchInput}
                   onChange={(e) => {
                     setSearchInput(e.target.value);
                     setShowSuggestions(true);
                   }}
                   onFocus={() => setShowSuggestions(true)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") setShowSuggestions(false);
-                  }}
-                  className="w-full pl-11 pr-12 py-2.5 rounded-full bg-slate-50 border border-slate-300 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] hover:border-[#E31E2E]/50 transition-all shadow-sm"
+                  onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
+                  className="w-full pl-10 pr-[148px] py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#E31E2E] focus:ring-1 focus:ring-[#E31E2E]/20 transition-all shadow-sm"
                 />
+                {/* Search button (left) */}
                 <button
-                  type="button"
-                  onClick={handleSearchSubmit}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-[#E31E2E] transition-colors"
+                  type="submit"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 >
-                  <Search className="w-4.5 h-4.5 group-focus-within:text-[#E31E2E] transition-colors" />
+                  <Search size={15} />
                 </button>
+
+                {/* Category selector (right) */}
+                <div ref={categoryDropdownRef} className="absolute right-0 top-0 bottom-0 flex items-center">
+                  <span className="w-px h-5 bg-gray-200" />
+                  <button
+                    type="button"
+                    onClick={() => setCategoryDropdownOpen((o) => !o)}
+                    className="flex items-center gap-1 px-3 h-full text-xs font-semibold text-gray-600 rounded-r-lg cursor-pointer focus:outline-none whitespace-nowrap"
+                  >
+                    <span className="max-w-[90px] truncate">{selectedCategory || "All"}</span>
+                    <ChevronDown size={12} className={`text-gray-400 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {/* Category popover */}
+                  {categoryDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1 overflow-hidden">
+                      {SEARCH_CATEGORIES.map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            const val = cat === "All Categories" ? "" : cat;
+                            setCategoryDropdownOpen(false);
+                            setSearchInput("");
+                            setShowSuggestions(false);
+                            if (val) {
+                              navigate(`/search?query=${encodeURIComponent(val)}`);
+                            }
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
+                            selectedCategory === (cat === "All Categories" ? "" : cat)
+                              ? "bg-[#E31E2E]/5 text-[#E31E2E] font-semibold"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </form>
 
               {/* Suggestions dropdown */}
@@ -335,7 +414,7 @@ const Navbar = () => {
 
             {/* Actions (Login/Sign Up, Bookshelf, Cart) - visible on desktop (lg and up) */}
             <div className="hidden lg:flex items-center gap-6">
-      
+
               {/* Bookshelf Widget */}
               <motion.button
                 onClick={() => navigate("/bookshelf")}
@@ -419,7 +498,7 @@ const Navbar = () => {
                 </div>
               )}
 
-             
+
             </div>
 
             {/* Mobile/Tablet Actions (Heart, Cart, Profile User icon) - visible under lg */}
@@ -485,28 +564,65 @@ const Navbar = () => {
         {/* Tier 3.5: Search Bar Row (Directly visible on mobile, iPad; hidden on desktop) */}
         <div ref={mobileSearchRef} className="lg:hidden border-b border-gray-100 bg-white pb-3.5 px-4 sm:px-6 relative">
           <div className="max-w-7xl mx-auto relative">
-            <form onSubmit={handleSearchSubmit} className="relative w-full group">
+            <form onSubmit={handleSearchSubmit} className="relative w-full">
+              {/* Input */}
               <input
                 type="text"
-                placeholder="Search by Title, Author, ISBN or Genre..."
+                placeholder="Search books, authors, ISBN..."
                 value={searchInput}
                 onChange={(e) => {
                   setSearchInput(e.target.value);
                   setShowSuggestions(true);
                 }}
                 onFocus={() => setShowSuggestions(true)}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") setShowSuggestions(false);
-                }}
-                className="w-full pl-11 pr-12 py-2.5 rounded-full bg-slate-50 border border-slate-300 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E31E2E]/20 focus:border-[#E31E2E] hover:border-[#E31E2E]/50 transition-all shadow-sm"
+                onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
+                className="w-full pl-10 pr-[120px] py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#E31E2E] focus:ring-1 focus:ring-[#E31E2E]/20 transition-all shadow-sm"
               />
-              <button
-                type="button"
-                onClick={handleSearchSubmit}
-                className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-[#E31E2E] transition-colors"
-              >
-                <Search className="w-4.5 h-4.5 group-focus-within:text-[#E31E2E] transition-colors" />
+              {/* Search button (left) */}
+              <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Search size={15} />
               </button>
+
+              {/* Category selector (right) */}
+              <div ref={mobileCategoryDropdownRef} className="absolute right-0 top-0 bottom-0 flex items-center">
+                <span className="w-px h-5 bg-gray-200" />
+                <button
+                  type="button"
+                  onClick={() => setCategoryDropdownOpen((o) => !o)}
+                  className="flex items-center gap-1 px-3 h-full text-xs font-semibold text-gray-600 rounded-r-lg focus:outline-none whitespace-nowrap"
+                >
+                  <span className="max-w-[70px] truncate">{selectedCategory || "All"}</span>
+                  <ChevronDown size={12} className={`text-gray-400 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {/* Category popover */}
+                {categoryDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1 overflow-hidden">
+                    {SEARCH_CATEGORIES.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          const val = cat === "All Categories" ? "" : cat;
+                          setCategoryDropdownOpen(false);
+                          setSearchInput("");
+                          setShowSuggestions(false);
+                          if (val) {
+                            navigate(`/search?query=${encodeURIComponent(val)}`);
+                          }
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                          selectedCategory === (cat === "All Categories" ? "" : cat)
+                            ? "bg-[#E31E2E]/5 text-[#E31E2E] font-semibold"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </form>
 
             {/* Suggestions dropdown for mobile */}
@@ -649,13 +765,7 @@ const Navbar = () => {
                 </button>
               )}
 
-              {/* About Us */}
-              <button
-                onClick={() => navigate("/about")}
-                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
-              >
-                About Us
-              </button>
+
 
             </div>
 

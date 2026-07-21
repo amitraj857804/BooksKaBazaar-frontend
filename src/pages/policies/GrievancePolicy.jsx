@@ -58,14 +58,14 @@ const sections = [
           <p className="font-semibold text-stone-700 mb-1">Grievance Officer Details</p>
           {[
             ["Grievance Officer", "Books Ka Bazaar Grievance Team"],
-            ["Email", <a key="email" href="mailto:grievance@bookskabazaar.com" className="text-[#E31E2E] underline underline-offset-2 hover:opacity-75 transition-opacity">grievance@bookskabazaar.com</a>],
+            ["Email", <a key="email" href="mailto:grievance@bookskabazaar.com" className="text-[#E31E2E]  underline underline-offset-2 hover:opacity-75 transition-opacity">grievance@bookskabazaar.com</a>],
             ["Acknowledgement", "Within 48 hours of receipt"],
             ["Resolution", "Within 15–30 business days depending on complexity"],
             ["Hours", "Monday to Saturday, 10:00 AM – 6:00 PM IST (excluding public holidays)"],
           ].map(([label, value]) => (
             <div key={label} className="flex gap-2">
               <span className="text-stone-500 shrink-0 w-36">{label}:</span>
-              <span className="text-stone-700">{value}</span>
+              <span className="text-stone-700 min-w-0 break-all">{value}</span>
             </div>
           ))}
         </div>

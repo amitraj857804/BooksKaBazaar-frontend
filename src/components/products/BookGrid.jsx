@@ -71,7 +71,7 @@ const BookGrid = ({
             </p>
           </div>
 
-          
+
         </div>
 
         {/* Book Grid */}
@@ -82,7 +82,7 @@ const BookGrid = ({
           animate="visible"
         >
           {displayItems.map((book, index) =>
-            isLoading  ? (
+            isLoading ? (
               <motion.div key={index} variants={itemVariants}>
                 <SkeletonCard index={index} />
               </motion.div>

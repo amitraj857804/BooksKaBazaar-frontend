@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, Menu, X, Store, Heart, MapPin, ChevronDown, Smartphone, Compass, Sparkles, User } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, Store, Heart, MapPin, ChevronDown, Smartphone, Compass, Sparkles, User, Package, BookOpen, Newspaper } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useAuth } from "../../context/AuthContext";
 import { useFlyToCartContext } from "../../context/FlyToCartContext";
@@ -31,8 +31,7 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [bounceCart, setBounceCart] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
-  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
+ 
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const categoryDropdownRef = useRef(null);
   const mobileCategoryDropdownRef = useRef(null);
@@ -44,6 +43,9 @@ const Navbar = () => {
   const urlQuery = urlSearchParams.get("query") || "";
   const urlCategory = urlSearchParams.get("category") || "";
   const selectedCategory = urlCategory || (SEARCH_CATEGORIES.slice(1).includes(urlQuery) ? urlQuery : "");
+
+  // Pending category: null = untouched, "" = user picked All Categories, other = specific category
+  const [pendingCategory, setPendingCategory] = useState(null);
 
   const cartIconRef = useRef(null);
   const { cartIconRef: contextCartIconRef, isFlying } = useFlyToCartContext();
@@ -226,15 +228,22 @@ const Navbar = () => {
 
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
+    // pendingCategory: null = untouched, "" = All Categories, string = specific category
+    // selectedCategory comes from the current URL
+    const activeCat = pendingCategory !== null ? pendingCategory : selectedCategory;
+    const cat = activeCat && activeCat !== "All Categories" ? activeCat : "";
     if (searchInput.trim()) {
-      const cat = selectedCategory && selectedCategory !== "All Categories" ? selectedCategory : "";
       const url = cat
         ? `/search?query=${encodeURIComponent(searchInput.trim())}&category=${encodeURIComponent(cat)}`
         : `/search?query=${encodeURIComponent(searchInput.trim())}`;
       navigate(url);
       setShowSuggestions(false);
-    } else if (selectedCategory && selectedCategory !== "All Categories") {
-      navigate(`/search?query=${encodeURIComponent(selectedCategory)}`);
+    } else if (cat) {
+      navigate(`/search?query=${encodeURIComponent(cat)}`);
+      setShowSuggestions(false);
+    } else {
+      // No input + All Categories or nothing — show all books
+      navigate(`/search?query=all`);
       setShowSuggestions(false);
     }
   };
@@ -276,20 +285,28 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Search Bar */}
-            <div ref={desktopSearchRef} className="hidden lg:block flex-1 max-w-xl mx-8 relative">
-              <form onSubmit={handleSearchSubmit} className="relative w-full cup">
-                {/* Input */}
+            <div ref={desktopSearchRef} className="hidden lg:flex flex-1 max-w-2xl mx-8 items-start gap-3">
+              <div className="relative flex-1">
+              <form onSubmit={handleSearchSubmit} className="flex items-center w-full">
+                {/* Input wrapper */}
+                <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Search books, authors, ISBN..."
+                  placeholder="Search By Title, Author, Publisher or ISBN..."
                   value={searchInput}
                   onChange={(e) => {
                     setSearchInput(e.target.value);
                     setShowSuggestions(true);
                   }}
                   onFocus={() => setShowSuggestions(true)}
-                  onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
-                  className="w-full pl-10 pr-[148px] py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#E31E2E] focus:ring-1 focus:ring-[#E31E2E]/20 transition-all shadow-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setShowSuggestions(false);
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSearchSubmit(e);
+                    }
+                  }}
+                  className="w-full pl-8 py-2.5 bg-white border border-gray-200 rounded-md text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#E31E2E] focus:ring-1 focus:ring-[#E31E2E]/20 transition-all shadow-sm"
                 />
                 {/* Search button (left) */}
                 <button
@@ -305,30 +322,30 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={() => setCategoryDropdownOpen((o) => !o)}
-                    className="flex items-center gap-1 px-3 h-full text-xs font-semibold text-gray-600 rounded-r-lg cursor-pointer focus:outline-none whitespace-nowrap"
+                    className="flex items-center justify-between gap-3 px-3 h-full w-[160px] text-xs font-semibold text-gray-600 rounded-r-lg cursor-pointer focus:outline-none"
                   >
-                    <span className="max-w-[90px] truncate">{selectedCategory || "All"}</span>
-                    <ChevronDown size={12} className={`text-gray-400 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`} />
+                  <span className="truncate">
+                    {pendingCategory !== null
+                      ? (pendingCategory || "All Categories")
+                      : (selectedCategory || "All Categories")}
+                  </span>
+                    <ChevronDown size={12} className={`text-gray-400 shrink-0 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`} />
                   </button>
 
                   {/* Category popover */}
                   {categoryDropdownOpen && (
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 w-[160px] bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1 overflow-hidden">
                       {SEARCH_CATEGORIES.map((cat) => (
                         <button
                           key={cat}
                           type="button"
                           onClick={() => {
-                            const val = cat === "All Categories" ? "" : cat;
+                            // Just update the label — search triggers only on submit
+                            setPendingCategory(cat === "All Categories" ? "" : cat);
                             setCategoryDropdownOpen(false);
-                            setSearchInput("");
-                            setShowSuggestions(false);
-                            if (val) {
-                              navigate(`/search?query=${encodeURIComponent(val)}`);
-                            }
                           }}
                           className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
-                            selectedCategory === (cat === "All Categories" ? "" : cat)
+                            (pendingCategory !== null ? pendingCategory : selectedCategory) === (cat === "All Categories" ? "" : cat)
                               ? "bg-[#E31E2E]/5 text-[#E31E2E] font-semibold"
                               : "text-gray-700 hover:bg-gray-50"
                           }`}
@@ -339,16 +356,16 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
+                </div>
               </form>
-
-              {/* Suggestions dropdown */}
+              {/* Suggestions dropdown - anchored to input wrapper only */}
               <AnimatePresence>
                 {showSuggestions && searchInput.trim().length >= 2 && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 text-left max-h-[420px] flex flex-col font-sans"
+                    className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 text-left max-h-[420px] flex flex-col font-sans"
                   >
                     <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
                       {isSearching ? (
@@ -410,6 +427,17 @@ const Navbar = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
+              </div>
+
+              {/* Desktop Search Button */}
+              <button
+                type="button"
+                onClick={handleSearchSubmit}
+                className="bg-[#E31E2E] cursor-pointer hover:bg-[#c41a27] active:bg-[#a8151f] text-white text-sm font-semibold px-6 py-[11px] rounded-md transition-all duration-200 shrink-0 shadow-sm hover:shadow-md"
+                aria-label="Search"
+              >
+                Search
+              </button>
             </div>
 
             {/* Actions (Login/Sign Up, Bookshelf, Cart) - visible on desktop (lg and up) */}
@@ -467,6 +495,15 @@ const Navbar = () => {
                 </div>
                 <span className="font-semibold text-sm">Cart</span>
               </motion.div>
+
+              {/* Track Order — after Cart */}
+              <button
+                onClick={() => navigate("/track-order")}
+                className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#E31E2E] transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <Package size={15} />
+                Track Order
+              </button>
 
               {/* Auth Section */}
               {!isLoggedIn ? (
@@ -561,6 +598,7 @@ const Navbar = () => {
           </div>
         </div>
 
+
         {/* Tier 3.5: Search Bar Row (Directly visible on mobile, iPad; hidden on desktop) */}
         <div ref={mobileSearchRef} className="lg:hidden border-b border-gray-100 bg-white pb-3.5 px-4 sm:px-6 relative">
           <div className="max-w-7xl mx-auto relative">
@@ -568,7 +606,7 @@ const Navbar = () => {
               {/* Input */}
               <input
                 type="text"
-                placeholder="Search books, authors, ISBN..."
+                placeholder="Search By Title, Author, Publisher Or ISBN..."
                 value={searchInput}
                 onChange={(e) => {
                   setSearchInput(e.target.value);
@@ -591,7 +629,11 @@ const Navbar = () => {
                   onClick={() => setCategoryDropdownOpen((o) => !o)}
                   className="flex items-center gap-1 px-3 h-full text-xs font-semibold text-gray-600 rounded-r-lg focus:outline-none whitespace-nowrap"
                 >
-                  <span className="max-w-[70px] truncate">{selectedCategory || "All"}</span>
+                  <span className="max-w-[70px] truncate">
+                    {pendingCategory !== null
+                      ? (pendingCategory || "All Categories")
+                      : (selectedCategory || "All Categories")}
+                  </span>
                   <ChevronDown size={12} className={`text-gray-400 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
@@ -603,16 +645,12 @@ const Navbar = () => {
                         key={cat}
                         type="button"
                         onClick={() => {
-                          const val = cat === "All Categories" ? "" : cat;
+                          // Just update the label — search triggers only on submit
+                          setPendingCategory(cat === "All Categories" ? "" : cat);
                           setCategoryDropdownOpen(false);
-                          setSearchInput("");
-                          setShowSuggestions(false);
-                          if (val) {
-                            navigate(`/search?query=${encodeURIComponent(val)}`);
-                          }
                         }}
                         className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                          selectedCategory === (cat === "All Categories" ? "" : cat)
+                          (pendingCategory !== null ? pendingCategory : selectedCategory) === (cat === "All Categories" ? "" : cat)
                             ? "bg-[#E31E2E]/5 text-[#E31E2E] font-semibold"
                             : "text-gray-700 hover:bg-gray-50"
                         }`}
@@ -625,7 +663,6 @@ const Navbar = () => {
               </div>
             </form>
 
-            {/* Suggestions dropdown for mobile */}
             <AnimatePresence>
               {showSuggestions && searchInput.trim().length >= 2 && (
                 <motion.div
@@ -702,7 +739,7 @@ const Navbar = () => {
           <div className="max-w-7xl mx-auto flex items-center justify-between text-[13px] font-bold text-gray-700 uppercase tracking-wide">
             <div className="flex items-center gap-8">
 
-              {/* Categories Dropdown Container */}
+              {/* Categories Dropdown Container
               <div
                 className="relative"
                 onMouseEnter={() => setCategoriesDropdownOpen(true)}
@@ -714,7 +751,7 @@ const Navbar = () => {
                 </button>
 
                 {/* Dropdown Menu Panel */}
-                <AnimatePresence>
+                {/* <AnimatePresence>
                   {categoriesDropdownOpen && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -736,7 +773,7 @@ const Navbar = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </div> */} 
 
               {/* Best Sellers */}
               <button
@@ -752,6 +789,24 @@ const Navbar = () => {
                 className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
               >
                 New Arrivals
+              </button>
+
+              {/* Reading Room */}
+              <button
+                onClick={() => navigate("/reading-room")}
+                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700 flex items-center gap-1.5"
+              >
+                <BookOpen size={14} />
+                Reading Room
+              </button>
+
+              {/* Blogs */}
+              <button
+                onClick={() => navigate("/blogs")}
+                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700 flex items-center gap-1.5"
+              >
+                <Newspaper size={14} />
+                Blogs
               </button>
 
               {/* Sell With Us */}
@@ -789,7 +844,7 @@ const Navbar = () => {
                 <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Explore Collections</div>
 
                 {/* Collapsible Categories accordion section */}
-                <div className="border-b border-gray-100 pb-2">
+                {/* <div className="border-b border-gray-100 pb-2">
                   <button
                     onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
                     className="flex justify-between items-center w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer"
@@ -817,7 +872,7 @@ const Navbar = () => {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </div> */}
 
                 <button
                   onClick={() => {
@@ -837,6 +892,24 @@ const Navbar = () => {
                 >
                   New Arrivals
                 </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate("/reading-room");
+                  }}
+                  className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer flex items-center gap-2"
+                >
+                  <BookOpen size={14} className="inline" /> Reading Room
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate("/blogs");
+                  }}
+                  className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer flex items-center gap-2"
+                >
+                  <Newspaper size={14} className="inline" /> Blogs
+                </button>
                 {!isLoggedIn && (
                   <button
                     onClick={() => {
@@ -851,11 +924,11 @@ const Navbar = () => {
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    navigate("/about");
+                    navigate("/track-order");
                   }}
-                  className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer"
+                  className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer flex items-center gap-2"
                 >
-                  About Us
+                  <Package size={14} className="inline" /> Track Order
                 </button>
               </div>
 

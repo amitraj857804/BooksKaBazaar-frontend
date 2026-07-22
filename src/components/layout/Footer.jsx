@@ -148,7 +148,7 @@ const NewsletterSubscribe = () => {
   };
 
   return (
-    <div className="space-y-3 max-w-sm sm:pr-22 -mt-3.5">
+    <div className="space-y-3 max-w-sm sm:pr-22 -mt-2">
 
       {status === "success" ? (
         <div className="flex items-center gap-2 text-red-900 text-sm font-semibold bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
@@ -203,11 +203,11 @@ const Footer = () => {
 
 
       {/* ── MAIN LINKS GRID ── */}
-      <div className="px-6 sm:px-10 lg:px-28 mx-auto pt-14 pb-10">
+      <div className="px-6 sm:px-10 lg:px-28 mx-auto pt-8 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-8 divide-y divide-white/5 md:divide-y-0">
 
           {/* Brand column — last on sm/md, first on lg */}
-          <div className="space-y-6 order-last py-6 md:col-span-3 md:order-last lg:col-span-1 lg:order-first lg:py-0">
+          <div className="space-y-3 order-last py-6 md:col-span-3 md:order-last lg:col-span-1 lg:order-first lg:py-0">
             {/* Logo */}
             <Link to="/" className="inline-flex items-center gap-2.5 group">
               <div className="w-10 h-10 rounded-xl bg-[#E31E2E] flex items-center justify-center shadow-lg shadow-[#E31E2E]/30 group-hover:scale-105 transition-transform duration-300">
@@ -220,7 +220,7 @@ const Footer = () => {
 
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
               India&apos;s Trusted Destination for Hardbound Books, Old/Used Books, eBooks, PDFs, Online Reading Rooms & Insightful Blogs.
-              Buy, sell, and discover knowledge — from new releases to rare editions.
+             
             </p>
 
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
@@ -352,8 +352,8 @@ const Footer = () => {
       </div>
 
       {/* ── TRUST & PAYMENTS BAR ── */}
-      <div className="border-t border-white/5 bg-[#0a0e14] lg:px-12">
-        <div className="px-6 sm:px-10 lg:px-16 mx-auto py-4">
+      <div className="border-t border-white/5 bg-[#141e2c9a] lg:px-12">
+        <div className="px-6 sm:px-10 lg:px-16 mx-auto py-1">
           <div className="flex flex-wrap items-center justify-between  gap-y-8 lg:gap-y-4 gap-x-6">
 
             {/* Trust badges */}
@@ -450,7 +450,7 @@ const Footer = () => {
 
       {/* ── COPYRIGHT BAR ── */}
       <div className="border-t border-white/5 bg-black/50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span className="text-slate-500 text-xs text-center sm:text-left">
             &copy; {new Date().getFullYear()} Books Ka Bazaar &mdash; All rights reserved.
           </span>

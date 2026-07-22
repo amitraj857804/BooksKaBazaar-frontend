@@ -22,6 +22,9 @@ const SearchPage = () => {
 
   useEffect(() => {
     const performSearchAndRecommendations = async () => {
+      // "all" is a special keyword meaning: show everything
+      const isAllCategories = query.trim().toLowerCase() === "all";
+
       if (!query.trim()) {
         setIsLoading(false);
         return;
@@ -29,6 +32,41 @@ const SearchPage = () => {
 
       try {
         setIsLoading(true);
+
+        if (isAllCategories) {
+          // Fetch every book in the catalogue
+          const allData = await publicApi.getAllBooks();
+          let allBooksArray = [];
+          if (allData && Array.isArray(allData)) {
+            allBooksArray = allData;
+          } else if (allData && allData.success && Array.isArray(allData.data)) {
+            allBooksArray = allData.data;
+          } else if (allData && Array.isArray(allData.data)) {
+            allBooksArray = allData.data;
+          }
+
+          const mapped = allBooksArray.map((book) => ({
+            id: book.bookId || book.id,
+            title: book.bookTitle || book.title,
+            author: book.authorName || book.author,
+            price: parseFloat(book.price) || 0,
+            imageURL: book.imageFileName
+              ? `${API_BASE_URL}/public/books/${book.bookId || book.id}/image`
+              : book.imageURL || "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
+            category: book.category || book.badge || null,
+            isbn: book.isbn,
+            description: book.description,
+            totalStock: book.totalStock,
+            availableStock: book.availableStock,
+            reservedStock: book.reservedStock,
+            damagedStock: book.damagedStock,
+          }));
+
+          setBooks(mapped);
+          setRelatedBooks([]);
+          return;
+        }
+
         // 1. Fetch matching search results
         const searchData = await publicApi.searchBooks(query);
         let searchResultsArray = [];
@@ -188,7 +226,7 @@ const SearchPage = () => {
           <div className=" mx-auto px-4 sm:px-6 lg:px-28">
 
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Showing results for <span className="text-[#E31E2E] italic font-serif">"{query}"</span>
+              Showing {query.toLowerCase() === "all" ? "All Books" : <>results for <span className="text-[#E31E2E] italic font-serif">"{query}"</span></>}
             </h1>
             <p className="text-gray-500 text-sm mt-2 font-medium font-sans">
               {isLoading
@@ -201,7 +239,7 @@ const SearchPage = () => {
 
         {/* Main Results Grid */}
         <div className=" px-6 sm:px-10 lg:px-28 mx-auto
-       py-6 sm:py-6">
+       py-2 sm:py-2">
           {isLoading ? (
             <div>
               <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-3 font-sans">
@@ -216,12 +254,9 @@ const SearchPage = () => {
             </div>
           ) : books.length > 0 ? (
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-3 font-sans">
-                <BookOpen size={20} className="text-[#E31E2E]" />
-                <span>Matching Books ({books.length})</span>
-              </h2>
+              
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-4 mb-0">
                 {books.map((book) => (
                   <BookCard
                     key={book.id}
@@ -233,14 +268,13 @@ const SearchPage = () => {
 
               {/* Related Books Section */}
               {relatedBooks.length > 0 && (
-                <div className="mt-16 sm:mt-24 pb-8">
-                  <div className="mb-6 border-b border-gray-100 pb-3 flex items-center justify-between font-sans">
-                    <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                      <Sparkles size={20} className="text-amber-500 fill-amber-500" />
+                <div className="mt-16 sm:mt-8 pb-8">
+                  <div className="mb-6 border-b border-gray-100  flex items-center justify-between font-sans">
+                    <h2 className="text-2xl font-bold text-slate-800 ">
                       <span>Related Books You Might Like</span>
                     </h2>
                   </div>
-                  <p className="text-sm text-gray-500 mb-6 -mt-4">
+                  <p className="text-sm text-gray-500 mb-6 -mt-5">
                     Discover popular books from similar genres and tags
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-4">
@@ -258,7 +292,7 @@ const SearchPage = () => {
           ) : (
             /* Empty State */
             <div>
-              <div className="py-6 flex flex-col items-center text-center max-w-xl mx-auto">
+              <div className="py-2 flex flex-col items-center text-center max-w-xl mx-auto">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -270,17 +304,16 @@ const SearchPage = () => {
                 <h2 className="text-2xl font-extrabold text-slate-900 mb-3 font-serif">
                   No matching books found
                 </h2>
-                <p className="text-gray-500 text-sm sm:text-base mb-8 leading-relaxed font-sans">
+                <p className="text-gray-500 text-sm sm:text-base  leading-relaxed font-sans">
                   We couldn't find any books matching <span className="font-bold text-slate-700">"{query}"</span>. Please check your spelling or search for alternative keywords, genres, or authors.
                 </p>
               </div>
 
               {/* Fallback Recommendations */}
               {relatedBooks.length > 0 && (
-                <div className="w-full text-left mt-8 border-t border-gray-200/60 pt-10 sm:pt-16 pb-6">
+                <div className="w-full text-left mt-2 border-t border-gray-200/60 pt-10 sm:pt-14 pb-6">
                   <div className="mb-6 font-sans">
                     <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                      <Sparkles size={20} className="text-amber-500 fill-amber-500" />
                       <span>Featured Recommendations</span>
                     </h2>
                     <p className="text-sm text-gray-500 mt-1">

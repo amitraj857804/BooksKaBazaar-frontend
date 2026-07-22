@@ -374,7 +374,7 @@ const BookDetails = () => {
             <div className="animate-pulse space-y-6">
               {/* Breadcrumb skeleton */}
               <div className="h-4 w-36 bg-gray-200 rounded-md"></div>
-              
+
               {/* Header row skeleton */}
               <div className="flex justify-between items-center pb-5 border-b border-gray-200">
                 <div className="space-y-2">

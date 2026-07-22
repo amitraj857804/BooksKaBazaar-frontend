@@ -9,6 +9,9 @@ import Bestsellers from "./pages/Bestsellers";
 import NewArrivals from "./pages/NewArrivals";
 import BookDetails from "./pages/BookDetails";
 import SearchPage from "./pages/SearchPage";
+import ReadingRoom from "./pages/ReadingRoom";
+import Blogs from "./pages/Blogs";
+import BlogPost from "./pages/BlogPost";
 // Help & Support Pages
 import About from "./pages/help-support/About";
 import FAQ from "./pages/help-support/FAQ";
@@ -144,6 +147,46 @@ function App() {
                       <AuthModal />
                       <FlyingBook />
                       <SearchPage />
+                    </>
+                  }
+                />
+
+                {/* Reading Room */}
+                <Route
+                  path="/reading-room"
+                  element={
+                    <>
+                      <AuthModal />
+                      <ReadingRoom />
+                    </>
+                  }
+                />
+                <Route
+                  path="/reading-room/reader/:bookId"
+                  element={
+                    <>
+                      <AuthModal />
+                      <ReadingRoom />
+                    </>
+                  }
+                />
+
+                {/* Blog */}
+                <Route
+                  path="/blogs"
+                  element={
+                    <>
+                      <AuthModal />
+                      <Blogs />
+                    </>
+                  }
+                />
+                <Route
+                  path="/blogs/:postId"
+                  element={
+                    <>
+                      <AuthModal />
+                      <BlogPost />
                     </>
                   }
                 />

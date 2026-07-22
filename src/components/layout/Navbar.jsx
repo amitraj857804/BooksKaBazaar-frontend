@@ -495,16 +495,14 @@ const Navbar = () => {
                 <span className="font-semibold text-sm">Cart</span>
               </motion.div>
 
-              {/* Track Order — after Cart, logged-in only */}
-              {isLoggedIn && (
-                <button
-                  onClick={() => navigate("/track-order")}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#E31E2E] transition-colors cursor-pointer whitespace-nowrap"
-                >
-                  <Package size={15} />
-                  Track Order
-                </button>
-              )}
+              {/* Track Order — after Cart */}
+              <button
+                onClick={() => navigate("/track-order")}
+                className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#E31E2E] transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <Package size={15} />
+                Track Order
+              </button>
 
               {/* Auth Section */}
               {!isLoggedIn ? (
@@ -922,17 +920,15 @@ const Navbar = () => {
                     Sell With Us
                   </button>
                 )}
-                {isLoggedIn && (
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      navigate("/track-order");
-                    }}
-                    className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer flex items-center gap-2"
-                  >
-                    <Package size={14} className="inline" /> Track Order
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate("/track-order");
+                  }}
+                  className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer flex items-center gap-2"
+                >
+                  <Package size={14} className="inline" /> Track Order
+                </button>
               </div>
 
               {/* Auth section in Mobile Menu */}

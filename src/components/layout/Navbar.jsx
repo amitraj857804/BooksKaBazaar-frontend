@@ -285,14 +285,19 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Search Bar */}
-            <div ref={desktopSearchRef} className="hidden lg:flex flex-1 max-w-2xl mx-8 items-start gap-3">
+            <div ref={desktopSearchRef} className="hidden lg:flex flex-1 max-w-2xl mx-8 items-start gap-2">
               <div className="relative flex-1">
-              <form onSubmit={handleSearchSubmit} className="flex items-center w-full">
-                {/* Input wrapper */}
-                <div className="relative flex-1">
+              <form onSubmit={handleSearchSubmit} className="flex items-center w-full border border-gray-200 rounded-md shadow-sm bg-white focus-within:border-[#E31E2E] focus-within:ring-1 focus-within:ring-[#E31E2E]/20 transition-all">
+
+                {/* Search icon */}
+                <div className="pl-3 shrink-0 text-gray-400">
+                  <Search size={15} />
+                </div>
+
+                {/* Text input — fills remaining space */}
                 <input
                   type="text"
-                  placeholder="Search By Title, Author, Publisher or ISBN..."
+                  placeholder="Search by Title, Author, Publisher or ISBN..."
                   value={searchInput}
                   onChange={(e) => {
                     setSearchInput(e.target.value);
@@ -306,59 +311,60 @@ const Navbar = () => {
                       handleSearchSubmit(e);
                     }
                   }}
-                  className="w-full pl-8 pr-[178px] py-2.5 bg-white border border-gray-200 rounded-md text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#E31E2E] focus:ring-1 focus:ring-[#E31E2E]/20 transition-all shadow-sm"
+                  className="flex-1 min-w-0 pl-2 pr-2 py-2.5 bg-transparent text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
                 />
-                {/* Search button (left) */}
-                <button
-                  type="submit"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                >
-                  <Search size={15} />
-                </button>
 
-                {/* Category selector (right) */}
-                <div ref={categoryDropdownRef} className="absolute right-0 top-0 bottom-0 flex items-center">
-                  <span className="w-px h-5 bg-gray-200" />
+                {/* Category selector — inline sibling, never overlaps */}
+                <div ref={categoryDropdownRef} className="relative flex items-center shrink-0 border-l border-gray-200">
                   <button
                     type="button"
                     onClick={() => setCategoryDropdownOpen((o) => !o)}
-                    className="flex items-center justify-between gap-3 px-3 h-full w-[160px] text-xs font-semibold text-gray-600 rounded-r-lg cursor-pointer focus:outline-none"
+                    className="flex items-center gap-2 px-3 h-full py-2.5 w-[155px] text-xs font-semibold text-gray-600 cursor-pointer focus:outline-none whitespace-nowrap"
                   >
-                  <span className="truncate">
-                    {pendingCategory !== null
-                      ? (pendingCategory || "All Categories")
-                      : (selectedCategory || "All Categories")}
-                  </span>
+                    <span className="truncate flex-1 text-left">
+                      {pendingCategory !== null
+                        ? (pendingCategory || "All Categories")
+                        : (selectedCategory || "All Categories")}
+                    </span>
                     <ChevronDown size={12} className={`text-gray-400 shrink-0 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`} />
                   </button>
 
                   {/* Category popover */}
-                  {categoryDropdownOpen && (
-                    <div className="absolute right-0 top-full mt-1 w-[160px] bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1 overflow-hidden">
-                      {SEARCH_CATEGORIES.map((cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => {
-                            // Just update the label — search triggers only on submit
-                            setPendingCategory(cat === "All Categories" ? "" : cat);
-                            setCategoryDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
-                            (pendingCategory !== null ? pendingCategory : selectedCategory) === (cat === "All Categories" ? "" : cat)
-                              ? "bg-[#E31E2E]/5 text-[#E31E2E] font-semibold"
-                              : "text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  <AnimatePresence>
+                    {categoryDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8, scaleY: 0.92 }}
+                        animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                        exit={{ opacity: 0, y: -8, scaleY: 0.92 }}
+                        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ transformOrigin: "top" }}
+                        className="absolute right-0 top-full mt-1 w-[160px] bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1 overflow-hidden"
+                      >
+                        {SEARCH_CATEGORIES.map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => {
+                              setPendingCategory(cat === "All Categories" ? "" : cat);
+                              setCategoryDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
+                              (pendingCategory !== null ? pendingCategory : selectedCategory) === (cat === "All Categories" ? "" : cat)
+                                ? "bg-[#E31E2E]/5 text-[#E31E2E] font-semibold"
+                                : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                 </div>
               </form>
-              {/* Suggestions dropdown - anchored to input wrapper only */}
+
+              {/* Suggestions dropdown */}
               <AnimatePresence>
                 {showSuggestions && searchInput.trim().length >= 2 && (
                   <motion.div
@@ -388,22 +394,16 @@ const Navbar = () => {
                                 src={bk.imageURL}
                                 alt={bk.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                onError={(e) => {
-                                  e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop";
-                                }}
+                                onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop"; }}
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-sm text-slate-900 truncate group-hover:text-[#E31E2E] transition-colors">
-                                {bk.title}
-                              </h4>
+                              <h4 className="font-bold text-sm text-slate-900 truncate group-hover:text-[#E31E2E] transition-colors">{bk.title}</h4>
                               <p className="text-xs text-slate-500 font-medium truncate mt-0.5">by {bk.author}</p>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-xs font-bold text-[#E31E2E]">&#8377;{bk.price}</span>
                                 {bk.badge && (
-                                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded capitalize">
-                                    {bk.badge}
-                                  </span>
+                                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded capitalize">{bk.badge}</span>
                                 )}
                               </div>
                             </div>
@@ -415,7 +415,6 @@ const Navbar = () => {
                         </div>
                       )}
                     </div>
-
                     {!isSearching && suggestions.length > 0 && (
                       <div
                         onClick={handleSearchSubmit}
@@ -496,14 +495,16 @@ const Navbar = () => {
                 <span className="font-semibold text-sm">Cart</span>
               </motion.div>
 
-              {/* Track Order — after Cart */}
-              <button
-                onClick={() => navigate("/track-order")}
-                className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#E31E2E] transition-colors cursor-pointer whitespace-nowrap"
-              >
-                <Package size={15} />
-                Track Order
-              </button>
+              {/* Track Order — after Cart, logged-in only */}
+              {isLoggedIn && (
+                <button
+                  onClick={() => navigate("/track-order")}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#E31E2E] transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  <Package size={15} />
+                  Track Order
+                </button>
+              )}
 
               {/* Auth Section */}
               {!isLoggedIn ? (
@@ -921,15 +922,17 @@ const Navbar = () => {
                     Sell With Us
                   </button>
                 )}
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate("/track-order");
-                  }}
-                  className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer flex items-center gap-2"
-                >
-                  <Package size={14} className="inline" /> Track Order
-                </button>
+                {isLoggedIn && (
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/track-order");
+                    }}
+                    className="block w-full text-left py-1 hover:text-[#E31E2E] cursor-pointer flex items-center gap-2"
+                  >
+                    <Package size={14} className="inline" /> Track Order
+                  </button>
+                )}
               </div>
 
               {/* Auth section in Mobile Menu */}

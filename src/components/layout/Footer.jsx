@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
-  Mail, Phone, MapPin, ArrowRight,
+  Mail, Phone, MapPin, ArrowRight, Send,
   ShieldCheck, BookOpen, Store, ChevronRight, MessageCircle
 } from "lucide-react";
 
@@ -81,7 +81,7 @@ const OtherPoliciesDropdown = () => {
         className={`overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-[300px] opacity-100 mt-2" : "max-h-0 opacity-0 mt-0"
           }`}
       >
-        <ul className="space-y-2 pl-4 border-l border-slate-700/60 ml-1.5">
+        <ul className="space-y-1 pl-4 border-l border-slate-700/60 ml-1.5">
           {OTHER_POLICIES.map((item) => (
             <NavLink key={item.to} {...item} />
           ))}
@@ -148,7 +148,7 @@ const NewsletterSubscribe = () => {
   };
 
   return (
-    <div className="space-y-3 max-w-sm sm:pr-22 -mt-2">
+    <div className="space-y-3 max-w-sm  sm:mr-4 -mt-2">
 
       {status === "success" ? (
         <div className="flex items-center gap-2 text-red-900 text-sm font-semibold bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
@@ -185,7 +185,7 @@ const NewsletterSubscribe = () => {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
               </svg>
             ) : (
-              <ArrowRight size={14} />
+              <Send size={14} />
             )}
             {status === "loading" ? "Subscribing…" : "Subscribe"}
           </button>
@@ -204,10 +204,10 @@ const Footer = () => {
 
       {/* ── MAIN LINKS GRID ── */}
       <div className="px-6 sm:px-10 lg:px-28 mx-auto pt-8 pb-2">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-8 divide-y divide-white/5 md:divide-y-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-8 divide-y divide-white/5 md:divide-y-0">
 
           {/* Brand column — last on sm/md, first on lg */}
-          <div className="space-y-3 order-last py-6 md:col-span-3 md:order-last lg:col-span-1 lg:order-first lg:py-0">
+          <div className="space-y-3 order-last py-6 md:col-span-4 md:order-last lg:col-span-1 lg:order-first lg:py-0">
             {/* Logo */}
             <Link to="/" className="inline-flex items-center gap-2.5 group">
               <div className="w-10 h-10 rounded-xl bg-[#E31E2E] flex items-center justify-center shadow-lg shadow-[#E31E2E]/30 group-hover:scale-105 transition-transform duration-300">
@@ -218,12 +218,12 @@ const Footer = () => {
               </span>
             </Link>
 
-            <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
               India&apos;s Trusted Destination for Hardbound Books, Old/Used Books, eBooks, PDFs, Online Reading Rooms & Insightful Blogs.
-             
+
             </p>
 
-            <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
               Subscribe to our newsletter for updates on new arrivals, exclusive offers, and more.
             </p>
 
@@ -234,8 +234,9 @@ const Footer = () => {
 
 
             {/* Social icons */}
-            <p className="text-slate-400 text-sm leading-relaxed max-w-xs -mb-0.5 ">FOLLOW US</p>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 -mb-0.5">
+              <p className="text-slate-400 text-sm leading-relaxed max-w-sm  ">FOLLOW US</p>
+              <div className="flex items-center gap-6.5">
               {[
                 {
                   label: "Facebook",
@@ -299,12 +300,13 @@ const Footer = () => {
                   {icon}
                 </a>
               ))}
+              </div>
             </div>
           </div>
 
           {/* Navigation */}
           <FooterSection title="Shop">
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {NAV.map((item) => <NavLink key={item.to} {...item} />)}
 
             </ul>
@@ -312,14 +314,14 @@ const Footer = () => {
 
           {/* Categories */}
           <FooterSection title="Services" >
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {SERVICES.map((item) => <NavLink key={item.to} {...item} />)}
             </ul>
           </FooterSection>
 
           {/* Help & Support */}
           <FooterSection title="Help &amp; Support">
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {SUPPORT.map((item) => <NavLink key={item.to} {...item} />)}
               <OtherPoliciesDropdown />
             </ul>
@@ -327,7 +329,7 @@ const Footer = () => {
 
           {/* Company*/}
           <FooterSection title="Company" spanFull>
-            <ul className="space-y-3 ">
+            <ul className="space-y-2 ">
               {COMPANY.map((item) => <NavLink key={item.to} {...item} />)}
               {!user && (
                 <li>
@@ -351,97 +353,66 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* ── TRUST & PAYMENTS BAR ── */}
-      <div className="border-t border-white/5 bg-[#141e2c9a] lg:px-12">
-        <div className="px-6 sm:px-10 lg:px-16 mx-auto py-1">
-          <div className="flex flex-wrap items-center justify-between  gap-y-8 lg:gap-y-4 gap-x-6">
-
-            {/* Trust badges */}
-            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-3">
-              {[
-                {
-                  label: "Multi-Seller\nMarketplace",
-                  icon: (
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 21V12h6v9" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "100%\nGenuine Books",
-                  icon: (
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "Secure\nPayments",
-                  icon: (
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "Fast & Safe\nDelivery",
-                  icon: (
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "Easy\nReturns",
-                  icon: (
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                    </svg>
-                  ),
-                },
-              ].map(({ label, icon }, i, arr) => (
-                <div key={label} className="flex items-center gap-5">
-                  <div className="flex items-center gap-2 text-slate-300">
-                    <span className="text-slate-400">{icon}</span>
-                    <span className="text-xs font-medium leading-tight whitespace-pre-line">{label}</span>
-                  </div>
-                  {i < arr.length - 1 && <span className="text-slate-700 text-lg select-none hidden sm:inline">|</span>}
+      {/* ── TRUST BAR ── */}
+      <div className="bg-[#00010e51] border-y border-white/8 overflow-hidden">
+        <div className="pl-2 pr-4 sm:px-6  mx-auto py-1">
+          <div className="flex items-center justify-between flex-nowrap">
+            {[
+              {
+                label: "Multi-Seller\nMarketplace",
+                icon: (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5A2.25 2.25 0 0011.25 11.25h-1.5A2.25 2.25 0 007.5 13.5V21m0 0H3.75A1.125 1.125 0 012.625 19.875V9.525a1.125 1.125 0 01.393-.855l7.5-6.335a1.125 1.125 0 011.464 0l7.5 6.335c.246.207.393.515.393.855v10.35A1.125 1.125 0 0120.25 21H13.5z" />
+                  </svg>
+                ),
+              },
+              {
+                label: "100%\nGenuine Books",
+                icon: (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Secure\nPayments",
+                icon: (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Fast & Safe\nDelivery",
+                icon: (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Easy\nReturns",
+                icon: (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                  </svg>
+                ),
+              },
+            ].map(({ label, icon }, i, arr) => (
+              <div
+                key={label}
+                className={`flex items-center justify-center shrink-0 flex-1 py-2 ${i < arr.length - 1 ? "border-r border-white/15" : ""}`}
+              >
+                <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
+                  <span className="text-white p-1 sm:p-1.5 lg:p-2 rounded-full border border-white/20 flex items-center justify-center shrink-0">
+                    {icon}
+                  </span>
+                  <span className="text-white text-[6px] sm:text-xs lg:text-sm font-semibold leading-tight whitespace-pre-line">
+                    {label}
+                  </span>
                 </div>
-              ))}
-            </div>
-
-            {/* Payment methods */}
-            <div className="flex items-center gap-2.5 flex-nowrap">
-              <span className="text-slate-500 text-[10px] sm:text-xs font-bold tracking-widest uppercase whitespace-nowrap">WE ACCEPT</span>
-
-              {/* VISA — no bg on sm+ per original design */}
-              <span className="bg-white rounded  flex items-center justify-center select-none h-6 w-10 sm:bg-transparent sm:rounded-md sm:px-1 sm:py-1.5 sm:h-auto sm:w-14">
-                <img src="/svg/visa-svgrepo-com.svg" alt="Visa" className="h-full sm:h-full w-full " />
-              </span>
-
-              {/* Mastercard */}
-              <span className="bg-white rounded px-1 py-1 flex items-center justify-center select-none h-6 w-10 sm:rounded-md sm:px-2.5 sm:py-1.5 sm:h-8 sm:w-14">
-                <img src="/svg/mastercard-svgrepo-com.svg" alt="Mastercard" className="h-full sm:h-6 w-auto object-contain" />
-              </span>
-
-              {/* RuPay */}
-              <span className="bg-white rounded px-1 py-1 flex items-center justify-center select-none h-6 w-10 sm:rounded-md sm:px-2.5 sm:py-1.5 sm:h-8 sm:w-14">
-                <img src="/svg/rupay.svg" alt="RuPay" className="h-full sm:h-5 w-auto object-contain" />
-              </span>
-
-              {/* UPI — no padding on sm+ per original design */}
-              <span className="bg-white rounded  flex items-center justify-center select-none h-6 w-10 sm:rounded-md sm:px-0 sm:py-0 sm:h-8 sm:w-14">
-                <img src="/svg/upi-icon.svg" alt="UPI" className="h-full sm:h-full w-full" />
-              </span>
-
-              {/* Paytm */}
-              <span className="bg-white rounded px-1 py-1 flex items-center justify-center select-none h-6 w-10 sm:rounded-md sm:px-2.5 sm:py-1.5 sm:h-8 sm:w-14">
-                <img src="/svg/paytm-1.svg" alt="Paytm" className="h-full sm:h-5 w-auto object-contain" />
-              </span>
-
-            </div>
-
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -450,14 +421,13 @@ const Footer = () => {
 
       {/* ── COPYRIGHT BAR ── */}
       <div className="border-t border-white/5 bg-black/50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-slate-500 text-xs text-center sm:text-left">
+        <div className="max-w-7xl mx-auto px-8 lg:px-0 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="text-slate-500 text-xs text-center sm:text-left order-last md:order-first">
             &copy; {new Date().getFullYear()} Books Ka Bazaar &mdash; All rights reserved.
           </span>
           <div className="flex items-center gap-5 text-xs text-slate-500">
             <Link to="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of use</Link>
-            <Link to="#" className="hover:text-slate-400 transition-colors">Sitemap</Link>
             <Link to="/disclaimer" className="hover:text-slate-400 transition-colors">Disclaimer</Link>
           </div>
         </div>

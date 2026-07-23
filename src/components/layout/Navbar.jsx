@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, Menu, X, Store, Heart, MapPin, ChevronDown, Smartphone, Compass, Sparkles, User, Package, BookOpen, Newspaper } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, Store, Heart, MapPin, ChevronDown, Smartphone, Compass, Sparkles, User, Package, BookOpen, Newspaper, TrendingUp, FileText } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useAuth } from "../../context/AuthContext";
 import { useFlyToCartContext } from "../../context/FlyToCartContext";
@@ -281,7 +281,11 @@ const Navbar = () => {
               className="shrink-0 font-black sm:text-2xl text-lg tracking-tighter cursor-pointer select-none flex items-center gap-1   justify-start lg:justify-start flex-1 lg:flex-initial"
             >
 
-              <span className="text-[#E31E2E] font-sans font-black">Books Ka Bazaar</span>
+              <img
+                src="/1.1 Primary - BKB Complete Logo PNG without Background SVG File.svg"
+                alt="Books Ka Bazaar"
+                className="h-10 w-auto object-contain"
+              />
             </div>
 
             {/* Desktop Search Bar */}
@@ -319,7 +323,7 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={() => setCategoryDropdownOpen((o) => !o)}
-                    className="flex items-center gap-2 px-3 h-full py-2.5 w-[155px] text-xs font-semibold text-gray-600 cursor-pointer focus:outline-none whitespace-nowrap"
+                    className="flex items-center gap-2 px-3 h-full py-2.5 w-[140px] text-xs font-semibold text-gray-600 cursor-pointer focus:outline-none whitespace-nowrap"
                   >
                     <span className="truncate flex-1 text-left">
                       {pendingCategory !== null
@@ -777,17 +781,28 @@ const Navbar = () => {
               {/* Best Sellers */}
               <button
                 onClick={() => navigate("/bestsellers")}
-                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
+                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700 flex items-center gap-1.5"
               >
+                <TrendingUp size={14} />
                 Best Sellers
               </button>
 
               {/* New Arrivals */}
               <button
                 onClick={() => navigate("/new-arrivals")}
-                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700"
+                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700 flex items-center gap-1.5"
               >
+                <Sparkles size={14} />
                 New Arrivals
+              </button>
+
+              {/* eBooks & PDFs */}
+              <button
+                onClick={() => navigate("/ebooks")}
+                className="hover:text-[#E31E2E] transition cursor-pointer py-1.5 uppercase font-bold text-[13px] text-gray-700 flex items-center gap-1.5"
+              >
+                <FileText size={14} />
+                eBooks &amp; PDFs
               </button>
 
               {/* Reading Room */}

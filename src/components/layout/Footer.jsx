@@ -425,9 +425,11 @@ const Footer = () => {
           <span className="text-slate-500 text-xs text-center sm:text-left order-last md:order-first">
             &copy; {new Date().getFullYear()} Books Ka Bazaar &mdash; All rights reserved.
           </span>
-          <div className="flex items-center gap-5 text-xs text-slate-500">
+          <div className="flex items-center text-xs text-slate-500">
             <Link to="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of use</Link>
+            <span className="mx-2.5 text-[#E31E2E] text-[8px]">●</span>
+            <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of Use</Link>
+            <span className="mx-2.5 text-[#E31E2E] text-[8px]">●</span>
             <Link to="/disclaimer" className="hover:text-slate-400 transition-colors">Disclaimer</Link>
           </div>
         </div>

@@ -2,23 +2,23 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
-  Mail, Phone, MapPin, ArrowRight, Send,
-  ShieldCheck, BookOpen, Store, ChevronRight, MessageCircle
+  Mail, Send, Store, ChevronRight,ChevronsRight,
 } from "lucide-react";
 
 const NAV = [
-  { label: "Harbound Books", to: "/#" },
-  { label: "eBooks & PDFs", to: "/#" },
-  { label: "Bestsellers", to: "/bestsellers" },
+  { label: "All Books", to: "/#" },
+  { label: "Best Sellers", to: "/bestsellers" },
   { label: "New Arrivals", to: "/new-arrivals" },
-  { label: "Competitive Books", to: "/#" },
-  { label: "Rare & Vintage", to: "/#" },
+  { label: "Award Winners", to: "/award-winners" },
+  { label: "Popular & Favourite", to: "/#" },
+  { label: "Trending", to: "/#" },
+  { label: "eBooks & PDFs", to: "/#" },
   { label: "Old/Used Books", to: "/#" },
 ];
 
 const SERVICES = [
   { label: "Reading Room", to: "/reading-room" },
-  { label: "Blogs", to: "/blog" },
+  { label: "Blogs", to: "/blogs" },
 
 ];
 
@@ -32,13 +32,11 @@ const SUPPORT = [
 ];
 
 const OTHER_POLICIES = [
-  { label: "Privacy Policy", to: "/privacy" },
   { label: "Digital Products Policy", to: "/digital-products-policy" },
   { label: "IP & Copyright Policy", to: "/ip-policy" },
   { label: "Prohibited Items Policy", to: "/prohibited-items" },
   { label: "Cancellation Policy", to: "/cancellation" },
   { label: "Payment & Wallet Policy", to: "/payment-policy" },
-  { label: "Terms of Use", to: "/terms" },
   { label: "Seller Terms & Conditions", to: "/seller-terms" },
 ];
 
@@ -93,10 +91,10 @@ const OtherPoliciesDropdown = () => {
 
 
 /* ── Accordion section: collapsed on < lg, always open on lg ── */
-const FooterSection = ({ title, children, spanFull = false }) => {
+const FooterSection = ({ title, children, spanFull = false ,className}) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className={`${spanFull ? "col-span-1 md:col-span-1 lg:col-span-1 " : ""}`}>
+    <div className={`${spanFull ? "col-span-1 md:col-span-1 lg:col-span-1 " : ""} ${className}`} >
       {/* Header — clickable only on < lg */}
       <button
         onClick={() => setOpen((o) => !o)}
@@ -148,7 +146,7 @@ const NewsletterSubscribe = () => {
   };
 
   return (
-    <div className="space-y-3 max-w-sm  sm:mr-4 -mt-2">
+    <div className="space-y-3 max-w-sm  lg:max-w-lg  -mt-2">
 
       {status === "success" ? (
         <div className="flex items-center gap-2 text-red-900 text-sm font-semibold bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
@@ -158,37 +156,41 @@ const NewsletterSubscribe = () => {
           subscribed!
         </div>
       ) : (
-        <form onSubmit={handleSubscribe} className="flex flex-col gap-2">
-          <div className="relative">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }}
-              placeholder="Enter your email"
-              className={`w-full bg-slate-800/70 border ${status === "error" ? "border-red-500/60" : "border-slate-700/60"
-                } text-slate-200 placeholder-slate-500 text-sm rounded-md px-4 py-2.5 pr-10 outline-none focus:border-[#E31E2E]/60 focus:ring-1 focus:ring-[#E31E2E]/30 transition-all duration-200`}
-            />
-            <Mail size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+        <form onSubmit={handleSubscribe} className=" ">
+          <div className="flex flex-row gap-2 ">
+            <div className="relative w-full ">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }}
+                placeholder="Enter your email"
+                className={`w-full bg-slate-800/70 border ${status === "error" ? "border-red-500/60" : "border-slate-700/60"
+                  } text-slate-200 placeholder-slate-500 text-sm rounded-md px-4 py-2.5 pr-10 outline-none focus:border-[#E31E2E]/60 focus:ring-1 focus:ring-[#E31E2E]/30 transition-all duration-200`}
+              />
+              <Mail size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            </div>
+
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              className="flex items-center justify-center gap-2 w-[30%] px-3 py-2.5 text-white font-semibold text-sm rounded-md cursor-pointer transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-70"
+              style={{ background: "#E31E2E" }}
+            >
+              {status === "loading" ? (
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+              ) : (
+                <Send size={14} />
+              )}
+              {status === "loading" ? "Subscribing…" : "Subscribe"}
+
+            </button>
           </div>
           {status === "error" && (
             <p className="text-red-400 text-xs pl-1">Please enter a valid email address.</p>
           )}
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="flex items-center justify-center gap-2 w-full px-5 py-2.5 text-white font-semibold text-sm rounded-md cursor-pointer transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-70"
-            style={{ background: "#E31E2E" }}
-          >
-            {status === "loading" ? (
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-            ) : (
-              <Send size={14} />
-            )}
-            {status === "loading" ? "Subscribing…" : "Subscribe"}
-          </button>
         </form>
       )}
     </div>
@@ -204,26 +206,27 @@ const Footer = () => {
 
       {/* ── MAIN LINKS GRID ── */}
       <div className="px-6 sm:px-10 lg:px-28 mx-auto pt-8 pb-2">
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-8 divide-y divide-white/5 md:divide-y-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-4 divide-y divide-white/5 md:divide-y-0">
 
           {/* Brand column — last on sm/md, first on lg */}
-          <div className="space-y-3 order-last py-6 md:col-span-4 md:order-last lg:col-span-1 lg:order-first lg:py-0">
+          <div className="space-y-2 order-last py-6 md:col-span-4 md:order-last lg:col-span-1 lg:order-first lg:py-0">
             {/* Logo */}
-            <Link to="/" className="inline-flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-[#E31E2E] flex items-center justify-center shadow-lg shadow-[#E31E2E]/30 group-hover:scale-105 transition-transform duration-300">
-                <BookOpen size={20} className="text-white" />
-              </div>
-              <span className="text-[#E31E2E] font-black text-xl tracking-tight">
-                Books Ka Bazaar
-              </span>
-            </Link>
+            <div className="mb-2">
+              <Link to="/" className="inline  w-full  lg:-mt-1 -mb-0.5">
+                <img
+                  src="/Footer Logo Inverted without BG.png"
+                  alt="Books Ka Bazaar"
+                  className=" w-[100%] object-contain object-left "
+                />
+              </Link>
+            </div>
 
-            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              India&apos;s Trusted Destination for Hardbound Books, Old/Used Books, eBooks, PDFs, Online Reading Rooms & Insightful Blogs.
 
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm lg:max-w-lg ">
+             India's Trusted Multi-Seller Marketplace for All Types of Books, eBooks & PDFs—featuring a Reading Room and Insightful Blogs.
             </p>
 
-            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm lg:max-w-lg">
               Subscribe to our newsletter for updates on new arrivals, exclusive offers, and more.
             </p>
 
@@ -232,104 +235,105 @@ const Footer = () => {
             {/* Newsletter Subscribe */}
             <NewsletterSubscribe />
 
-
             {/* Social icons */}
-            <div className="flex items-center gap-2.5 -mb-0.5">
-              <p className="text-slate-400 text-sm leading-relaxed max-w-sm  ">FOLLOW US</p>
-              <div className="flex items-center gap-6.5">
-              {[
-                {
-                  label: "Facebook",
-                  href: "https://facebook.com",
-                  hoverBg: "hover:bg-[#1877F2] hover:border-[#1877F2]",
-                  icon: (
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "Instagram",
-                  href: "https://instagram.com",
-                  hoverBg: "hover:bg-[#E1306C] hover:border-[#E1306C]",
-                  icon: (
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "LinkedIn",
-                  href: "https://linkedin.com",
-                  hoverBg: "hover:bg-[#0A66C2] hover:border-[#0A66C2]",
-                  icon: (
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.605 0 4.267 2.376 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "X (Twitter)",
-                  href: "https://twitter.com",
-                  hoverBg: "hover:bg-[#000000] hover:border-[#555]",
-                  icon: (
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "YouTube",
-                  href: "https://youtube.com",
-                  hoverBg: "hover:bg-[#FF0000] hover:border-[#FF0000]",
-                  icon: (
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                    </svg>
-                  ),
-                },
-              ].map(({ label, href, icon, hoverBg }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className={`w-9 h-9 rounded-lg bg-slate-800/70 border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white ${hoverBg} transition-all duration-300`}
-                >
-                  {icon}
-                </a>
-              ))}
+            <div className="flex items-center justify-between ">
+              <p className="text-slate-400 text-sm leading-relaxed max-w-sm">FOLLOW US</p>
+              <ChevronsRight size={24} className="text-[#E31E2E]" />
+              <div className="flex items-center gap-6 ">
+                {[
+                  {
+                    label: "Facebook",
+                    href: "https://facebook.com",
+                    hoverBg: "hover:bg-[#1877F2] hover:border-[#1877F2]",
+                    icon: (
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+                      </svg>
+                    ),
+                  },
+                  {
+                    label: "Instagram",
+                    href: "https://instagram.com",
+                    hoverBg: "hover:bg-[#E1306C] hover:border-[#E1306C]",
+                    icon: (
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                      </svg>
+                    ),
+                  },
+                  {
+                    label: "LinkedIn",
+                    href: "https://linkedin.com",
+                    hoverBg: "hover:bg-[#0A66C2] hover:border-[#0A66C2]",
+                    icon: (
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.605 0 4.267 2.376 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                      </svg>
+                    ),
+                  },
+                  {
+                    label: "X (Twitter)",
+                    href: "https://twitter.com",
+                    hoverBg: "hover:bg-[#000000] hover:border-[#555]",
+                    icon: (
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
+                    ),
+                  },
+                  {
+                    label: "YouTube",
+                    href: "https://youtube.com",
+                    hoverBg: "hover:bg-[#FF0000] hover:border-[#FF0000]",
+                    icon: (
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                      </svg>
+                    ),
+                  },
+                ].map(({ label, href, icon, hoverBg }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className={`w-9 h-9 rounded-lg bg-slate-800/70 border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white ${hoverBg} transition-all duration-300`}
+                  >
+                    {icon}
+                  </a>
+                ))}
               </div>
             </div>
+
           </div>
 
           {/* Navigation */}
-          <FooterSection title="Shop">
-            <ul className="space-y-2">
+          <FooterSection title="Shop" className="lg:pl-10" >
+            <ul className="space-y-4 " >
               {NAV.map((item) => <NavLink key={item.to} {...item} />)}
 
             </ul>
           </FooterSection>
 
           {/* Categories */}
-          <FooterSection title="Services" >
-            <ul className="space-y-2">
+          <FooterSection title="Services" cassName="lg:pl-10" >
+            <ul className="space-y-4">
               {SERVICES.map((item) => <NavLink key={item.to} {...item} />)}
             </ul>
           </FooterSection>
 
           {/* Help & Support */}
-          <FooterSection title="Help &amp; Support">
-            <ul className="space-y-2">
+          <FooterSection title="Help &amp; Support" cassName="lg:pl-10">
+            <ul className="space-y-4">
               {SUPPORT.map((item) => <NavLink key={item.to} {...item} />)}
               <OtherPoliciesDropdown />
             </ul>
           </FooterSection>
 
           {/* Company*/}
-          <FooterSection title="Company" spanFull>
-            <ul className="space-y-2 ">
+          <FooterSection title="Company" spanFull cassName="lg:pl-10">
+            <ul className="space-y-4 ">
               {COMPANY.map((item) => <NavLink key={item.to} {...item} />)}
               {!user && (
                 <li>

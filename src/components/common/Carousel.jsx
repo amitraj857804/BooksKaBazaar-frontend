@@ -81,6 +81,21 @@ const Carousel = ({ isLoading = false }) => {
           grid.scrollIntoView({ behavior: "smooth" });
         }
       }
+    },
+    {
+      id: "summer_sale",
+      image: "/summer_sale_banner.png",
+      title: "Summer Sale Bestsellers.",
+      subtitle: "Up to 50% off on all items.",
+      badge: "Exclusive Reading Festival Offer",
+      ctaText: "SHOP NOW",
+      gradient: "from-sky-900/20 via-transparent to-[#8B0000]/10",
+      ctaAction: () => {
+        const grid = document.querySelector("#book-collection-section");
+        if (grid) {
+          grid.scrollIntoView({ behavior: "smooth" });
+        }
+      }
     }
   ];
 

@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { wishlistApi } from "../services/user/wishlistApi";
 import { useCart } from "../hooks/useCart";
 
-const Bookshelf = () => {
+const Wishlist = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, openAuthModal } = useAuth();
@@ -80,9 +80,9 @@ const Bookshelf = () => {
               <div className="w-16 h-16 bg-red-50 text-[#E31E2E] rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
                 <Heart size={28} className="text-[#E31E2E] animate-pulse" />
               </div>
-              <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-3">Login to See Your Bookshelf</h2>
+              <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-3">Login to See Your Wishlist</h2>
               <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                Unlock your personal bookshelf to save, track, and purchase the books you love. Sign in to sync your wishlist across all devices.
+                Unlock your personal wishlist to save, track, and purchase the books you love. Sign in to sync your wishlist across all devices.
               </p>
               <div className="flex flex-col gap-3">
                 <button
@@ -116,12 +116,12 @@ const Bookshelf = () => {
           <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-6 uppercase tracking-wider">
             <span className="hover:text-[#E31E2E] cursor-pointer transition" onClick={() => navigate("/")}>Home</span>
             <ChevronRight size={12} className="text-gray-400" />
-            <span className="text-[#E31E2E]">My Bookshelf</span>
+            <span className="text-[#E31E2E]">My Wishlist</span>
           </div>
 
           <div className="flex items-center justify-between pb-5 border-b border-gray-200 mb-8">
             <div>
-              <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">My Bookshelf</h1>
+              <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">My Wishlist</h1>
               <p className="text-sm text-gray-500 mt-1">
                 You have {bookshelfItems.length} {bookshelfItems.length === 1 ? "book" : "books"} saved in your wishlist.
               </p>
@@ -146,7 +146,7 @@ const Bookshelf = () => {
                 <div className="w-16 h-16 bg-red-50 text-[#E31E2E] rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
                   <Heart size={28} className="text-[#E31E2E]" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Your Bookshelf is Empty</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Your Wishlist is Empty</h2>
                 <p className="text-sm text-gray-500 mb-6 leading-relaxed">
                   Add books to your personal collection while browsing our catalog. Save your favorites to read, review, or purchase later.
                 </p>
@@ -154,7 +154,7 @@ const Bookshelf = () => {
                   onClick={() => navigate("/")}
                   className="px-6 py-3 bg-[#E31E2E] text-white font-bold rounded-xl text-sm hover:bg-red-700 hover:shadow-lg shadow-red-100 transition duration-200 cursor-pointer"
                 >
-                  Browse Catalog
+                  Browse Books
                 </button>
               </motion.div>
             ) : (
@@ -184,4 +184,4 @@ const Bookshelf = () => {
   );
 };
 
-export default Bookshelf;
+export default Wishlist;

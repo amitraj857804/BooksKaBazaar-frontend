@@ -4,7 +4,7 @@ import { useState } from "react";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
-import Bookshelf from "./pages/Bookshelf";
+import Wishlist from "./pages/Wishlist";
 import Bestsellers from "./pages/Bestsellers";
 import NewArrivals from "./pages/NewArrivals";
 import BookDetails from "./pages/BookDetails";
@@ -39,6 +39,9 @@ import AuthModal from "./components/auth/AuthModal";
 import FlyingBook from "./components/animations/FlyingBook";
 import store from "./store";
 import { Toaster } from "react-hot-toast";
+
+//Bookshelf pages
+import BookShelf from "./components/Bookshelf/BookShelf";
 
 
 // Admin Pages
@@ -96,13 +99,22 @@ function App() {
                     </>
                   }
                 />
-
                 <Route
                   path="/bookshelf"
                   element={
                     <>
                       <AuthModal />
-                      <Bookshelf />
+                      <BookShelf />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="/wishlist"
+                  element={
+                    <>
+                      <AuthModal />
+                      <Wishlist/>
                     </>
                   }
                 />

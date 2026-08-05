@@ -207,7 +207,7 @@ const Footer = () => {
       {/* ── MAIN LINKS GRID ── */}
       <div className="px-4 sm:px-6 lg:px-8 pt-8 pb-2">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-4 divide-y divide-white/5 md:divide-y-0">
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-4 divide-y divide-white/5 md:divide-y-0">
 
             {/* Brand column — last on sm/md, first on lg */}
             <div className="space-y-2 order-last py-6 md:col-span-4 md:order-last lg:col-span-1 lg:order-first lg:py-0 max-h-10">
@@ -217,7 +217,7 @@ const Footer = () => {
                   <img
                     src="/Footer Logo Inverted without BG.png"
                     alt="Books Ka Bazaar"
-                    className="w-full object-fit5tre object-left max-h-16"
+                    className="w-full object-fit object-left max-h-16"
                   />
                 </Link>
               </div>
@@ -311,7 +311,7 @@ const Footer = () => {
 
             {/* Navigation */}
             <FooterSection title="Shop" className="lg:pl-10" >
-              <ul className="space-y-2 " >
+              <ul className="space-y-3 " >
                 {NAV.map((item) => <NavLink key={item.to} {...item} />)}
 
               </ul>
@@ -319,14 +319,14 @@ const Footer = () => {
 
             {/* Categories */}
             <FooterSection title="Services" cassName="lg:pl-10" >
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {SERVICES.map((item) => <NavLink key={item.to} {...item} />)}
               </ul>
             </FooterSection>
 
             {/* Help & Support */}
             <FooterSection title="Help &amp; Support" cassName="lg:pl-10">
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {SUPPORT.map((item) => <NavLink key={item.to} {...item} />)}
                 <OtherPoliciesDropdown />
               </ul>
@@ -334,7 +334,7 @@ const Footer = () => {
 
             {/* Company*/}
             <FooterSection title="Company" spanFull cassName="lg:pl-10">
-              <ul className="space-y-2 ">
+              <ul className="space-y-3 ">
                 {COMPANY.map((item) => <NavLink key={item.to} {...item} />)}
                 {!user && (
                   <li>

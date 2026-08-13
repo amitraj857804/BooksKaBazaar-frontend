@@ -1,6 +1,5 @@
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useState } from "react";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
@@ -12,6 +11,7 @@ import SearchPage from "./pages/SearchPage";
 import ReadingRoom from "./pages/ReadingRoom";
 import Blogs from "./pages/Blogs";
 import BlogPost from "./pages/BlogPost";
+
 // Help & Support Pages
 import About from "./pages/help-support/About";
 import FAQ from "./pages/help-support/FAQ";
@@ -32,7 +32,7 @@ import CancellationPolicy from "./pages/policies/CancellationPolicy";
 import PaymentPolicy from "./pages/policies/PaymentPolicy";
 import GrievancePolicy from "./pages/policies/GrievancePolicy";
 import ScrollToTop from "./components/common/ScrollToTop";
-import SellerLanding from "./pages/admin/SellerLanding";
+import SellerLanding from "./pages/seller/SellerLanding";
 import { AuthProvider } from "./context/AuthContext";
 import { FlyToCartProvider } from "./context/FlyToCartContext";
 import AuthModal from "./components/auth/AuthModal";
@@ -44,12 +44,12 @@ import { Toaster } from "react-hot-toast";
 import BookShelf from "./components/Bookshelf/BookShelf";
 
 
-// Admin Pages
-import AdminLayout from "./pages/admin/AdminLayout";
-import Dashboard from "./pages/admin/Dashboard";
-import InventoryWithStats from "./pages/admin/InventoryWithStats";
-import AdminAuthModal from "./pages/admin/AdminAuthModal";
-import AdminVerifyEmail from "./pages/admin/AdminVerifyEmail";
+// Seller Pages
+import SellerLayout from "./pages/seller/SellerLayout";
+import Dashboard from "./pages/seller/Dashboard";
+import InventoryWithStats from "./pages/seller/InventoryWithStats";
+import SellerAuthModal from "./pages/seller/SellerAuthModal";
+import SellerVerifyEmail from "./pages/seller/SellerVerifyEmail";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
 
 // SuperAdmin Pages
@@ -114,7 +114,7 @@ function App() {
                   element={
                     <>
                       <AuthModal />
-                      <Wishlist/>
+                      <Wishlist />
                     </>
                   }
                 />
@@ -223,41 +223,41 @@ function App() {
                 <Route path="/disclaimer" element={<><AuthModal /><Disclaimer /></>} />
 
                 {/* Policy Pages */}
-                <Route path="/terms-conditions"       element={<><AuthModal /><TermsConditions /></>} />
-                <Route path="/terms-of-use"           element={<><AuthModal /><TermsOfUse /></>} />
-                <Route path="/privacy"                element={<><AuthModal /><PrivacyPolicy /></>} />
-                <Route path="/returns"                element={<><AuthModal /><ReturnsRefunds /></>} />
-                <Route path="/shipping"               element={<><AuthModal /><ShippingPolicy /></>} />
-                <Route path="/seller-terms"           element={<><AuthModal /><SellerTerms /></>} />
+                <Route path="/terms-conditions" element={<><AuthModal /><TermsConditions /></>} />
+                <Route path="/terms-of-use" element={<><AuthModal /><TermsOfUse /></>} />
+                <Route path="/privacy" element={<><AuthModal /><PrivacyPolicy /></>} />
+                <Route path="/returns" element={<><AuthModal /><ReturnsRefunds /></>} />
+                <Route path="/shipping" element={<><AuthModal /><ShippingPolicy /></>} />
+                <Route path="/seller-terms" element={<><AuthModal /><SellerTerms /></>} />
                 <Route path="/digital-products-policy" element={<><AuthModal /><DigitalProductsPolicy /></>} />
-                <Route path="/ip-policy"              element={<><AuthModal /><IPPolicy /></>} />
-                <Route path="/prohibited-items"       element={<><AuthModal /><ProhibitedItemsPolicy /></>} />
-                <Route path="/cancellation"           element={<><AuthModal /><CancellationPolicy /></>} />
-                <Route path="/payment-policy"         element={<><AuthModal /><PaymentPolicy /></>} />
-                <Route path="/grievance"              element={<><AuthModal /><GrievancePolicy /></>} />
+                <Route path="/ip-policy" element={<><AuthModal /><IPPolicy /></>} />
+                <Route path="/prohibited-items" element={<><AuthModal /><ProhibitedItemsPolicy /></>} />
+                <Route path="/cancellation" element={<><AuthModal /><CancellationPolicy /></>} />
+                <Route path="/payment-policy" element={<><AuthModal /><PaymentPolicy /></>} />
+                <Route path="/grievance" element={<><AuthModal /><GrievancePolicy /></>} />
 
                 {/* Seller/Admin Landing */}
                 <Route path="/seller" element={<SellerLanding />} />
 
-                {/* Admin Auth Routes */}
-                <Route path="/admin-login" element={<AdminAuthModal />} />
-                <Route path="/admin-register" element={<AdminAuthModal />} />
-                <Route path="/admin/verify-email" element={<AdminVerifyEmail />} />
+                {/* Seller Auth Routes */}
+                <Route path="/seller-login"        element={<SellerAuthModal />} />
+                <Route path="/seller-register"     element={<SellerAuthModal />} />
+                <Route path="/seller/verify-email" element={<SellerVerifyEmail />} />
 
                 {/* Protected Admin Routes */}
                 <Route
-                  path="/admin/*"
+                  path="/seller/*"
                   element={
                     // <ProtectedRoute>
-                      <AdminLayout>
-                        <Routes>
-                          <Route index element={<Dashboard />} />
-                          <Route path="dashboard" element={<Dashboard />} />
-                          <Route path="inventory" element={<InventoryPage />} />
-                          <Route path="orders" element={<OrdersPage />} />
-                          <Route path="settings" element={<SettingsPage />} />
-                        </Routes>
-                      </AdminLayout>
+                    <SellerLayout>
+                      <Routes>
+                        <Route index element={<Dashboard />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="inventory" element={<InventoryPage />} />
+                        <Route path="orders" element={<OrdersPage />} />
+                        <Route path="settings" element={<SettingsPage />} />
+                      </Routes>
+                    </SellerLayout>
                     // </ProtectedRoute>
                   }
                 />

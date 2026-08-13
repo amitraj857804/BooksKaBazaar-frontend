@@ -173,7 +173,7 @@ const NewsletterSubscribe = () => {
             <button
               type="submit"
               disabled={status === "loading"}
-              className="flex items-center justify-center gap-2 w-[30%] px-3 py-2.5 text-white font-semibold text-sm rounded-md cursor-pointer transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-70"
+              className="flex items-center justify-center gap-2 w-[25%] px-3 py-2.5 text-white font-semibold text-sm rounded-md cursor-pointer transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-70"
               style={{ background: "#E31E2E" }}
             >
               {status === "loading" ? (
@@ -182,9 +182,9 @@ const NewsletterSubscribe = () => {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
               ) : (
-                <Send size={14} />
+                <Send size={16} />
               )}
-              {status === "loading" ? "Subscribing…" : "Subscribe"}
+             
 
             </button>
           </div>
@@ -207,10 +207,10 @@ const Footer = () => {
       {/* ── MAIN LINKS GRID ── */}
       <div className="px-4 sm:px-6 lg:px-8 pt-8 pb-2">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-4 divide-y divide-white/5 md:divide-y-0">
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-[1.25fr_1fr_1fr_1fr_1fr] gap-x-6 gap-y-0 md:gap-y-10 md:gap-x-10 lg:gap-4 divide-y divide-white/5 md:divide-y-0 lg:divide-y-0">
 
             {/* Brand column — last on sm/md, first on lg */}
-            <div className="space-y-2 order-last py-6 md:col-span-4 md:order-last lg:col-span-1 lg:order-first lg:py-0 max-h-10">
+            <div className="space-y-2 order-last py-6 md:col-span-4 md:order-last lg:col-span-1 lg:order-first lg:py-0">
               {/* Logo */}
               <div className="mb-2">
                 <Link to="/" className="inline  w-full lg:-mt-1 -mb-0.5">
@@ -223,11 +223,11 @@ const Footer = () => {
               </div>
 
 
-              <p className="text-slate-400 text-sm leading-relaxed max-w-sm lg:max-w-lg ">
+              <p className="text-slate-400 text-sm leading-relaxed max-w-md lg:max-w-lg ">
                 India's Trusted Multi-Seller Marketplace for All Types of Books, eBooks & PDFs—featuring a Reading Room and Insightful Blogs.
               </p>
 
-              <p className="text-slate-400 text-sm leading-relaxed max-w-sm lg:max-w-lg">
+              <p className="text-slate-400 text-sm leading-relaxed max-w-md lg:max-w-lg">
                 Subscribe to our newsletter for updates on new arrivals, exclusive offers, and more.
               </p>
 
@@ -237,10 +237,10 @@ const Footer = () => {
               <NewsletterSubscribe />
 
               {/* Social icons */}
-              <div className="flex items-center justify-between ">
-                <p className="text-slate-400 text-sm leading-relaxed max-w-sm">FOLLOW US</p>
+              <div className="flex items-center gap-2 flex-wrap mt-3 pt-1 border-t border-white/8">
+                <p className="text-slate-400 text-sm leading-relaxed">FOLLOW US</p>
                 <ChevronsRight size={24} className="text-[#E31E2E]" />
-                <div className="flex items-center gap-6 ">
+                <div className="flex items-center gap-6 flex-wrap">
                   {[
                     {
                       label: "Facebook",
@@ -311,7 +311,7 @@ const Footer = () => {
 
             {/* Navigation */}
             <FooterSection title="Shop" className="lg:pl-10" >
-              <ul className="space-y-3 " >
+              <ul className="space-y-4 " >
                 {NAV.map((item) => <NavLink key={item.to} {...item} />)}
 
               </ul>
@@ -319,14 +319,14 @@ const Footer = () => {
 
             {/* Categories */}
             <FooterSection title="Services" cassName="lg:pl-10" >
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {SERVICES.map((item) => <NavLink key={item.to} {...item} />)}
               </ul>
             </FooterSection>
 
             {/* Help & Support */}
             <FooterSection title="Help &amp; Support" cassName="lg:pl-10">
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {SUPPORT.map((item) => <NavLink key={item.to} {...item} />)}
                 <OtherPoliciesDropdown />
               </ul>
@@ -334,7 +334,7 @@ const Footer = () => {
 
             {/* Company*/}
             <FooterSection title="Company" spanFull cassName="lg:pl-10">
-              <ul className="space-y-3 ">
+              <ul className="space-y-4 ">
                 {COMPANY.map((item) => <NavLink key={item.to} {...item} />)}
                 {!user && (
                   <li>
@@ -343,7 +343,7 @@ const Footer = () => {
                       className="flex ] hover:text-red-400 transition-colors group text-sm font-semibold cursor-pointer"
                     >
                       <ChevronRight size={18} className="text-[#E31E2E]  -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
-                      Login / Sign Up 
+                      Login / Sign Up
                     </button>
                   </li>
                 )}
@@ -363,7 +363,7 @@ const Footer = () => {
       <div className="bg-[#00010e51] border-y border-white/8 overflow-hidden">
         <div className="px-4 sm:px-6 lg:px-8 py-1">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between flex-nowrap">
+            <div className="flex justify-between">
               {[
                 {
                   label: "Multi-Seller\nMarketplace",
@@ -389,6 +389,7 @@ const Footer = () => {
                     </svg>
                   ),
                 },
+
                 {
                   label: "Fast & Safe\nDelivery",
                   icon: (
@@ -408,7 +409,7 @@ const Footer = () => {
               ].map(({ label, icon }, i, arr) => (
                 <div
                   key={label}
-                  className={`flex items-center justify-center shrink-0 flex-1 py-2 ${i < arr.length - 1 ? "border-r border-white/15" : ""}`}
+                  className={`flex-1 flex items-center py-2 ${i === 0 ? "justify-start" : i === arr.length - 1 ? "justify-center" : "justify-center"} ${i < arr.length - 1 ? "border-r border-white/15" : ""}`}
                 >
                   <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
                     <span className="text-white p-1 sm:p-1.5 lg:p-2 rounded-full border border-white/20 flex items-center justify-center shrink-0">

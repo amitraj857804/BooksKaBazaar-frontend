@@ -612,8 +612,12 @@ const Navbar = () => {
                   onClick={() => setAccountDropdownOpen((o) => !o)}
                   className="flex items-center gap-2 px-4 py-2 bg-[#E31E2E] text-white rounded-lg font-bold text-sm hover:bg-[#c41a27] transition cursor-pointer whitespace-nowrap shadow-sm"
                 >
-                  <User size={16} />
-                  <span>Account</span>
+
+                  {isLoggedIn ? (<>
+
+                    <User size={14} />
+                    <span>Account</span>    </>) :
+                    (<span>Login/SignUp</span>)}
                   <ChevronDown size={14} className={`transition-transform duration-200 ${accountDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
@@ -988,8 +992,8 @@ const Navbar = () => {
 
                     <div
                       className={`absolute left-0 top-full mt-0 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50 ${readingRoomOpen
-                          ? "opacity-100 visible"
-                          : "opacity-0 invisible"
+                        ? "opacity-100 visible"
+                        : "opacity-0 invisible"
                         }`}
                     >
                       {dropdown.map((item) => (

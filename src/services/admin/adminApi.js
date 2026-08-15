@@ -65,6 +65,18 @@ export const adminApi = {
     }
   },
 
+  verifyLoginOtp: async (email, otp) => {
+    try {
+      const response = await axiosInstance.post("/auth/admin/verify-login-otp", {
+        email,
+        otp,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   resendVerification: async (email) => {
     try {
       const response = await axiosInstance.post(

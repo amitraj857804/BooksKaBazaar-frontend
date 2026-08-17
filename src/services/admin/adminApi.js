@@ -7,12 +7,19 @@ export const adminApi = {
     try {
       const response = await axiosInstance.post("/auth/admin/register", {
         sellerName: registrationData.sellerName,
+        storeName: registrationData.storeName,
         emailId: registrationData.emailId,
         phoneNumber: registrationData.phoneNumber,
         password: registrationData.password,
+        confirmPassword: registrationData.confirmPassword,
         gstNo: registrationData.gstNo,
-        companyName: registrationData.companyName,
-        sellingOldBooks: registrationData.sellingOldBooks,
+        companyName: "abc",
+        city: registrationData.city,
+        state: registrationData.state,
+        district: registrationData.district,
+        pinCode: registrationData.pinCode,
+        agreedToTerms: registrationData.agreedToTerms,
+        agreedToSellerPolicy: registrationData.agreedToSellerPolicy,
       });
       return response.data;
     } catch (error) {

@@ -20,7 +20,7 @@ const CATEGORIES = [
       },
       {
         q: "Does Books Ka Bazaar sell books directly?",
-        a: "Generally, Books Ka Bazaar acts solely as a platform connecting Buyers with independent registered Sellers. Some select products may be listed as 'Sold by Books Ka Bazaar' where we do act as the direct Seller Ã¢â‚¬â€ this will always be clearly indicated on the listing.",
+        a: "Generally, Books Ka Bazaar acts solely as a platform connecting Buyers with independent registered Sellers. Some select products may be listed as 'Sold by Books Ka Bazaar' where we do act as the direct Seller \u2014 this will always be clearly indicated on the listing.",
       },
       {
         q: "Is Books Ka Bazaar available across all of India?",
@@ -43,11 +43,11 @@ const CATEGORIES = [
       },
       {
         q: "What do the book condition grades mean?",
-        a: "Like New: Essentially unused. Very Good: Minor signs of use, no markings. Good: Some wear/markings, fully readable. Acceptable: Noticeable wear, may have annotations, text intact. Poor Ã¢â‚¬â€œ Sold As-Is: Heavy wear; listed transparently Ã¢â‚¬â€ non-returnable.",
+        a: "Like New: Essentially unused. Very Good: Minor signs of use, no markings. Good: Some wear/markings, fully readable. Acceptable: Noticeable wear, may have annotations, text intact. Poor \u2014 Sold As-Is: Heavy wear; listed transparently \u2014 non-returnable.",
       },
       {
         q: "What if I receive a damaged or wrong book?",
-        a: "Raise a dispute within 7 days of delivery via My Orders Ã¢â€ â€™ Select Order Ã¢â€ â€™ Raise Dispute. Upload photographs as evidence. Our team will review and resolve within 5 business days.",
+        a: "Raise a dispute within 7 days of delivery via My Orders \u2014 Select Order \u2014 Raise Dispute. Upload photographs as evidence. Our team will review and resolve within 5 business days.",
       },
       {
         q: "Are digital products (eBooks, PDFs) refundable?",
@@ -55,7 +55,7 @@ const CATEGORIES = [
       },
       {
         q: "How do I access my purchased digital products?",
-        a: "Immediately after payment confirmation, a download link and/or access credentials are sent to your registered email. You can also access them via My Orders Ã¢â€ â€™ Digital Downloads in your account dashboard.",
+        a: "Immediately after payment confirmation, a download link and/or access credentials are sent to your registered email. You can also access them via My Orders \u2014 Digital Downloads in your account dashboard.",
       },
       {
         q: "Is my payment information safe?",
@@ -63,7 +63,7 @@ const CATEGORIES = [
       },
       {
         q: "How do I track my order?",
-        a: "Go to My Orders Ã¢â€ â€™ Select Order Ã¢â€ â€™ Track Shipment. The tracking number and courier details are updated by the Seller within 24 hours of dispatch.",
+        a: "Go to My Orders \u2014 Select Order \u2014 Track Shipment. The tracking number and courier details are updated by the Seller within 24 hours of dispatch.",
       },
     ],
   },

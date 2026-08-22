@@ -133,7 +133,7 @@ export const adminApi = {
       if (image) {
         formData.append("image", image);
       }
-      
+
       const createRequest = {
         bookTitle: bookData.title,
         authorName: bookData.author,

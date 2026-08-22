@@ -13,6 +13,15 @@ const AdminAuthModal = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // ✅ If seller is already logged in, skip auth and go straight to dashboard
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      navigate("/seller/dashboard", { replace: true });
+    }
+  }, [navigate]);
+
+  // Sync login/register mode from URL path
   useEffect(() => {
     setMode(location.pathname === "/seller-register" ? "register" : "login");
   }, [location.pathname]);
@@ -155,21 +164,7 @@ const AdminAuthModal = () => {
           <div className="flex-1 bg-white flex flex-col min-w-0">
             <div className="flex-1 overflow-y-auto auth-scroll px-6 sm:px-10 py-8 max-h-[88vh]">
 
-              {/* Mobile logo */}
-              <div onClick={navigateToSellerLanPage}
-                className="lg:hidden flex items-center gap-2 mb-6 cursor-pointer"
-              >
-                 <Link
-                to="/seller"
-                className="shrink-0 font-black border-1 border-white/40 shadow-lg p-2 rounded-full sm:text-2xl text-lg tracking-tighter cursor-pointer select-none flex items-center gap-1 justify-start lg:justify-start flex-1 lg:flex-initial"
-              >
-                <img
-                  src="/favicon no bg.png"
-                  alt="Books Ka Bazaar"
-                  className="h-16 w-auto object-contain"
-                />
-              </Link>
-              </div>
+              
 
               {/* Contextual heading */}
               <div className="mb-8">

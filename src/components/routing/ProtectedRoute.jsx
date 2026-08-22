@@ -25,8 +25,8 @@ const ProtectedRoute = ({ children, requiredRole = "ADMIN" }) => {
   const userRole = getUserRole();
 
   if (!isAuthenticated()) {
-    // Redirect to login if not authenticated
-    return <Navigate to="/admin-login" replace />;
+    // Redirect to seller login if not authenticated
+    return <Navigate to="/seller-login" replace />;
   }
 
   if (userRole !== requiredRole) {

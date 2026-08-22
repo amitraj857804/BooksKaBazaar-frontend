@@ -147,7 +147,21 @@ const InventoryPage = () => {
   }, [fetchBooks, fetchStats]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5 pb-8">
+      {/* ── Page Header ── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Manage your books, stock and listings all in one place.</p>
+        </div>
+        <button
+          onClick={handleAddBook}
+          className="flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-sm transition-colors shadow-sm cursor-pointer"
+        >
+          <span className="text-lg leading-none">+</span> Add New Book
+        </button>
+      </div>
+
       {/* Stats Overview */}
       <StatsCards stats={inventoryStats} isLoading={isLoadingStats} />
 

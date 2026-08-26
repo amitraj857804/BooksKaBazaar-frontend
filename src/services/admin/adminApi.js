@@ -104,6 +104,51 @@ export const adminApi = {
   },
 
   // Dashboard APIs
+  getDashboardSummary: async () => {
+    try {
+      const response = await axiosInstance.get("/admin/dashboard/summary");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getRecentOrders: async () => {
+    try {
+      const response = await axiosInstance.get("/admin/dashboard/recent-orders");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getSalesOverview: async () => {
+    try {
+      const response = await axiosInstance.get("/admin/dashboard/sales-overview");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getTopSellingBooks: async () => {
+    try {
+      const response = await axiosInstance.get("/admin/dashboard/top-selling-books");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getRecentReviews: async () => {
+    try {
+      const response = await axiosInstance.get("/admin/dashboard/recent-reviews");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getInventoryStats: async () => {
     try {
       const response = await axiosInstance.get(

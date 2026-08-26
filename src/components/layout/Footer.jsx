@@ -6,14 +6,14 @@ import {
 } from "lucide-react";
 
 const NAV = [
-  { label: "All Books", to: "/#" },
+  { label: "All Books", to: "/allbooks" },
   { label: "Best Sellers", to: "/bestsellers" },
   { label: "New Arrivals", to: "/new-arrivals" },
   { label: "Award Winners", to: "/award-winners" },
-  { label: "Popular & Favourite", to: "/#" },
-  { label: "Trending", to: "/#" },
-  { label: "eBooks & PDFs", to: "/#" },
-  { label: "Old/Used Books", to: "/#" },
+  { label: "Popular & Favourite", to: "/popular-favourite" },
+  { label: "Trending", to: "/trending" },
+  { label: "eBooks & PDFs", to: "/ebooks-pdf" },
+  { label: "Old/Used Books", to: "/old-used-books" },
 ];
 
 const SERVICES = [

@@ -44,9 +44,7 @@ export function usePincode() {
     const stored = localStorage.getItem(LOCATION_KEY);
     return stored ? JSON.parse(stored) : null;
   });
-  const [showPincodeModal, setShowPincodeModal] = useState(
-    () => !localStorage.getItem(STORAGE_KEY)
-  );
+  const [showPincodeModal, setShowPincodeModal] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

@@ -404,7 +404,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, openAuthModal } = useAuth();
-  const { cartItems, totalAmount, totalQuantity, updateQty, removeItemFromCart, clearUserCart } = useCart();
+  const { cartItems, totalAmount, totalQuantity, updateQty, removeItemFromCart, clearUserCart, syncCart } = useCart();
 
   // Modal / loading states
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -412,6 +412,11 @@ const Cart = () => {
   const [isConfirmingPay, setIsConfirmingPay] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(null);  // { orderId }
   const [paymentError, setPaymentError] = useState(null);  // error string
+
+  // ── Sync cart from backend on mount ─────────────────────────────────────
+  useEffect(() => {
+    if (user) syncCart();
+  }, [user]);
 
   // Coupon states
   const [couponCode, setCouponCode] = useState("");

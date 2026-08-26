@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -37,6 +38,14 @@ const testimonials = [
 /* ─────────────────────────────────────── */
 const SellerLanding = () => {
   const navigate = useNavigate();
+
+  // ✅ If seller already has a valid session token, go directly to dashboard
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      navigate("/seller/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">

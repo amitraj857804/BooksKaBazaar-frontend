@@ -10,11 +10,13 @@ import { clearCart } from "../../store/cartSlice";
 import { useCart } from "../../hooks/useCart";
 import { useDebounce } from "../../hooks/useDebounce";
 import { publicApi } from "../../services/public/publicApi";
+import { usePincode } from "../../hooks/usePincode";
+import PincodeModal from "../common/PincodeModal";
 import {
   Search, ShoppingCart, Menu, X, Store, BookOpen, Heart, SquareLibrary,
   PackageSearch, Book, Settings, MapPinHouse, LockKeyhole, ChevronDown,
   Sparkles, User, Package, TrendingUp, FileText, LogIn, UserPlus,
-  LogOut, Trophy, Star, SquarePen
+  LogOut, Trophy, Star, SquarePen, MapPin
 } from "lucide-react";
 
 
@@ -118,6 +120,17 @@ const Navbar = () => {
   const [urlSearchParams] = useSearchParams();
   const dispatch = useDispatch();
 
+  // Pincode / delivery location
+  const {
+    pincode,
+    location,
+    loading: pincodeLoading,
+    error: pincodeError,
+    setError: setPincodeError,
+    setPincode,
+    showPincodeModal,
+    setShowPincodeModal,
+  } = usePincode();
 
   const MotionNavLink = motion(NavLink);
   const [readingRoomOpen, setReadingRoomOpen] = useState(false);
@@ -358,8 +371,29 @@ const Navbar = () => {
     setShowSuggestions(false);
   };
 
+  // Derived display label for the delivery area
+  const deliveryArea = location
+    ? location.district
+      ? location.district.length > 14
+        ? location.district.slice(0, 8) + "…"
+        : location.district
+      : location.division || "Your Area"
+    : "Your Area";
+
   return (
     <>
+      {/* Pincode Modal */}
+      <PincodeModal
+        isOpen={showPincodeModal}
+        onClose={() => setShowPincodeModal(false)}
+        pincode={pincode}
+        location={location}
+        loading={pincodeLoading}
+        error={pincodeError}
+        setError={setPincodeError}
+        onSubmit={setPincode}
+      />
+
       <header className="w-full bg-white z-50 shadow-sm sticky top-0 relative">
 
 
@@ -390,8 +424,27 @@ const Navbar = () => {
               />
             </Link>
 
+               {/* Delivery Location Widget - Desktop */}
+              <button
+                onClick={() => setShowPincodeModal(true)}
+                className="hidden xl:flex flex-col items-start leading-tight cursor-pointer group max-w-[140px] shrink-0"
+                title="Update delivery location"
+              >
+                <span className="text-[10px] text-gray-400 font-medium  transition-colors">
+                  Delivering to
+                </span>
+                <span className="flex items-center gap-1 text-gray-800 transition-colors">
+                  <MapPin size={12} className="text-[#E31E2E] shrink-0" />
+                  <span className="text-[11px] font-bold truncate">{deliveryArea}</span>
+                  <span className="text-[11px] font-semibold text-[#E31E2E]">{pincode}</span>
+                </span>
+                <span className="text-[10px] font-bold text-[#E31E2E] underline underline-offset-2 group-hover:text-[#a8151f] transition-colors">
+                  Update location
+                </span>
+              </button>
+
             {/* Desktop Search Bar */}
-            <div ref={desktopSearchRef} className="hidden lg:flex flex-1 max-w-2xl mx-8 items-start gap-2">
+            <div ref={desktopSearchRef} className="hidden lg:flex flex-1 max-w-2xl mx-2 items-start gap-2">
               <div className="relative flex-1">
                 <form onSubmit={handleSearchSubmit} className="flex items-center w-full border border-gray-200 rounded-md shadow-sm bg-white focus-within:border-[#E31E2E] focus-within:ring-1 focus-within:ring-[#E31E2E]/20 transition-all">
 
@@ -417,7 +470,7 @@ const Navbar = () => {
                         handleSearchSubmit(e);
                       }
                     }}
-                    className="flex-1 min-w-0 pl-2 pr-2 py-2.5 bg-transparent text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+                    className="flex-1 min-w-0 pl-2  py-2.5 bg-transparent text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
                   />
 
                   {/* Category selector — inline sibling, never overlaps */}
@@ -425,7 +478,7 @@ const Navbar = () => {
                     <button
                       type="button"
                       onClick={() => setCategoryDropdownOpen((o) => !o)}
-                      className="flex items-center gap-2 px-3 h-full py-2.5 w-[140px] text-xs font-semibold text-gray-600 cursor-pointer focus:outline-none whitespace-nowrap"
+                      className="flex items-center gap-2 px-3 h-full py-2.5 w-[125px] text-xs font-semibold text-gray-600 cursor-pointer focus:outline-none whitespace-nowrap"
                     >
                       <span className="truncate flex-1 text-left">
                         {pendingCategory !== null
@@ -537,7 +590,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={handleSearchSubmit}
-                className="bg-[#E31E2E] cursor-pointer hover:bg-[#c41a27] active:bg-[#a8151f] text-white text-sm font-semibold px-6 py-[11px] rounded-md transition-all duration-200 shrink-0 shadow-sm hover:shadow-md"
+                className="bg-[#E31E2E] cursor-pointer hover:bg-[#c41a27] active:bg-[#a8151f] text-white text-sm font-semibold px-3 py-[11px] rounded-md transition-all duration-200 shrink-0 shadow-sm hover:shadow-md"
                 aria-label="Search"
               >
                 Search
@@ -546,6 +599,8 @@ const Navbar = () => {
 
             {/* Actions - visible on desktop (lg and up) */}
             <div className="hidden lg:flex items-center gap-3">
+
+           
 
               {/* Bookshelf Widget — icon top, label bottom */}
               <MotionNavLink
@@ -600,9 +655,9 @@ const Navbar = () => {
               {/* Become Seller — outlined red button */}
               <Link
                 to="/seller"
-                className="flex items-center gap-2 px-4 py-2 border-2 border-[#E31E2E] text-[#E31E2E] rounded-lg font-bold text-sm hover:bg-[#E31E2E]/5 transition cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1 px-3 py-2 border-2 border-[#E31E2E] text-[#E31E2E] rounded-lg font-bold text-xs hover:bg-[#E31E2E]/5 transition cursor-pointer whitespace-nowrap"
               >
-                <Store size={16} />
+                <Store size={14} />
                 Sell With Us
               </Link>
 
@@ -610,7 +665,7 @@ const Navbar = () => {
               <div ref={accountDropdownRef} className="relative">
                 <button
                   onClick={() => setAccountDropdownOpen((o) => !o)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#E31E2E] text-white rounded-lg font-bold text-sm hover:bg-[#c41a27] transition cursor-pointer whitespace-nowrap shadow-sm"
+                  className="flex items-center gap-1 px-3 py-2 bg-[#E31E2E] text-white rounded-lg font-bold text-sm hover:bg-[#c41a27] transition cursor-pointer whitespace-nowrap shadow-sm"
                 >
 
                   {isLoggedIn ? (<>
@@ -629,7 +684,7 @@ const Navbar = () => {
                       exit={{ opacity: 0, y: -8, scaleY: 0.92 }}
                       transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                       style={{ transformOrigin: "top" }}
-                      className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1.5 overflow-hidden"
+                      className="absolute right-0 top-full mt-2 w-36 bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1.5 overflow-hidden"
                     >
                       {!isLoggedIn ? (
                         <>

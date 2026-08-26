@@ -49,6 +49,7 @@ import Dashboard from "./pages/seller/Dashboard";
 import InventoryWithStats from "./pages/seller/InventoryWithStats";
 import SellerAuthModal from "./pages/seller/SellerAuthModal";
 import SellerVerifyEmail from "./pages/seller/SellerVerifyEmail";
+import SellerOrdersPage from "./pages/seller/SellerOrdersPage";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
 
 // SuperAdmin Pages
@@ -366,11 +367,11 @@ function App() {
                   element={<SellerVerifyEmail />}
                 />
 
-                {/* Protected Admin Routes */}
+                {/* Protected Seller/Admin Routes */}
                 <Route
                   path="/seller/*"
                   element={
-                    // <ProtectedRoute>
+                    <ProtectedRoute>
                     <SellerLayout>
                       <Routes>
                         <Route index element={<Dashboard />} />
@@ -380,7 +381,7 @@ function App() {
                         <Route path="settings" element={<SettingsPage />} />
                       </Routes>
                     </SellerLayout>
-                    // </ProtectedRoute>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -415,12 +416,7 @@ function InventoryPage() {
 }
 
 function OrdersPage() {
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Orders</h2>
-      <p className="text-gray-600">Orders management page (coming soon)</p>
-    </div>
-  );
+  return <SellerOrdersPage />;
 }
 
 function SettingsPage() {

@@ -453,7 +453,7 @@ const Dashboard = () => {
                 <p className="text-sm text-gray-400">No recent orders yet.</p>
               </div>
             ) : (
-              recentOrders.slice(0, 5).map((o) => (
+              recentOrders.slice(0, 4).map((o) => (
                 <div key={o.orderId} className="flex items-center justify-between py-2.5">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900">#{o.orderId}</p>
@@ -507,7 +507,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-gray-900">Top Selling Books</h2>
           </div>
-          <div className="flex flex-col gap-4 flex-1 justify-between">
+          <div className="flex flex-col gap-4 flex-1 justify-start">
             {loadingTopBooks ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 animate-pulse">

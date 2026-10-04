@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
-import StatsCards from "../../components/admin/StatsCards";
-import InventoryTable from "../../components/admin/InventoryTable";
-import BookForm from "../../components/admin/BookForm";
+import StatsCards from "../../components/seller/StatsCards";
+import InventoryTable from "../../components/seller/InventoryTable";
+import BookForm from "../../components/seller/BookForm";
 import { adminApi } from "../../services/admin/adminApi";
 import toast from "react-hot-toast";
 

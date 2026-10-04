@@ -199,29 +199,13 @@ const Bestsellers = () => {
     const fetchBestsellers = async () => {
       try {
         setIsLoading(true);
-        let booksArray = [];
-        try {
-          const data = await publicApi.getBestsellers();
-          if (data && Array.isArray(data)) booksArray = data;
-          else if (data && data.success && Array.isArray(data.data)) booksArray = data.data;
-          else if (data && Array.isArray(data.data)) booksArray = data.data;
-        } catch (apiError) {
-          console.warn("⚠️ Bestsellers API not available, falling back:", apiError.message);
-          const allData = await publicApi.getAllBooks();
-          let all = [];
-          if (allData && Array.isArray(allData)) all = allData;
-          else if (allData && allData.success && Array.isArray(allData.data)) all = allData.data;
-          else if (allData && Array.isArray(allData.data)) all = allData.data;
+        const data = await publicApi.getAllBooks();
+        let all = [];
+        if (data && Array.isArray(data)) all = data;
+        else if (data && data.success && Array.isArray(data.data)) all = data.data;
+        else if (data && Array.isArray(data.data)) all = data.data;
 
-          booksArray = all.filter((b) => {
-            const cat = (b.category || "").toLowerCase();
-            const title = (b.bookTitle || "").toLowerCase();
-            return cat.includes("bestseller") || cat.includes("classic") || cat.includes("popular") || title.includes("gatsby") || title.includes("mockingbird");
-          });
-          if (booksArray.length === 0) booksArray = all.slice(0, 8);
-        }
-
-        setBooks(booksArray.map((book) => ({
+        setBooks(all.map((book) => ({
           id: book.bookId || book.id,
           title: book.bookTitle || book.title,
           author: book.authorName || book.author,
@@ -229,7 +213,7 @@ const Bestsellers = () => {
           imageURL: book.imageFileName
             ? `${API_BASE_URL}/public/books/${book.bookId || book.id}/image`
             : book.imageURL || "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
-          badge: book.category || book.badge || "Bestseller",
+          badge: book.category || book.badge || null,
           isbn: book.isbn,
           description: book.description,
           totalStock: book.totalStock,

@@ -82,31 +82,16 @@ const NewArrivals = () => {
     const fetchNewArrivals = async () => {
       try {
         setIsLoading(true);
-        let booksArray = [];
-        try {
-          const data = await publicApi.getNewArrivals();
-          if (data && Array.isArray(data)) booksArray = data;
-          else if (data && data.success && Array.isArray(data.data)) booksArray = data.data;
-          else if (data && Array.isArray(data.data)) booksArray = data.data;
-        } catch (apiError) {
-          console.warn("⚠️ New Arrivals API not available, falling back:", apiError.message);
-          const allData = await publicApi.getAllBooks();
-          let all = [];
-          if (allData && Array.isArray(allData)) all = allData;
-          else if (allData && allData.success && Array.isArray(allData.data)) all = allData.data;
-          else if (allData && Array.isArray(allData.data)) all = allData.data;
+        const data = await publicApi.getAllBooks();
+        let all = [];
+        if (data && Array.isArray(data)) all = data;
+        else if (data && data.success && Array.isArray(data.data)) all = data.data;
+        else if (data && Array.isArray(data.data)) all = data.data;
 
-          booksArray = all.filter((b) => {
-            const cat = (b.category || "").toLowerCase();
-            const title = (b.bookTitle || "").toLowerCase();
-            return cat.includes("new") || cat.includes("arrival") || title.includes("mockingbird") || title.includes("rye");
-          });
-          if (booksArray.length === 0) {
-            booksArray = [...all].sort((a, b) => (b.bookId || b.id) - (a.bookId || a.id)).slice(0, 6);
-          }
-        }
+        // Sort by bookId descending — highest IDs are the most recently added
+        const sorted = [...all].sort((a, b) => (b.bookId || b.id || 0) - (a.bookId || a.id || 0));
 
-        setBooks(booksArray.map((book) => ({
+        setBooks(sorted.map((book) => ({
           id: book.bookId || book.id,
           title: book.bookTitle || book.title,
           author: book.authorName || book.author,
@@ -114,7 +99,7 @@ const NewArrivals = () => {
           imageURL: book.imageFileName
             ? `${API_BASE_URL}/public/books/${book.bookId || book.id}/image`
             : book.imageURL || "https://images.unsplash.com/photo-1543565521-bcf289c60034?w=200&h=300&fit=crop",
-          badge: book.category || book.badge || "New Arrival",
+          badge: book.category || book.badge || null,
           isbn: book.isbn,
           description: book.description,
           totalStock: book.totalStock,

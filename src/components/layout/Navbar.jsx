@@ -103,6 +103,9 @@ const catalogLinks = [
   },
 ];
 
+// motion.create() is the v12+ API — defined outside component so it's stable across renders
+const MotionNavLink = motion.create(NavLink);
+
 const Navbar = () => {
   const { openAuthModal, user, logoutUser } = useAuth();
   const isLoggedIn = !!user;
@@ -132,7 +135,6 @@ const Navbar = () => {
     setShowPincodeModal,
   } = usePincode();
 
-  const MotionNavLink = motion(NavLink);
   const [readingRoomOpen, setReadingRoomOpen] = useState(false);
 
   // Derive selected category directly from the URL — no state sync needed

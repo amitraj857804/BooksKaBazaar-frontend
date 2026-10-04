@@ -83,7 +83,7 @@ const Carousel = ({ isLoading = false }) => {
       }
     },
     {
-      id: "summer_sale",
+      id: "summer_sale_2",
       image: "/summer_sale_banner.png",
       title: "Summer Sale Bestsellers.",
       subtitle: "Up to 50% off on all items.",

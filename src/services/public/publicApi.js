@@ -9,22 +9,6 @@ export const publicApi = {
       throw error;
     }
   },
-  getBestsellers: async () => {
-    try {
-      const response = await axiosInstance.get("/public/books/bestsellers");
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  getNewArrivals: async () => {
-    try {
-      const response = await axiosInstance.get("/public/books/new-arrivals");
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
   getBookById: async (bookId) => {
     try {
       const response = await axiosInstance.get(`/public/books/${bookId}`);

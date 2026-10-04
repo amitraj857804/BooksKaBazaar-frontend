@@ -43,7 +43,7 @@ export const checkoutApi = {
    * @returns {{ success, orders: OrderResponse[], total: number }}
    */
   getOrders: async () => {
-    const response = await axiosInstance.get("/auth/user/checkout/orders");
+    const response = await axiosInstance.get("/auth/user/orders");
     return response.data;
   },
 };

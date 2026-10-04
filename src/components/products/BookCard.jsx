@@ -16,7 +16,7 @@ const BookCard = ({ book, onAddToCart }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, openAuthModal } = useAuth();
-  const { cartItems } = useCart();
+  const { cartItems, addToCart } = useCart();
 
   const [particles, setParticles] = useState([]);
   const { bookshelfItems } = useSelector((state) => state.bookshelf);
@@ -70,10 +70,10 @@ const BookCard = ({ book, onAddToCart }) => {
     if (isInCart) {
       navigate("/cart");
     } else {
-      // Trigger fly-to-cart animation
+      // Trigger fly-to-cart animation (visual only)
       handleFlyToCart(book, buttonRef.current);
-      // Call callback if provided
-      onAddToCart?.(book);
+      // Call the actual cart API (handles both logged-in and guest)
+      addToCart(book);
     }
   };
 

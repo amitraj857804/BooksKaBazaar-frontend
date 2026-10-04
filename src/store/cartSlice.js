@@ -1,6 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
+// Rehydrate guest cart from localStorage on startup
+const loadGuestCart = () => {
+  try {
+    const saved = localStorage.getItem("guestCart");
+    if (saved) return JSON.parse(saved);
+  } catch (_) {}
+  return null;
+};
+
+const savedGuest = loadGuestCart();
+
+const initialState = savedGuest ?? {
   cartItems: [],
   totalQuantity: 0,
   totalAmount: 0,

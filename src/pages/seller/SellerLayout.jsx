@@ -21,7 +21,6 @@ const NAV_LINKS = [
   { name: "Inventory",  icon: BookOpen,        path: "/seller/inventory" },
   { name: "Orders",     icon: Package,          path: "/seller/orders",   badge: 12 },
   { name: "Payouts",    icon: Wallet,           path: "/seller/payouts" },
-  { name: "Messages",   icon: MessageSquare,    path: "/seller/messages", badge: 4  },
   { name: "Reports",    icon: BarChart2,        path: "/seller/reports" },
   { name: "Settings",   icon: Settings,         path: "/seller/settings" },
 ];
@@ -92,7 +91,7 @@ const SellerLayout = ({ children }) => {
                   <button
                     key={link.path}
                     onClick={() => { navigate(link.path); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group relative ${
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all duration-150 group relative ${
                       active
                         ? "bg-red-50 text-red-600"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"

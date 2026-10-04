@@ -170,17 +170,28 @@ const Navbar = () => {
     }
   }, [bookshelfItems?.length]);
 
-  // Sync cart from backend
+  // Sync cart from backend — delayed on login to let guest-cart merge complete first
+  const prevIsLoggedInForSync = useRef(isLoggedIn);
   useEffect(() => {
-    const fetchCart = async () => {
-      if (!isLoggedIn) return;
+    const wasLoggedIn = prevIsLoggedInForSync.current;
+    prevIsLoggedInForSync.current = isLoggedIn;
+
+    if (!isLoggedIn) return;
+
+    // If this is a login transition (was guest → now logged in), wait for the
+    // guest-cart merge in useCart to finish before fetching. Otherwise we'd
+    // overwrite Redux with the pre-merge backend state.
+    const delay = !wasLoggedIn && isLoggedIn ? 1500 : 0;
+
+    const timer = setTimeout(async () => {
       try {
         await syncCart();
       } catch (err) {
         console.warn("⚠️ Central cart fetch failed: ", err.message);
       }
-    };
-    fetchCart();
+    }, delay);
+
+    return () => clearTimeout(timer);
   }, [isLoggedIn, syncCart]);
 
   // Close category popover on outside click (desktop + mobile)
@@ -217,9 +228,12 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Clear cart and bookshelf states on logout
+  // Clear cart and bookshelf states on logout (only when transitioning logged-in → logged-out)
+  const prevIsLoggedInRef = useRef(isLoggedIn);
   useEffect(() => {
-    if (!isLoggedIn) {
+    const wasLoggedIn = prevIsLoggedInRef.current;
+    prevIsLoggedInRef.current = isLoggedIn;
+    if (wasLoggedIn && !isLoggedIn) {
       dispatch(clearCart());
       dispatch(clearBookshelf());
     }
@@ -684,7 +698,7 @@ const Navbar = () => {
                       exit={{ opacity: 0, y: -8, scaleY: 0.92 }}
                       transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                       style={{ transformOrigin: "top" }}
-                      className="absolute right-0 top-full mt-2 w-36 bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1.5 overflow-hidden"
+                      className="absolute right-0 top-full mt-2 w-46 bg-white border border-gray-100 rounded-xl shadow-xl z-50 py-1.5 overflow-hidden"
                     >
                       {!isLoggedIn ? (
                         <>

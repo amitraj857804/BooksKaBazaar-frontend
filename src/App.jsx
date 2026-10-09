@@ -43,7 +43,6 @@ import { Toaster } from "react-hot-toast";
 //Bookshelf pages
 import BookShelf from "./components/Bookshelf/BookShelf";
 
-
 // Seller Pages
 import SellerLayout from "./pages/seller/SellerLayout";
 import Dashboard from "./pages/seller/Dashboard";
@@ -215,35 +214,158 @@ function App() {
                   }
                 />
 
-                <Route path="/faq" element={<><AuthModal /><FAQ /></>} />
+                <Route
+                  path="/faq"
+                  element={
+                    <>
+                      <AuthModal />
+                      <FAQ />
+                    </>
+                  }
+                />
 
                 {/* Connect Page */}
-                <Route path="/connect" element={<><AuthModal /><Connect /></>} />
+                <Route
+                  path="/connect"
+                  element={
+                    <>
+                      <AuthModal />
+                      <Connect />
+                    </>
+                  }
+                />
 
                 {/* Disclaimer Page */}
-                <Route path="/disclaimer" element={<><AuthModal /><Disclaimer /></>} />
+                <Route
+                  path="/disclaimer"
+                  element={
+                    <>
+                      <AuthModal />
+                      <Disclaimer />
+                    </>
+                  }
+                />
 
                 {/* Policy Pages */}
-                <Route path="/terms-conditions" element={<><AuthModal /><TermsConditions /></>} />
-                <Route path="/terms-of-use" element={<><AuthModal /><TermsOfUse /></>} />
-                <Route path="/privacy" element={<><AuthModal /><PrivacyPolicy /></>} />
-                <Route path="/returns" element={<><AuthModal /><ReturnsRefunds /></>} />
-                <Route path="/shipping" element={<><AuthModal /><ShippingPolicy /></>} />
-                <Route path="/seller-terms" element={<><AuthModal /><SellerTerms /></>} />
-                <Route path="/digital-products-policy" element={<><AuthModal /><DigitalProductsPolicy /></>} />
-                <Route path="/ip-policy" element={<><AuthModal /><IPPolicy /></>} />
-                <Route path="/prohibited-items" element={<><AuthModal /><ProhibitedItemsPolicy /></>} />
-                <Route path="/cancellation" element={<><AuthModal /><CancellationPolicy /></>} />
-                <Route path="/payment-policy" element={<><AuthModal /><PaymentPolicy /></>} />
-                <Route path="/grievance" element={<><AuthModal /><GrievancePolicy /></>} />
+                <Route
+                  path="/terms-conditions"
+                  element={
+                    <>
+                      <AuthModal />
+                      <TermsConditions />
+                    </>
+                  }
+                />
+                <Route
+                  path="/terms-of-use"
+                  element={
+                    <>
+                      <AuthModal />
+                      <TermsOfUse />
+                    </>
+                  }
+                />
+                <Route
+                  path="/privacy"
+                  element={
+                    <>
+                      <AuthModal />
+                      <PrivacyPolicy />
+                    </>
+                  }
+                />
+                <Route
+                  path="/returns"
+                  element={
+                    <>
+                      <AuthModal />
+                      <ReturnsRefunds />
+                    </>
+                  }
+                />
+                <Route
+                  path="/shipping"
+                  element={
+                    <>
+                      <AuthModal />
+                      <ShippingPolicy />
+                    </>
+                  }
+                />
+                <Route
+                  path="/seller-terms"
+                  element={
+                    <>
+                      <AuthModal />
+                      <SellerTerms />
+                    </>
+                  }
+                />
+                <Route
+                  path="/digital-products-policy"
+                  element={
+                    <>
+                      <AuthModal />
+                      <DigitalProductsPolicy />
+                    </>
+                  }
+                />
+                <Route
+                  path="/ip-policy"
+                  element={
+                    <>
+                      <AuthModal />
+                      <IPPolicy />
+                    </>
+                  }
+                />
+                <Route
+                  path="/prohibited-items"
+                  element={
+                    <>
+                      <AuthModal />
+                      <ProhibitedItemsPolicy />
+                    </>
+                  }
+                />
+                <Route
+                  path="/cancellation"
+                  element={
+                    <>
+                      <AuthModal />
+                      <CancellationPolicy />
+                    </>
+                  }
+                />
+                <Route
+                  path="/payment-policy"
+                  element={
+                    <>
+                      <AuthModal />
+                      <PaymentPolicy />
+                    </>
+                  }
+                />
+                <Route
+                  path="/grievance"
+                  element={
+                    <>
+                      <AuthModal />
+                      <GrievancePolicy />
+                    </>
+                  }
+                />
 
                 {/* Seller/Admin Landing */}
                 <Route path="/seller" element={<SellerLanding />} />
 
                 {/* Seller Auth Routes */}
-                <Route path="/seller-login"        element={<SellerAuthModal />} />
-                <Route path="/seller-register"     element={<SellerAuthModal />} />
-                <Route path="/seller/verify-email" element={<SellerVerifyEmail />} />
+                <Route path="/seller-login" element={<SellerAuthModal />} />
+                <Route path="/seller-register" element={<SellerAuthModal />} />
+                <Route
+                  path="/seller/verify-email"
+                  element={<SellerVerifyEmail />}
+                />
 
                 {/* Protected Seller/Admin Routes */}
                 <Route
@@ -270,7 +392,10 @@ function App() {
                   element={
                     <SuperAdminProtectedRoute>
                       <Routes>
-                        <Route path="dashboard" element={<SuperAdminDashboard />} />
+                        <Route
+                          path="dashboard"
+                          element={<SuperAdminDashboard />}
+                        />
                         <Route index element={<SuperAdminDashboard />} />
                       </Routes>
                     </SuperAdminProtectedRoute>

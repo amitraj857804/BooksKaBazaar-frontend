@@ -49,20 +49,27 @@ const extractArray = (data) => {
 // ─── Horizontal scrolling book strip ──────────────────────────────────────────
 const HorizontalBookStrip = ({ books, isLoading, badge, badgeColor = "#E31E2E" }) => {
   const stripRef = useRef(null);
-
+  // Scroll by ~2 card widths (190px each)
   const scroll = (dir) => {
-    stripRef.current?.scrollBy({ left: dir * 170, behavior: "smooth" });
+    stripRef.current?.scrollBy({ left: dir * 380, behavior: "smooth" });
   };
 
   if (isLoading) {
     return (
-      <div className="flex gap-3.5 overflow-hidden px-0.5 py-2">
+      <div className="flex gap-4 overflow-hidden py-2">
         {Array(7).fill(null).map((_, i) => (
-          <div key={i} className="flex-shrink-0 w-[132px] sm:w-[150px]">
-            <div className="w-full h-[185px] sm:h-[210px] rounded-2xl bg-gray-100 animate-pulse" />
-            <div className="mt-2.5 h-2.5 w-3/4 bg-gray-100 rounded animate-pulse" />
-            <div className="mt-1.5 h-2.5 w-1/2 bg-gray-100 rounded animate-pulse" />
-            <div className="mt-1.5 h-2.5 w-2/3 bg-gray-100 rounded animate-pulse" />
+          <div key={i} className="flex-shrink-0 w-[160px] sm:w-[175px] bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+            <div className="w-full h-[200px] sm:h-[220px] bg-gray-100 animate-pulse" />
+            <div className="px-2.5 pt-2.5 pb-2.5 flex flex-col gap-1.5">
+              <div className="h-2.5 w-full bg-gray-100 rounded animate-pulse" />
+              <div className="h-2.5 w-3/4 bg-gray-100 rounded animate-pulse" />
+              <div className="h-2 w-1/2 bg-gray-100 rounded animate-pulse" />
+              <div className="h-2 w-2/3 bg-gray-100 rounded animate-pulse" />
+              <div className="flex gap-1.5 mt-1.5">
+                <div className="h-7 w-7 rounded-full bg-gray-100 animate-pulse" />
+                <div className="h-7 flex-1 rounded-lg bg-gray-100 animate-pulse" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -73,30 +80,29 @@ const HorizontalBookStrip = ({ books, isLoading, badge, badgeColor = "#E31E2E" }
     <div className="relative">
       <button
         onClick={() => scroll(-1)}
-        className="absolute -left-4 top-[95px] z-10 w-8 h-8 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50 transition-all cursor-pointer"
+        className="absolute -left-4 top-[160px] z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-all cursor-pointer"
         aria-label="Scroll left"
       >
-        <ChevronLeft size={15} className="text-gray-600" />
+        <ChevronLeft size={16} className="text-gray-600" />
       </button>
 
-      <div ref={stripRef} className="flex gap-3.5 overflow-x-auto scrollbar-hide pb-3 px-0.5">
+      <div ref={stripRef} className="flex gap-2 overflow-x-auto scrollbar-hide pb-3">
         {books.map((book) => (
           <BookCard
             key={book.id}
             book={book}
             badge={badge}
             badgeColor={badgeColor}
-            stripMode
           />
         ))}
       </div>
 
       <button
         onClick={() => scroll(1)}
-        className="absolute -right-4 top-[95px] z-10 w-8 h-8 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50 transition-all cursor-pointer"
+        className="absolute -right-4 top-[160px] z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-all cursor-pointer"
         aria-label="Scroll right"
       >
-        <ChevronRight size={15} className="text-gray-600" />
+        <ChevronRight size={16} className="text-gray-600" />
       </button>
     </div>
   );
@@ -485,40 +491,46 @@ const Home = () => {
         <Carousel isLoading={isLoading} />
 
         {/* 2. Trending This Week */}
-        <section className="py-7 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
+        <section className="py-8 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-1 h-6 rounded-full bg-[#E31E2E] flex-shrink-0" />
-                <h2 className="font-bold text-[16px] sm:text-[18px] text-gray-900 tracking-tight">Trending This Week</h2>
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <div className="w-1 h-6 rounded-sm bg-[#E31E2E] flex-shrink-0" />
+                  <h2 className="font-bold text-[17px] sm:text-[19px] text-gray-900 tracking-tight">Trending This Week</h2>
+                </div>
+                <p className="text-[13px] text-gray-500 ml-3.5">Books readers are picking up the most this week.</p>
               </div>
               <button
                 onClick={() => { window.location.href = "/bestsellers"; window.scrollTo({ top: 0 }); }}
-                className="text-[12px] font-bold text-gray-500 hover:text-[#E31E2E] transition-colors cursor-pointer flex items-center gap-0.5"
+                className="text-[13px] font-bold text-gray-500 hover:text-[#E31E2E] transition-colors cursor-pointer flex items-center gap-0.5 flex-shrink-0 mt-1"
               >
                 View All <ChevronRight size={14} />
               </button>
             </div>
-            <HorizontalBookStrip books={trendingBooks} isLoading={isLoading} badge="TRENDING" badgeColor="#E31E2E" />
+            <HorizontalBookStrip books={trendingBooks} isLoading={isLoading}  badgeColor="#E31E2E" />
           </div>
         </section>
 
         {/* 3. New Arrivals */}
-        <section className="py-7 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100">
+        <section className="py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-1 h-6 rounded-full bg-[#E31E2E] flex-shrink-0" />
-                <h2 className="font-bold text-[16px] sm:text-[18px] text-gray-900 tracking-tight">New Arrivals</h2>
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <div className="w-1 h-6 rounded-sm bg-[#22c55e] flex-shrink-0" />
+                  <h2 className="font-bold text-[17px] sm:text-[19px] text-gray-900 tracking-tight">New Arrivals</h2>
+                </div>
+                <p className="text-[13px] text-gray-500 ml-3.5">Fresh titles added recently — be the first to read them.</p>
               </div>
               <button
                 onClick={() => { window.location.href = "/new-arrivals"; window.scrollTo({ top: 0 }); }}
-                className="text-[12px] font-bold text-gray-500 hover:text-[#E31E2E] transition-colors cursor-pointer flex items-center gap-0.5"
+                className="text-[12px] font-bold text-gray-500 hover:text-[#E31E2E] transition-colors cursor-pointer flex items-center gap-0.5 flex-shrink-0 mt-1"
               >
                 View All <ChevronRight size={14} />
               </button>
             </div>
-            <HorizontalBookStrip books={newArrivals} isLoading={isLoading} badge="NEW" badgeColor="#22c55e" />
+            <HorizontalBookStrip books={newArrivals} isLoading={isLoading}  />
           </div>
         </section>
 
@@ -526,16 +538,19 @@ const Home = () => {
         <CategoriesSection />
 
         {/* 5. Best Sellers */}
-        <section className="py-7 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100">
+        <section className="py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-1 h-6 rounded-full bg-[#E31E2E] flex-shrink-0" />
-                <h2 className="font-bold text-[16px] sm:text-[18px] text-gray-900 tracking-tight">Best Sellers</h2>
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <div className="w-1 h-6 rounded-sm bg-[#E31E2E] flex-shrink-0" />
+                  <h2 className="font-bold text-[17px] sm:text-[19px] text-gray-900 tracking-tight">Best Sellers</h2>
+                </div>
+                <p className="text-[13px] text-gray-500 ml-3.5">Top-rated books loved by thousands of readers.</p>
               </div>
               <button
                 onClick={() => { window.location.href = "/bestsellers"; window.scrollTo({ top: 0 }); }}
-                className="text-[12px] font-bold text-gray-500 hover:text-[#E31E2E] transition-colors cursor-pointer flex items-center gap-0.5"
+                className="text-[12px] font-bold text-gray-500 hover:text-[#E31E2E] transition-colors cursor-pointer flex items-center gap-0.5 flex-shrink-0 mt-1"
               >
                 View All <ChevronRight size={14} />
               </button>

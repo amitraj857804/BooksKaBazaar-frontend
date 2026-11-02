@@ -462,7 +462,7 @@ const Navbar = () => {
             {/* Desktop Search Bar */}
             <div ref={desktopSearchRef} className="hidden lg:flex flex-1 max-w-2xl mx-2 items-start gap-2">
               <div className="relative flex-1">
-                <form onSubmit={handleSearchSubmit} className="flex items-center w-full border border-gray-200 rounded-md shadow-sm bg-white focus-within:border-[#E31E2E] focus-within:ring-1 focus-within:ring-[#E31E2E]/20 transition-all">
+                <form onSubmit={handleSearchSubmit} className="flex items-center w-full border border-gray-200 rounded-md shadow-sm bg-[#f5f0e86e] focus-within:border-[#E31E2E] focus-within:ring-1 focus-within:ring-[#E31E2E]/20 transition-all">
 
                   {/* Search icon */}
                   <div className="pl-3 shrink-0 text-gray-400">

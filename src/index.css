@@ -25,3 +25,49 @@ html {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Subscribe button: gradient + hover shine sweep ── */
+@keyframes shine-sweep {
+  0%   { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateX(260%) skewX(-18deg); opacity: 0; }
+}
+
+.btn-subscribe {
+  position: relative;
+  overflow: hidden;
+  /* Rich red gradient — darker left, brighter centre, slightly deeper right */
+  background: linear-gradient(105deg, #b91c1c 0%, #E31E2E 45%, #c0392b 100%);
+  box-shadow: 0 4px 14px rgba(227, 30, 46, 0.45), 0 1px 3px rgba(0,0,0,0.25);
+  transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.btn-subscribe:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 20px rgba(227, 30, 46, 0.55), 0 2px 6px rgba(0,0,0,0.3);
+}
+.btn-subscribe:active {
+  transform: scale(0.97);
+}
+
+/* The tilted silver sheen stripe */
+.btn-subscribe::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* A slim diagonal silver-white gradient strip */
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.08) 42%,
+    rgba(220,220,240,0.52) 50%,
+    rgba(255,255,255,0.08) 58%,
+    transparent 70%
+  );
+  transform: translateX(-120%) skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.btn-subscribe:hover::after {
+  animation: shine-sweep 0.62s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
